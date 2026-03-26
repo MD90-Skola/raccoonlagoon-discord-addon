@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discord Sender</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <div class="popup">
+
+    <!-- Header med Discord-ikon och titel -->
+    <header class="popup-header">
+      <div class="header-icon" id="headerIcon"></div>
+      <h1>Discord Sender</h1>
+    </header>
+
+    <!-- Webhook URL-inmatning -->
+    <section class="webhook-section">
+      <label for="webhookUrl" class="field-label">Discord Webhook URL</label>
+      <input
+        type="url"
+        id="webhookUrl"
+        placeholder="Klistra in Discord webhook URL"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button id="saveBtn">Spara webhook</button>
+      <p id="saveStatus" class="status" aria-live="polite"></p>
+    </section>
+
+    <!-- Feature-toggles -->
+    <section class="toggles-section">
+      <h2 class="section-title">Funktioner</h2>
+
+      <!-- Images toggle -->
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <span class="label-icon" id="iconImages"></span>
+          <span>Images</span>
+        </div>
+        <label class="toggle" aria-label="Aktivera Images">
+          <input type="checkbox" id="imagesEnabled">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <!-- YouTube toggle -->
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <span class="label-icon" id="iconYoutube"></span>
+          <span>YouTube</span>
+        </div>
+        <label class="toggle" aria-label="Aktivera YouTube">
+          <input type="checkbox" id="youtubeEnabled">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <!-- Instagram toggle -->
+      <div class="toggle-row">
+        <div class="toggle-label">
+          <span class="label-icon" id="iconInstagram"></span>
+          <span>Instagram</span>
+        </div>
+        <label class="toggle" aria-label="Aktivera Instagram">
+          <input type="checkbox" id="instagramEnabled">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- Delade moduler laddas först -->
+  <script src="../components/icons.js"></script>
+  <script src="../components/storage.js"></script>
+  <script src="popup.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Discord Sender",
+  "version": "1.0.0",
+  "description": "Skicka bilder, Instagram-reels och YouTube-videos till Discord via webhook.",
+
+  "permissions": [
+    "storage",
+    "contextMenus"
+  ],
+
+  "host_permissions": [
+    "https://www.instagram.com/*",
+    "https://www.youtube.com/*"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://www.instagram.com/*"],
+      "js": [
+        "components/storage.js",
+        "components/webhook.js",
+        "components/icons.js",
+        "content/instagram-content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": [
+        "components/storage.js",
+        "components/webhook.js",
+        "components/icons.js",
+        "content/youtube-content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "action": {
+    "default_popup": "popup/popup.html"
+  }
+}

@@ -1,0 +1,215 @@
+/* popup.css — Stilar för Discord Sender popup */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  background: #ffffff;
+  color: #1a1a2e;
+  width: 320px;
+  min-height: 100px;
+}
+
+/* ─── Header ────────────────────────────────────────────────────────────── */
+
+.popup-header {
+  background: #5865F2;
+  color: #fff;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.header-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: #fff;
+}
+
+.popup-header h1 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* ─── Webhook-sektion ───────────────────────────────────────────────────── */
+
+.webhook-section {
+  padding: 16px 18px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.webhook-section input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid #e2e2e2;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #333;
+  outline: none;
+  transition: border-color 0.15s;
+  margin-bottom: 10px;
+}
+
+.webhook-section input:focus {
+  border-color: #5865F2;
+}
+
+.webhook-section input::placeholder {
+  color: #bbb;
+}
+
+.webhook-section button {
+  width: 100%;
+  padding: 9px;
+  background: #5865F2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.webhook-section button:hover {
+  background: #4752C4;
+}
+
+.webhook-section button:active {
+  background: #3c45a5;
+}
+
+/* Statusmeddelande under spara-knappen */
+.status {
+  margin-top: 8px;
+  font-size: 12px;
+  min-height: 16px;
+  transition: color 0.15s;
+}
+
+.status.success { color: #2d8a4e; }
+.status.error   { color: #c0392b; }
+
+/* ─── Toggles-sektion ───────────────────────────────────────────────────── */
+
+.toggles-section {
+  padding: 14px 18px 16px;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+/* En rad med ikon + label + toggle */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 0;
+}
+
+.toggle-row + .toggle-row {
+  border-top: 1px solid #f5f5f5;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #333;
+  font-size: 14px;
+  user-select: none;
+}
+
+.label-icon {
+  display: flex;
+  align-items: center;
+  color: #555;
+}
+
+.label-icon svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* ─── Toggle-switch ─────────────────────────────────────────────────────── */
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Göm native checkbox */
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+/* Bakgrundsspåret */
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: #d4d4d4;
+  border-radius: 22px;
+  transition: background 0.2s;
+}
+
+/* Cirkel-tummen */
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Aktivt tillstånd */
+.toggle input:checked + .toggle-track {
+  background: #5865F2;
+}
+
+.toggle input:checked + .toggle-track::after {
+  transform: translateX(18px);
+}
