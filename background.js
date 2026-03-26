@@ -1,38 +1,76 @@
 // background.js — Service worker
 // Hanterar context menu för högerklick på bilder
 
-// Importera delade moduler (storage + webhook)
 importScripts('components/storage.js', 'components/webhook.js');
 
-// ─── Skapa context menu vid installation ────────────────────────────────────
+const MENU_ID = 'send-image-to-discord';
+
+function createMenu() {
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create(
+      {
+        id: MENU_ID,
+        title: 'Skicka till Discord',
+        contexts: ['image']
+      },
+      () => {
+        if (chrome.runtime.lastError) {
+          console.error('[Discord Sender] Kunde inte skapa context menu:', chrome.runtime.lastError.message);
+        } else {
+          console.log('[Discord Sender] Context menu skapad.');
+        }
+      }
+    );
+  });
+}
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: 'send-image-to-discord',
-    title: 'Skicka till Discord',
-    contexts: ['image']
-  });
+  createMenu();
 });
 
-// ─── Hantera klick på context menu ──────────────────────────────────────────
+createMenu();
 
 chrome.contextMenus.onClicked.addListener(async (info) => {
-  if (info.menuItemId !== 'send-image-to-discord') return;
+  if (info.menuItemId !== MENU_ID) return;
+
+  if (!info.srcUrl) {
+    console.warn('[Discord Sender] Ingen bild-URL hittades.');
+    return;
+  }
 
   const settings = await Storage.getAll();
 
-  // Avbryt om Images-toggle är av
   if (!settings.imagesEnabled) {
     console.log('[Discord Sender] Images är inaktiverat.');
     return;
   }
 
-  // Avbryt om ingen webhook är konfigurerad
   if (!settings.webhookUrl) {
-    console.warn('[Discord Sender] Ingen webhook konfigurerad. Öppna tillägget.');
+    console.warn('[Discord Sender] Ingen webhook konfigurerad.');
     return;
   }
 
-  // Skicka bildens URL till Discord
-  await Webhook.send(settings.webhookUrl, info.srcUrl);
+  const imageUrl = info.srcUrl.trim();
+
+  // Stoppa base64/data-urls
+  if (imageUrl.startsWith('data:')) {
+    console.warn('[Discord Sender] Den här bilden använder data-URL och kan inte skickas direkt till Discord.');
+    alert('Den här bilden har ingen vanlig bildlänk. Testa en annan bild.');
+    return;
+  }
+
+  // Stoppa för långa länkar
+  if (imageUrl.length > 1900) {
+    console.warn('[Discord Sender] Bildlänken är för lång för Discord:', imageUrl.length);
+    alert('Bildlänken är för lång för Discord.');
+    return;
+  }
+
+  const result = await Webhook.send(settings.webhookUrl, imageUrl);
+
+  if (!result.success) {
+    console.error('[Discord Sender] Kunde inte skicka bild:', result);
+  } else {
+    console.log('[Discord Sender] Bild skickad.');
+  }
 });
