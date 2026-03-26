@@ -1,91 +1,156 @@
-// content/youtube-content.js — YouTube-komponent
-// Injicerar Discord-knapp i YouTube-spelaren, direkt till höger om klockan
-// Kräver: storage.js, webhook.js, icons.js (laddas i den ordningen via manifest)
+// content/youtube-content.js
+// Lägger Discord-knappen i YouTubes vanliga knapp-rad på watch-sidan
+// Inte i video-spelaren
+// Kräver: Storage, Webhook, Icons
 
 (function () {
+  const BUTTON_ID = 'ds-youtube-page-btn';
+  const STYLE_ID = 'ds-youtube-page-style';
 
-  const BUTTON_ID = 'ds-youtube-btn';
+  function isWatchPage() {
+    return window.location.pathname === '/watch';
+  }
 
-  // ─── CSS ──────────────────────────────────────────────────────────────────
-  // Använder ID-selektor (hög specificitet) för att inte krocka med YouTubes egna stilar
-  // Discord-ikonen är fill-baserad → fill: white, INTE stroke
+  function addStyles() {
+    if (document.getElementById(STYLE_ID)) return;
 
-  const style = document.createElement('style');
-  style.textContent = `
-    #${BUTTON_ID} {
-      background: none !important;
-      border: none !important;
-      cursor: pointer;
-      width: 36px;
-      height: 36px;
-      padding: 0;
-      display: inline-flex !important;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      opacity: 0.9;
-      transition: opacity 0.1s;
-      vertical-align: middle;
-    }
-    #${BUTTON_ID}:hover {
-      opacity: 1;
-    }
-    #${BUTTON_ID} svg {
-      width: 20px;
-      height: 20px;
-      display: block;
-      /* Discord-ikonen är fill-baserad — fill: white för spelarens mörka bakgrund */
-      fill: white;
-      stroke: none;
-    }
-    #${BUTTON_ID}.ds-sent svg {
-      fill: #5865F2;
-    }
-  `;
-  document.head.appendChild(style);
+    const style = document.createElement('style');
+    style.id = STYLE_ID;
+    style.textContent = `
+      #${BUTTON_ID} {
+        margin-left: 8px;
+      }
 
-  // ─── Skapa knapp ──────────────────────────────────────────────────────────
+      #${BUTTON_ID} button {
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      #${BUTTON_ID} .ds-btn-core {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 36px;
+        padding: 0 10px;
+        border-radius: 18px;
+        background: rgba(255,255,255,0.1);
+        color: var(--yt-spec-text-primary, #fff);
+        transition: opacity 0.15s ease, transform 0.15s ease;
+      }
+
+      #${BUTTON_ID} .ds-btn-core:hover {
+        opacity: 0.85;
+      }
+
+      #${BUTTON_ID} .ds-btn-core:active {
+        transform: scale(0.98);
+      }
+
+      #${BUTTON_ID} .ds-btn-icon {
+        width: 20px;
+        height: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: currentColor;
+      }
+
+      #${BUTTON_ID} .ds-btn-icon svg {
+        width: 20px;
+        height: 20px;
+        display: block;
+        fill: currentColor;
+      }
+
+      #${BUTTON_ID}.ds-sent .ds-btn-core {
+        color: #5865F2;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function getButtonRow() {
+    return (
+      document.querySelector('ytd-watch-metadata #top-level-buttons-computed') ||
+      document.querySelector('ytd-menu-renderer #top-level-buttons-computed') ||
+      document.querySelector('#above-the-fold #top-level-buttons-computed')
+    );
+  }
+
+  function getClockAnchor(row) {
+    if (!row) return null;
+
+    const candidates = Array.from(
+      row.querySelectorAll('button, yt-button-shape button, tp-yt-paper-button, ytd-button-renderer')
+    );
+
+    const keywords = [
+      'watch later',
+      'later',
+      'kolla senare',
+      'se senare',
+      'senare',
+      'save',
+      'spara',
+      'playlist'
+    ];
+
+    for (const el of candidates) {
+      const text = (
+        el.getAttribute('aria-label') ||
+        el.getAttribute('title') ||
+        el.textContent ||
+        ''
+      ).toLowerCase();
+
+      if (keywords.some(word => text.includes(word))) {
+        return el.closest('ytd-button-renderer, yt-button-shape, button, div') || el;
+      }
+    }
+
+    return null;
+  }
 
   function createButton() {
-    const btn = document.createElement('button');
-    btn.id = BUTTON_ID;
-    btn.className = 'ytp-button'; // YouTubes egna knappklass för grundstil
-    btn.setAttribute('aria-label', 'Skicka till Discord');
-    btn.title = 'Skicka till Discord';
-    btn.innerHTML = Icons.discord; // Riktig Discord-ikon (SVG, fill-baserad)
+    const wrapper = document.createElement('div');
+    wrapper.id = BUTTON_ID;
 
-    btn.addEventListener('click', async () => {
-      const isOn = await Storage.isEnabled('youtube');
-      if (!isOn) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Skicka till Discord');
+    button.title = 'Skicka till Discord';
+
+    button.innerHTML = `
+      <span class="ds-btn-core">
+        <span class="ds-btn-icon">${Icons.discord}</span>
+      </span>
+    `;
+
+    button.addEventListener('click', async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const enabled = await Storage.isEnabled('youtube');
+      if (!enabled) return;
 
       const webhook = await Storage.getWebhook();
       if (!webhook) {
-        alert('Ingen Discord webhook konfigurerad.\nÖppna tillägget och klistra in din webhook.');
+        alert('Ingen Discord webhook konfigurerad.');
         return;
       }
 
       const result = await Webhook.send(webhook, window.location.href);
-      if (result.success) {
-        btn.classList.add('ds-sent');
-        setTimeout(() => btn.classList.remove('ds-sent'), 2000);
+
+      if (result && result.success) {
+        wrapper.classList.add('ds-sent');
+        setTimeout(() => wrapper.classList.remove('ds-sent'), 1500);
       }
     });
 
-    return btn;
-  }
-
-  // ─── Injicera knapp ───────────────────────────────────────────────────────
-
-  function injectButton() {
-    // Undvik dubbletter
-    if (document.getElementById(BUTTON_ID)) return;
-
-    // Hitta tidsdisplayen (klockan) i spelaren
-    const timeDisplay = document.querySelector('.ytp-time-display');
-    if (!timeDisplay) return;
-
-    // Placera knappen direkt till höger om klockan
-    timeDisplay.insertAdjacentElement('afterend', createButton());
+    wrapper.appendChild(button);
+    return wrapper;
   }
 
   function removeButton() {
@@ -93,80 +158,87 @@
     if (existing) existing.remove();
   }
 
-  // ─── Polling — väntar tills spelaren finns i DOM ──────────────────────────
-  // YouTube renderar spelaren asynkront (kan ta 1–5 sekunder).
-  // Intervall-polling är mer tillförlitlig än rekursiv setTimeout.
+  async function injectButton() {
+    if (!isWatchPage()) {
+      removeButton();
+      return;
+    }
 
-  let pollInterval = null;
+    const enabled = await Storage.isEnabled('youtube');
+    if (!enabled) {
+      removeButton();
+      return;
+    }
 
-  function startPolling() {
-    stopPolling();
+    if (document.getElementById(BUTTON_ID)) return;
 
-    // Bara relevant på videosidor
-    if (!window.location.pathname.startsWith('/watch')) return;
+    const row = getButtonRow();
+    if (!row) return;
 
-    let attempts = 0;
+    const button = createButton();
+    const anchor = getClockAnchor(row);
 
-    pollInterval = setInterval(async () => {
-      attempts++;
-
-      // Klart — knapp finns redan
-      if (document.getElementById(BUTTON_ID)) {
-        stopPolling();
-        return;
-      }
-
-      const enabled = await Storage.isEnabled('youtube');
-
-      // Toggle är av — avsluta polling
-      if (!enabled) {
-        stopPolling();
-        return;
-      }
-
-      // Spelaren finns — injicera knapp
-      if (document.querySelector('.ytp-time-display')) {
-        injectButton();
-        stopPolling();
-        return;
-      }
-
-      // Ge upp efter 20 försök (10 sekunder)
-      if (attempts >= 20) {
-        stopPolling();
-      }
-    }, 500);
-  }
-
-  function stopPolling() {
-    if (pollInterval) {
-      clearInterval(pollInterval);
-      pollInterval = null;
+    if (anchor && anchor.parentNode) {
+      anchor.insertAdjacentElement('afterend', button);
+    } else {
+      row.appendChild(button);
     }
   }
 
-  // ─── YouTube SPA-navigering ───────────────────────────────────────────────
-  // yt-navigate-finish fyrar vid varje sidnavigering (inkl. initial sidladdning)
+  let retryTimer = null;
+  let observer = null;
+
+  function scheduleInject(delay = 250) {
+    clearTimeout(retryTimer);
+    retryTimer = setTimeout(() => {
+      injectButton();
+    }, delay);
+  }
+
+  function startObserver() {
+    if (observer) observer.disconnect();
+
+    observer = new MutationObserver(() => {
+      if (!isWatchPage()) {
+        removeButton();
+        return;
+      }
+
+      if (!document.getElementById(BUTTON_ID)) {
+        scheduleInject(200);
+      }
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  function init() {
+    addStyles();
+    scheduleInject(300);
+    startObserver();
+  }
 
   document.addEventListener('yt-navigate-finish', () => {
-    removeButton();  // Rensa knapp från föregående sida
-    startPolling();  // Starta ny polling för nya sidan
+    removeButton();
+    scheduleInject(500);
   });
-
-  // Fallback för initial laddning om yt-navigate-finish inte hinner
-  startPolling();
-
-  // ─── Realtidsuppdatering vid toggle-ändringar från popup ─────────────────
 
   chrome.storage.onChanged.addListener((changes) => {
     if ('youtubeEnabled' in changes) {
       if (changes.youtubeEnabled.newValue === true) {
-        startPolling();
+        scheduleInject(100);
       } else {
-        stopPolling();
         removeButton();
       }
     }
   });
 
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
