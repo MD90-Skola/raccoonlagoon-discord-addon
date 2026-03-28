@@ -4,38 +4,57 @@
 
 var Storage = {
 
+  // Returnerar false om extension context är ogiltig (t.ex. efter reload)
+  _ok() {
+    try { return !!chrome.runtime?.id; } catch (_) { return false; }
+  },
+
   // Hämta ett eller flera värden
   async get(keys) {
-    return chrome.storage.local.get(keys);
+    if (!this._ok()) return {};
+    try { return await chrome.storage.local.get(keys); } catch (_) { return {}; }
   },
 
   // Spara ett eller flera värden
   async set(data) {
-    return chrome.storage.local.set(data);
+    if (!this._ok()) return;
+    try { await chrome.storage.local.set(data); } catch (_) {}
   },
 
   // Hämta alla relevanta inställningar på en gång
   async getAll() {
-    return chrome.storage.local.get([
-      'webhookUrl',
-      'imagesEnabled',
-      'youtubeEnabled',
-      'instagramEnabled'
-    ]);
+    if (!this._ok()) return {};
+    try {
+      return await chrome.storage.local.get([
+        'webhookUrl',
+        'imagesEnabled',
+        'youtubeEnabled',
+        'youtubeShortsEnabled',
+        'youtubeStreamEnabled',
+        'youtubeZoomEnabled',
+        'instagramEnabled'
+      ]);
+    } catch (_) { return {}; }
   },
 
   // Hämta webhook URL (returnerar null om ej satt)
   async getWebhook() {
-    const data = await chrome.storage.local.get('webhookUrl');
-    return data.webhookUrl || null;
+    if (!this._ok()) return null;
+    try {
+      const data = await chrome.storage.local.get('webhookUrl');
+      return data.webhookUrl || null;
+    } catch (_) { return null; }
   },
 
   // Kolla om en specifik feature är aktiverad
   // Exempel: Storage.isEnabled('youtube') => läser 'youtubeEnabled'
   async isEnabled(feature) {
+    if (!this._ok()) return false;
     const key = feature + 'Enabled';
-    const data = await chrome.storage.local.get(key);
-    return data[key] === true;
+    try {
+      const data = await chrome.storage.local.get(key);
+      return data[key] === true;
+    } catch (_) { return false; }
   }
 
 };

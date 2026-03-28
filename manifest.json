@@ -1,12 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "Discord Sender",
-  "version": "1.0.0",
-  "description": "Skicka bilder, Instagram-reels och YouTube-videos till Discord via webhook.",
+  "name": "RaccoonLagoon",
+  "version": "2.0.0",
+  "description": "Skicka bilder och videos till Discord via webhook.",
 
   "permissions": [
     "storage",
-    "contextMenus"
+    "contextMenus",
+    "sidePanel",
+    "tabs"
   ],
 
   "host_permissions": [
@@ -35,13 +37,28 @@
         "components/storage.js",
         "components/webhook.js",
         "components/icons.js",
-        "content/youtube-content.js"
+        "content/youtube-content.js",
+        "content/youtube-stream.js",
+        "content/youtube-zoom.js"
       ],
       "run_at": "document_idle"
     }
   ],
 
+  "side_panel": {
+    "default_path": "sidepanel/sidepanel.html"
+  },
+
   "action": {
-    "default_popup": "popup/popup.html"
+    "default_title": "RaccoonLagoon"
+  },
+
+  "commands": {
+    "open-side-panel": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Y"
+      },
+      "description": "Öppna RaccoonLagoon side panel"
+    }
   }
 }
