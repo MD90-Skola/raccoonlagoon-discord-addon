@@ -380,24 +380,29 @@ window.addEventListener('unhandledrejection', (e) => {
 
   function startObserver() {
     if (observer) observer.disconnect();
-
     observer = new MutationObserver(() => {
-      if (!isContextValid()) { observer.disconnect(); return; }
-
-      // Rensa om vi lämnat sidan
+      if (!isContextValid()) { teardown(); return; }
       if (!isWatchPage())  removeBtn(WATCH_BTN_ID);
-      if (!isShortsPage()) removeBtn(SHORTS_BTN_ID);
-
-      // Försök injicera om knappen saknas
-      if (isWatchPage()  && !document.getElementById(WATCH_BTN_ID))  scheduleInject(200);
+      if (!isShortsPage()) { removeBtn(SHORTS_BTN_ID); removeBtn(SHORTS_PLAY_BTN_ID); }
+      if (isWatchPage()  && !document.getElementById(WATCH_BTN_ID))       scheduleInject(200);
       if (isShortsPage() && !document.getElementById(SHORTS_BTN_ID))      scheduleInject(200);
       if (isShortsPage() && !document.getElementById(SHORTS_PLAY_BTN_ID)) scheduleInject(200);
     });
-
     observer.observe(document.body, { childList: true, subtree: true });
   }
 
-  // ─── Navigation (YouTube är en SPA) ────────────────────────────────────
+  // ─── Teardown — kills EVERYTHING ─────────────────────────────────────────
+  function teardown() {
+    observer?.disconnect();
+    observer = null;
+    clearTimeout(retryTimer);
+    retryTimer = null;
+    removeBtn(WATCH_BTN_ID);
+    removeBtn(SHORTS_BTN_ID);
+    removeBtn(SHORTS_PLAY_BTN_ID);
+  }
+
+  // ─── Navigation (YouTube är en SPA) ──────────────────────────────────────
   document.addEventListener('yt-navigate-finish', () => {
     removeBtn(WATCH_BTN_ID);
     removeBtn(SHORTS_BTN_ID);
@@ -405,34 +410,51 @@ window.addEventListener('unhandledrejection', (e) => {
     scheduleInject(500);
   });
 
-  // ─── Reagera på toggle-ändringar i inställningar ────────────────────────
-  chrome.storage.onChanged.addListener((changes) => {
-    if ('youtubeEnabled' in changes) {
-      changes.youtubeEnabled.newValue === true
-        ? scheduleInject(100)
-        : removeBtn(WATCH_BTN_ID);
-    }
-    if ('youtubeShortsEnabled' in changes) {
-      if (changes.youtubeShortsEnabled.newValue === true) {
-        scheduleInject(100);
+  // ─── Reagera på toggle-ändringar i inställningar ─────────────────────────
+  chrome.storage.onChanged.addListener(async (changes) => {
+    if (!isContextValid()) return;
+
+    // Global kill switch
+    if ('globalEnabled' in changes) {
+      if (changes.globalEnabled.newValue === false) {
+        teardown();
       } else {
-        removeBtn(SHORTS_BTN_ID);
-        removeBtn(SHORTS_PLAY_BTN_ID);
+        init();
+      }
+      return;
+    }
+
+    const ytOn     = await Storage.isEnabled('youtube');
+    const shortsOn = await Storage.isEnabled('youtubeShorts');
+
+    if ('youtubeEnabled' in changes || 'youtubeShortsEnabled' in changes) {
+      if (!ytOn && !shortsOn) {
+        teardown(); // both off — full stop
+      } else {
+        // Re-inject only what's enabled, observer keeps running
+        if (!ytOn)     removeBtn(WATCH_BTN_ID);
+        if (!shortsOn) { removeBtn(SHORTS_BTN_ID); removeBtn(SHORTS_PLAY_BTN_ID); }
+        scheduleInject(100);
+        if (!observer) startObserver();
       }
     }
   });
 
   // ─── Init ────────────────────────────────────────────────────────────────
-  function init() {
+  async function init() {
+    if (!isContextValid()) return;
+    const ytOn     = await Storage.isEnabled('youtube');
+    const shortsOn = await Storage.isEnabled('youtubeShorts');
+    if (!ytOn && !shortsOn) return;
     addStyles();
     scheduleInject(300);
     startObserver();
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => init().catch(() => {}));
   } else {
-    init();
+    init().catch(() => {});
   }
 
 })();

@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RaccoonLagoon</title>
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/notes.css" />
+  <link rel="stylesheet" href="css/settings.css" />
+  <link rel="stylesheet" href="../video-recorder/recorder.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TOPBAR
+  ════════════════════════════════════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      <img class="logo-raccoon" src="../icon.png" alt="RaccoonLagoon" />
+      <span class="logo-text">RaccoonLagoon</span>
+    </div>
+    <div class="topbar-badge" id="connectionBadge">
+      <span class="badge-dot"></span>
+      <span class="badge-label">Ready</span>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TAB BAR
+  ════════════════════════════════════════════════════════════════════ -->
+  <nav class="tab-bar">
+    <button class="tab-btn active" data-tab="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </button>
+    <button class="tab-btn" data-tab="notes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Notes
+    </button>
+    <button class="tab-btn" data-tab="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       CONTENT AREA
+  ════════════════════════════════════════════════════════════════════ -->
+  <main class="content">
+
+    <!-- ─── HOME TAB ──────────────────────────────────────────────── -->
+    <section id="tab-home" class="tab-pane active">
+
+      <!-- Drop Zone med lila glow -->
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-glow"></div>
+        <div class="drop-zone-inner">
+          <div class="drop-icon">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="12" width="56" height="40" rx="6" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4"/>
+              <circle cx="22" cy="28" r="5" stroke="currentColor" stroke-width="2"/>
+              <path d="M4 44 L18 30 L30 42 L42 28 L60 44" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M32 20 L32 8 M28 12 L32 8 L36 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <p class="drop-title">Drop anything here</p>
+          <p class="drop-hint">Image, URL or text &nbsp;&middot;&nbsp; <kbd>Ctrl+V</kbd> to paste</p>
+          <p class="drop-limit">Images max 9.9 MB &mdash; Discord limit</p>
+          <input type="file" id="fileInput" accept="image/*" hidden />
+          <button class="btn-ghost" id="browseBtn">Browse image</button>
+        </div>
+      </div>
+
+      <!-- Preview (dold tills payload laddas) -->
+      <div class="preview-area" id="previewArea" hidden>
+
+        <!-- Bild-preview -->
+        <div class="preview-card" id="previewCardImage" hidden>
+          <img id="previewImg" src="" alt="preview" />
+          <div class="preview-meta">
+            <span class="preview-name" id="previewName"></span>
+            <span class="preview-size" id="previewSize"></span>
+          </div>
+          <button class="btn-remove" id="removeFileBtn" title="Remove">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Text/URL-preview -->
+        <div class="preview-card preview-card--text" id="previewCardText" hidden>
+          <div class="preview-text-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+          </div>
+          <div class="preview-meta">
+            <span class="preview-text-label">Text / URL</span>
+            <span class="preview-text-content" id="previewTextContent"></span>
+          </div>
+          <button class="btn-remove" id="removeTextBtn" title="Remove">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Send button -->
+      <button class="btn-primary btn-send" id="sendBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+        Send to Discord
+      </button>
+
+      <!-- Status feedback -->
+      <div class="status-bar" id="homeStatus"></div>
+
+      <!-- Record Clip -->
+      <div class="card" id="recorderCard">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></svg>
+          Record Clip
+        </label>
+
+        <!-- IDLE -->
+        <div id="recIdle">
+          <div class="seg-group" id="recSourceGroup">
+            <button class="seg-btn active" data-value="tab">This tab</button>
+            <button class="seg-btn" data-value="pick">Pick window</button>
+          </div>
+          <div class="rec-start-row">
+            <button class="btn-primary" id="recStartBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></svg>
+              Start Recording
+            </button>
+            <button class="btn-ghost rec-delay-btn" id="recDelayBtn">+5 sec</button>
+          </div>
+        </div>
+
+        <!-- COUNTDOWN -->
+        <div id="recCountdown" hidden>
+          <div class="rec-countdown-display">
+            <span class="rec-countdown-num" id="recCountdownNum">5</span>
+            <span class="rec-countdown-label">Starting in…</span>
+          </div>
+          <button class="btn-ghost rec-cancel-delay-btn" id="recCancelDelayBtn">Cancel</button>
+        </div>
+
+        <!-- LIVE -->
+        <div id="recLive" hidden>
+          <div class="rec-live-bar">
+            <span class="rec-dot"></span>
+            <span class="rec-timer" id="recTimer">00:00</span>
+            <span class="rec-live-size" id="recLiveSize">0 KB</span>
+          </div>
+          <button class="btn-primary btn-rec-stop" id="recStopBtn" style="margin-top:6px">
+            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+            Stop Recording
+          </button>
+        </div>
+
+        <!-- PREVIEW -->
+        <div id="recPreview" hidden>
+          <!-- Inline video player -->
+          <div class="rec-player">
+            <!-- Video + crop overlay -->
+            <div class="rec-video-area">
+              <video id="recVideo" class="rec-video" preload="metadata"></video>
+              <div class="rec-crop-overlay" id="recCropOverlay">
+                <div class="rec-crop-mask" id="recCropMaskT"></div>
+                <div class="rec-crop-mask" id="recCropMaskB"></div>
+                <div class="rec-crop-mask" id="recCropMaskL"></div>
+                <div class="rec-crop-mask" id="recCropMaskR"></div>
+                <div class="rec-crop-border" id="recCropBorder"></div>
+              </div>
+            </div>
+            <div class="rec-player-controls">
+              <!-- A/B trim bar -->
+              <div class="rec-trim-wrap" id="recTrimWrap">
+                <div class="rec-trim-track" id="recTrimTrack"></div>
+                <div class="rec-playhead"   id="recPlayhead"></div>
+                <input type="range" class="rec-trim-handle" id="recTrimA" min="0" max="1000" step="1" value="0"    />
+                <input type="range" class="rec-trim-handle" id="recTrimB" min="0" max="1000" step="1" value="1000" />
+              </div>
+              <!-- A / B time labels -->
+              <div class="rec-trim-labels">
+                <span id="recTrimALabel">0:00</span>
+                <span id="recTrimBLabel">—</span>
+              </div>
+              <!-- Controls row -->
+              <div class="rec-player-row">
+                <button class="rec-ctrl-btn" id="recPlayBtn" title="Play / Pause">
+                  <svg id="recPlayIcon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <svg id="recPauseIcon" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+                </button>
+                <span class="rec-player-time" id="recVideoTime">0:00 / 0:00</span>
+                <button class="rec-ctrl-btn" id="recMuteBtn" title="Mute / Unmute">
+                  <svg id="recSoundIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                  <svg id="recMuteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                </button>
+              </div>
+              <!-- Crop bars -->
+              <div class="rec-ctrl-separator"></div>
+              <div class="rec-crop-row">
+                <span class="rec-crop-label">W</span>
+                <div class="rec-trim-wrap" id="recCropXWrap">
+                  <div class="rec-trim-track" id="recCropXTrack"></div>
+                  <input type="range" class="rec-trim-handle" id="recCropLSlider" min="0" max="1000" step="1" value="0"    />
+                  <input type="range" class="rec-trim-handle" id="recCropRSlider" min="0" max="1000" step="1" value="1000" />
+                </div>
+              </div>
+              <div class="rec-crop-row">
+                <span class="rec-crop-label">H</span>
+                <div class="rec-trim-wrap" id="recCropYWrap">
+                  <div class="rec-trim-track" id="recCropYTrack"></div>
+                  <input type="range" class="rec-trim-handle" id="recCropTSlider" min="0" max="1000" step="1" value="0"    />
+                  <input type="range" class="rec-trim-handle" id="recCropBSlider" min="0" max="1000" step="1" value="1000" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- File info + discard -->
+          <div class="rec-preview-card">
+            <div class="rec-preview-info">
+              <span class="rec-preview-name" id="recFileName">clip.webm</span>
+              <span class="rec-preview-size" id="recFileSize">—</span>
+            </div>
+            <button class="btn-remove" id="recDiscardBtn" title="Discard">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="rec-preview-actions" style="margin-top:8px">
+            <button class="btn-ghost" id="recDownloadBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download
+            </button>
+            <button class="btn-primary" id="recSendBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Discord
+            </button>
+          </div>
+          <!-- Processing progress bar -->
+          <div class="rec-process-wrap" id="recProcessWrap" hidden>
+            <div class="rec-process-bar" id="recProcessBar"></div>
+          </div>
+        </div>
+
+        <div class="status-bar" id="recStatus"></div>
+      </div>
+
+      <!-- Spell Check -->
+      <div class="card" id="spellCard">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+          Spell Check
+        </label>
+        <textarea class="tool-input" id="spellInput" placeholder="Type or paste text to spell-check…" rows="3"></textarea>
+        <div class="tool-result" id="spellResult" hidden>
+          <span class="tool-result-label">Corrected</span>
+          <div class="tool-result-body">
+            <span class="tool-result-text" id="spellResultText"></span>
+            <button class="btn-copy" id="spellCopyBtn">Copy</button>
+          </div>
+        </div>
+        <div class="tool-status" id="spellStatus"></div>
+      </div>
+
+      <!-- Translate to English -->
+      <div class="card" id="translateCard">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
+          Translate to English
+        </label>
+        <textarea class="tool-input" id="translateInput" placeholder="Type or paste text to translate…" rows="3"></textarea>
+        <div class="tool-result" id="translateResult" hidden>
+          <span class="tool-result-label">Translation</span>
+          <div class="tool-result-body">
+            <span class="tool-result-text" id="translateResultText"></span>
+            <button class="btn-copy" id="translateCopyBtn">Copy</button>
+          </div>
+        </div>
+        <div class="tool-status" id="translateStatus"></div>
+      </div>
+
+      <!-- Smart Box: Spell Check + Translate -->
+      <div class="card" id="smartCard">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Smart Box
+        </label>
+        <textarea class="tool-input" id="smartInput" placeholder="Type anything — spell check + translation appear below…" rows="3"></textarea>
+        <div class="tool-result" id="smartSpellResult" hidden>
+          <span class="tool-result-label">Spell Checked</span>
+          <div class="tool-result-body">
+            <span class="tool-result-text" id="smartSpellText"></span>
+            <button class="btn-copy" id="smartSpellCopy">Copy</button>
+          </div>
+        </div>
+        <div class="tool-result" id="smartTranslateResult" hidden>
+          <span class="tool-result-label">Translated to English</span>
+          <div class="tool-result-body">
+            <span class="tool-result-text" id="smartTranslateText"></span>
+            <button class="btn-copy" id="smartTranslateCopy">Copy</button>
+          </div>
+        </div>
+        <div class="tool-status" id="smartStatus"></div>
+      </div>
+
+    </section>
+
+    <!-- ─── NOTES TAB ─────────────────────────────────────────────── -->
+    <section id="tab-notes" class="tab-pane" hidden>
+
+      <!-- Anteckningar -->
+      <div class="card">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Notes
+        </label>
+        <textarea class="notes-textarea" id="notesText" placeholder="Write your notes here..."></textarea>
+        <button class="btn-primary" id="saveNotesBtn">Save notes</button>
+        <div class="status-bar" id="notesStatus"></div>
+      </div>
+
+      <!-- Checklista -->
+      <div class="card">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Checklist
+        </label>
+        <div class="checklist-add">
+          <input type="text" class="text-input" id="checklistInput" placeholder="Add item..." />
+          <button class="btn-add" id="addChecklistBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+        </div>
+        <ul class="checklist" id="checklistItems"></ul>
+      </div>
+
+    </section>
+
+    <!-- ─── SETTINGS TAB ──────────────────────────────────────────── -->
+    <section id="tab-settings" class="tab-pane" hidden>
+
+      <!-- Search -->
+      <div class="settings-search">
+        <svg class="settings-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="settingsSearch" class="settings-search-input" placeholder="Search settings…" autocomplete="off" />
+        <button class="settings-search-clear" id="settingsSearchClear" hidden aria-label="Clear search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="settings-no-results" id="settingsNoResults">No settings found</div>
+
+      <!-- Kill Switch -->
+      <div class="card">
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Extension Active</span>
+            <span class="toggle-desc">Stäng av — inga knappar eller features injiceras på några sidor</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="globalEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Home Tab Toggles -->
+      <div class="card">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Home Tab
+        </label>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Drop Zone</span>
+            <span class="toggle-desc">Show the drag & drop / send area</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="dropZoneEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Spell Check</span>
+            <span class="toggle-desc">Auto-correct text via LanguageTool</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="spellCheckEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Translate</span>
+            <span class="toggle-desc">Translate any text to English</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="translateEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Smart Box</span>
+            <span class="toggle-desc">One input — spell check + translate at once</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="smartBoxEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Feature Toggles -->
+      <div class="card">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="5" width="22" height="14" rx="7"/><circle cx="8" cy="12" r="3" fill="currentColor"/></svg>
+          Features
+        </label>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Images</span>
+            <span class="toggle-desc">Send images via right-click menu</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="imagesEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Instagram</span>
+            <span class="toggle-desc">Send button on feed posts</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="instagramEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Instagram Reels</span>
+            <span class="toggle-desc">Send button on Reels</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="instagramReelsEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- YouTube -->
+      <div class="card">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.5v-7.3l8.1 3.7-8.1 3.6z"/></svg>
+          YouTube
+        </label>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">YouTube</span>
+            <span class="toggle-desc">Discord-knapp på watch-sidan</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="youtubeEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Shorts</span>
+            <span class="toggle-desc">Discord-knapp i Shorts action-bar</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="youtubeShortsEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Stream mode</span>
+            <span class="toggle-desc">Döljer allt utom videon</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="youtubeStreamEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Zoom & Pan</span>
+            <span class="toggle-desc">Alt+scroll zoomar, Alt+drag panorerar</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="youtubeZoomEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+
+      </div>
+
+      <!-- Autoscroller -->
+      <div class="card">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
+          Autoscroller
+        </label>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">YouTube Shorts</span>
+            <span class="toggle-desc">Auto-scroll to next Short when video ends</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="youtubeShortAutoscrollEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Instagram</span>
+            <span class="toggle-desc">Auto-scroll to next Reel when video ends</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="instagramAutoscrollEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Recorder -->
+      <div class="card">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></svg>
+          Recorder
+        </label>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Recorder</span>
+            <span class="toggle-desc">Visa inspelningskortet på Home-tabben</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="recorderEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="rec-setting-row">
+          <span class="rec-setting-label">Size limit</span>
+          <div class="seg-group" id="recSizeLimit">
+            <button class="seg-btn active" data-value="10">10 MB</button>
+            <button class="seg-btn" data-value="50">50 MB</button>
+            <button class="seg-btn" data-value="100">100 MB</button>
+          </div>
+        </div>
+
+        <div class="rec-setting-row">
+          <span class="rec-setting-label">Format</span>
+          <div class="seg-group" id="recFormat">
+            <button class="seg-btn active" data-value="webm">WebM</button>
+            <button class="seg-btn" data-value="mp4">MP4</button>
+            <button class="seg-btn seg-disabled" data-value="gif" title="Coming soon">GIF</button>
+          </div>
+        </div>
+
+        <div class="rec-setting-row">
+          <span class="rec-setting-label">Audio</span>
+          <div class="seg-group" id="recAudio">
+            <button class="seg-btn active" data-value="tab">Tab</button>
+            <button class="seg-btn" data-value="mic">Mic</button>
+            <button class="seg-btn" data-value="both">Both</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Update -->
+      <div class="card">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Updates
+        </label>
+        <div class="update-version">
+          Version <span id="currentVersion">—</span>
+        </div>
+        <button class="btn-primary" id="checkUpdateBtn">Check for updates</button>
+        <div class="status-bar" id="updateStatus"></div>
+      </div>
+
+      <!-- Webhook URL -->
+      <div class="card">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Discord Webhook URL
+        </label>
+        <input type="url" class="text-input" id="webhookUrl" placeholder="https://discord.com/api/webhooks/..." />
+        <button class="btn-primary" id="saveWebhookBtn">Save webhook</button>
+        <div class="status-bar" id="settingsStatus"></div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Storage-modulen laddas först så sidepanel.js kan använda Storage-objektet -->
+  <script src="../components/storage.js"></script>
+  <script type="module" src="sidepanel.js"></script>
+
+</body>
+</html>

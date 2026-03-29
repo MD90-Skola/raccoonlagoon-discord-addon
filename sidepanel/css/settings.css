@@ -1,0 +1,149 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   settings.css — Text input, toggle rows, toggle switch, update card
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Settings Search ────────────────────────────────────────────────────── */
+.settings-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0 0 12px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 12px);
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.settings-search:focus-within {
+  border-color: var(--purple-border);
+  box-shadow: 0 0 0 3px var(--purple-glow);
+}
+
+.settings-search-icon {
+  position: absolute;
+  left: 11px;
+  width: 15px;
+  height: 15px;
+  color: var(--text-muted);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.settings-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  padding: 10px 36px 10px 34px;
+}
+
+.settings-search-input::placeholder { color: var(--text-muted); }
+
+.settings-search-clear {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: var(--text-muted);
+  transition: background var(--t-fast), color var(--t-fast);
+  padding: 0;
+}
+
+.settings-search-clear:hover { background: var(--bg-hover); color: var(--text-primary); }
+.settings-search-clear svg   { width: 12px; height: 12px; }
+
+/* No-results message */
+.settings-no-results {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 24px 0 8px;
+  display: none;
+}
+.settings-no-results.visible { display: block; }
+
+/* ─── Text Input ─────────────────────────────────────────────────────────── */
+.text-input {
+  flex: 1;
+  width: 100%;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-family: inherit;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.text-input:focus       { border-color: var(--purple-border); box-shadow: 0 0 0 3px var(--purple-glow); }
+.text-input::placeholder { color: var(--text-muted); font-size: 12px; }
+
+/* ─── Toggle Row ─────────────────────────────────────────────────────────── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.toggle-row:last-of-type  { border-bottom: none; padding-bottom: 0; }
+.toggle-row:first-of-type { padding-top: 0; }
+
+.toggle-info  { display: flex; flex-direction: column; gap: 2px; }
+.toggle-label { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.toggle-desc  { font-size: 11px; color: var(--text-muted); }
+
+/* ─── Toggle Switch ──────────────────────────────────────────────────────── */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 24px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  transition: background var(--t-normal), border-color var(--t-normal), box-shadow var(--t-normal);
+}
+
+.slider::before {
+  content: '';
+  position: absolute;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  top: 2.5px;
+  left: 3px;
+  transition: transform var(--t-normal) var(--ease), background var(--t-normal);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.toggle-switch input:checked + .slider          { background: rgba(139, 92, 246, 0.20); border-color: var(--purple); box-shadow: 0 0 10px var(--purple-glow-md); }
+.toggle-switch input:checked + .slider::before  { transform: translateX(18px); background: var(--purple); }
+
+/* ─── Update card ────────────────────────────────────────────────────────── */
+.update-version      { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+.update-version span { color: var(--text-secondary); font-weight: 600; }

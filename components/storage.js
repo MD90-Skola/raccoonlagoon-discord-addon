@@ -39,7 +39,9 @@ var Storage = {
         'translateEnabled',
         'smartBoxEnabled',
         'youtubeShortAutoscrollEnabled',
-        'instagramAutoscrollEnabled'
+        'instagramAutoscrollEnabled',
+        'globalEnabled',
+        'recorderEnabled'
       ]);
     } catch (_) { return {}; }
   },
@@ -59,7 +61,8 @@ var Storage = {
     if (!this._ok()) return false;
     const key = feature + 'Enabled';
     try {
-      const data = await chrome.storage.local.get(key);
+      const data = await chrome.storage.local.get([key, 'globalEnabled']);
+      if (data.globalEnabled === false) return false; // global kill switch
       return data[key] === true;
     } catch (_) { return false; }
   }

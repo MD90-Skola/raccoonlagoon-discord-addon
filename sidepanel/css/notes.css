@@ -1,0 +1,79 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   notes.css — Notes textarea and checklist
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.notes-textarea {
+  width: 100%;
+  min-height: 130px;
+  resize: vertical;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  padding: 11px 13px;
+  outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  line-height: 1.65;
+}
+
+.notes-textarea:focus          { border-color: var(--purple-border); box-shadow: 0 0 0 3px var(--purple-glow); }
+.notes-textarea::placeholder   { color: var(--text-muted); }
+
+/* ─── Checklist ──────────────────────────────────────────────────────────── */
+.checklist-add { display: flex; gap: 8px; }
+
+.checklist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+
+.checklist-item:hover { background: var(--bg-hover); border-color: var(--border); }
+
+.checklist-item input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--purple);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.checklist-item-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-primary);
+  transition: color var(--t-fast), text-decoration var(--t-fast);
+}
+
+.checklist-item.checked .checklist-item-text { text-decoration: line-through; color: var(--text-muted); }
+
+.checklist-item-del {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 3px;
+  border-radius: var(--radius-xs);
+  line-height: 0;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity var(--t-fast), color var(--t-fast), background var(--t-fast);
+}
+
+.checklist-item:hover .checklist-item-del { opacity: 1; }
+.checklist-item-del:hover                 { color: var(--red); background: rgba(239, 68, 68, 0.10); }
+.checklist-item-del svg                   { width: 12px; height: 12px; }

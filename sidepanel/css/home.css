@@ -1,0 +1,227 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   home.css — Drop zone, preview cards, send button
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Drop Zone ──────────────────────────────────────────────────────────── */
+.drop-zone {
+  position: relative;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--bg-card);
+  padding: 32px 20px 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--t-normal) var(--ease), background var(--t-normal) var(--ease), box-shadow var(--t-normal) var(--ease);
+  overflow: hidden;
+}
+
+.drop-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 90%, var(--purple-glow) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--t-normal) var(--ease);
+}
+
+.drop-zone:hover .drop-glow,
+.drop-zone.drag-over .drop-glow { opacity: 1; }
+
+.drop-zone:hover {
+  border-color: var(--purple-border);
+  background: rgba(139, 92, 246, 0.04);
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.12), 0 4px 32px var(--purple-glow);
+}
+
+.drop-zone.drag-over {
+  border-color: var(--purple);
+  border-style: solid;
+  background: rgba(139, 92, 246, 0.07);
+  box-shadow: 0 0 0 2px var(--purple), 0 0 0 5px rgba(139, 92, 246, 0.15), 0 8px 40px var(--purple-glow-strong);
+}
+
+.drop-zone-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  position: relative;
+  z-index: 1;
+}
+
+.drop-icon {
+  width: 56px;
+  height: 56px;
+  color: var(--purple);
+  opacity: 0.6;
+  margin-bottom: 4px;
+  transition: opacity var(--t-normal), transform var(--t-normal);
+}
+
+.drop-zone:hover .drop-icon,
+.drop-zone.drag-over .drop-icon { opacity: 1; transform: scale(1.05); }
+
+.drop-icon svg  { width: 100%; height: 100%; }
+.drop-title     { font-size: 14.5px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.2px; }
+.drop-hint      { font-size: 12.5px; color: var(--text-secondary); }
+.drop-limit     { font-size: 11px; color: var(--text-muted); }
+
+kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: inherit;
+  color: var(--purple-light);
+  font-weight: 600;
+}
+
+/* ─── Preview ────────────────────────────────────────────────────────────── */
+.preview-area { animation: fadeUp var(--t-normal) var(--ease) both; }
+
+.preview-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  position: relative;
+}
+
+.preview-card img {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg-base);
+}
+
+.preview-meta   { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.preview-name   { font-size: 12.5px; font-weight: 600; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.preview-size   { font-size: 11px; color: var(--text-secondary); }
+
+.preview-card--text {
+  border-color: rgba(139, 92, 246, 0.25);
+  background: rgba(139, 92, 246, 0.06);
+}
+
+.preview-text-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--purple-light);
+  opacity: 0.8;
+}
+
+.preview-text-icon svg    { width: 100%; height: 100%; }
+.preview-text-label       { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--purple-light); opacity: 0.7; }
+.preview-text-content     { font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+
+.btn-remove {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-xs);
+  line-height: 0;
+  transition: color var(--t-fast), background var(--t-fast);
+}
+
+.btn-remove:hover { color: var(--red); background: rgba(239, 68, 68, 0.12); }
+.btn-remove svg   { width: 13px; height: 13px; }
+
+/* Send button spacing */
+.btn-send { margin-top: 2px; }
+
+/* ─── Tool Cards (spell check / translate) ───────────────────────────────── */
+.tool-input {
+  width: 100%;
+  min-height: 72px;
+  resize: vertical;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  line-height: 1.6;
+}
+
+.tool-input:focus        { border-color: var(--purple-border); box-shadow: 0 0 0 3px var(--purple-glow); }
+.tool-input::placeholder { color: var(--text-muted); }
+
+.tool-result {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.20);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+
+.tool-result-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--purple-light);
+  opacity: 0.7;
+}
+
+.tool-result-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.tool-result-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.btn-copy {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 3px 9px;
+  border-radius: var(--radius-xs);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1.6;
+  transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+}
+
+.btn-copy:hover { border-color: var(--purple-border); color: var(--purple-light); background: var(--purple-glow); }
+
+.tool-status {
+  min-height: 14px;
+  font-size: 11.5px;
+  color: transparent;
+  transition: color var(--t-fast);
+}
+
+.tool-status.success { color: var(--green); }
+.tool-status.error   { color: var(--red); }
+.tool-status.info    { color: var(--purple-light); }

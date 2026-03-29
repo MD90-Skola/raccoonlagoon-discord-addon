@@ -1,0 +1,470 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   recorder.css — Styles for recorder settings tab + home card
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Segmented button group ─────────────────────────────────────────────── */
+.seg-group {
+  display: flex;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 2px;
+}
+
+.seg-btn {
+  flex: 1;
+  padding: 6px 4px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
+  white-space: nowrap;
+}
+
+.seg-btn:hover:not(.seg-disabled):not(.active) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.seg-btn.active {
+  background: var(--purple);
+  color: #fff;
+  box-shadow: 0 1px 6px var(--purple-glow-md);
+}
+
+.seg-btn.seg-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ─── Recorder settings rows ─────────────────────────────────────────────── */
+.rec-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rec-setting-label {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  min-width: 56px;
+}
+
+/* ─── Source picker (home card) ──────────────────────────────────────────── */
+#recSourceGroup {
+  margin-bottom: 2px;
+}
+
+/* ─── Start row (Start Recording + +5 sec) ───────────────────────────────── */
+.rec-start-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  margin-top: 6px;
+}
+
+.rec-start-row .btn-primary {
+  flex: 1;
+}
+
+.rec-delay-btn {
+  margin-top: 0 !important;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ─── Countdown ──────────────────────────────────────────────────────────── */
+.rec-countdown-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 18px 12px 14px;
+  background: rgba(139, 92, 246, 0.07);
+  border: 1px solid var(--purple-border);
+  border-radius: var(--radius-md);
+}
+
+.rec-countdown-num {
+  font-size: 52px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--purple-light);
+  font-variant-numeric: tabular-nums;
+  animation: countPulse 1s ease infinite;
+}
+
+.rec-countdown-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+}
+
+.rec-cancel-delay-btn {
+  margin-top: 0 !important;
+  width: 100%;
+  text-align: center;
+}
+
+@keyframes countPulse {
+  0%, 100% { opacity: 1;    transform: scale(1); }
+  50%       { opacity: 0.7; transform: scale(0.94); }
+}
+
+/* ─── Live recording bar ─────────────────────────────────────────────────── */
+.rec-live-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.07);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  border-radius: var(--radius-md);
+}
+
+.rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+  animation: blink 1s ease infinite;
+}
+
+.rec-timer {
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+
+.rec-live-size {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+/* ─── Stop button ────────────────────────────────────────────────────────── */
+.btn-rec-stop {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+}
+
+.btn-rec-stop:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.4), 0 4px 20px rgba(239, 68, 68, 0.3) !important;
+}
+
+/* ─── Preview card ───────────────────────────────────────────────────────── */
+.rec-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  position: relative;
+}
+
+.rec-preview-icon {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: var(--radius-sm);
+  color: var(--purple-light);
+}
+
+.rec-preview-icon svg { width: 18px; height: 18px; }
+
+.rec-preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rec-preview-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rec-preview-size {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* ─── Inline video player ────────────────────────────────────────────────── */
+.rec-player {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #000;
+  margin-bottom: 8px;
+}
+
+/* Wrapper so the crop overlay is relative to the video area only */
+.rec-video-area {
+  position: relative;
+  line-height: 0;
+}
+
+.rec-video {
+  width: 100%;
+  max-height: 178px;
+  object-fit: contain;
+  display: block;
+}
+
+/* ─── Crop overlay ───────────────────────────────────────────────────────── */
+.rec-crop-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.rec-crop-mask {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.rec-crop-border {
+  position: absolute;
+  border: 1.5px solid rgba(139, 92, 246, 0.9);
+  box-sizing: border-box;
+  display: none;
+}
+
+/* ─── Crop bars (inside player-controls) ────────────────────────────────── */
+.rec-ctrl-separator {
+  height: 1px;
+  background: var(--border);
+  margin: 6px -10px 4px;
+}
+
+.rec-crop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.rec-crop-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  width: 12px;
+  flex-shrink: 0;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+/* Crop bars are narrower than the trim bar */
+.rec-crop-row .rec-trim-wrap {
+  flex: 1;
+  height: 20px;
+  margin-bottom: 0;
+}
+
+.rec-player-controls {
+  background: var(--bg-raised);
+  border-top: 1px solid var(--border);
+  padding: 6px 10px 8px;
+}
+
+/* ─── A/B Trim bar ───────────────────────────────────────────────────────── */
+.rec-trim-wrap {
+  position: relative;
+  height: 24px;
+  margin-bottom: 2px;
+}
+
+.rec-trim-track {
+  position: absolute;
+  top: 50%;
+  left: 7px;
+  right: 7px;
+  height: 5px;
+  transform: translateY(-50%);
+  border-radius: 3px;
+  background: rgba(255,255,255,0.08); /* overridden by JS gradient */
+  cursor: pointer;
+}
+
+/* White playhead line */
+.rec-playhead {
+  position: absolute;
+  top: 50%;
+  width: 2px;
+  height: 16px;
+  transform: translate(-50%, -50%);
+  background: rgba(255,255,255,0.9);
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 6;
+}
+
+/* Both handle inputs are overlaid — only thumbs get pointer events */
+.rec-trim-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  pointer-events: none;
+  outline: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rec-trim-handle::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: all;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--purple);
+  border: 2px solid var(--bg-surface, #14141f);
+  cursor: grab;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.35);
+  transition: box-shadow var(--t-fast);
+}
+
+.rec-trim-handle::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.5);
+}
+
+.rec-trim-handle::-moz-range-thumb {
+  pointer-events: all;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--purple);
+  border: 2px solid var(--bg-surface, #14141f);
+  cursor: grab;
+}
+
+#recTrimA { z-index: 4; }
+#recTrimB { z-index: 5; }
+
+/* Time labels under the trim bar */
+.rec-trim-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
+  padding: 0 1px;
+}
+
+.rec-player-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rec-ctrl-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 3px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: color var(--t-fast), background var(--t-fast);
+}
+
+.rec-ctrl-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.rec-ctrl-btn svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.rec-player-time {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+}
+
+/* ─── Preview action buttons ─────────────────────────────────────────────── */
+.rec-preview-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.rec-preview-actions .btn-ghost {
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 12px;
+  padding: 9px 8px;
+}
+
+.rec-preview-actions .btn-primary {
+  font-size: 12px;
+  padding: 9px 8px;
+  gap: 5px;
+}
+
+.rec-preview-actions svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+/* ─── Processing progress bar ────────────────────────────────────────────── */
+.rec-process-wrap {
+  height: 4px;
+  background: var(--bg-hover);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.rec-process-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--purple), var(--purple-light));
+  border-radius: 2px;
+  transition: width 0.12s linear;
+}
