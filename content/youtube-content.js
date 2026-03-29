@@ -10,9 +10,10 @@ window.addEventListener('unhandledrejection', (e) => {
 });
 
 (function () {
-  const WATCH_BTN_ID  = 'ds-youtube-page-btn';
-  const SHORTS_BTN_ID = 'ds-youtube-shorts-btn';
-  const STYLE_ID      = 'ds-youtube-page-style';
+  const WATCH_BTN_ID       = 'ds-youtube-page-btn';
+  const SHORTS_BTN_ID      = 'ds-youtube-shorts-btn';
+  const SHORTS_PLAY_BTN_ID = 'ds-youtube-shorts-play-btn';
+  const STYLE_ID           = 'ds-youtube-page-style';
 
   // ─── URL-helpers ────────────────────────────────────────────────────────
   function isWatchPage()  { return window.location.pathname === '/watch'; }
@@ -101,6 +102,48 @@ window.addEventListener('unhandledrejection', (e) => {
       #${SHORTS_BTN_ID}.ds-sent button        { background: rgba(88,101,242,0.35); }
       #${SHORTS_BTN_ID}.ds-sent .ds-shorts-icon svg { fill: #5865F2; }
       #${SHORTS_BTN_ID}.ds-sent .ds-shorts-label   { color: #5865F2; }
+
+      /* ════ Shorts play button ════════════════════════════════════════ */
+      #${SHORTS_PLAY_BTN_ID} {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        margin: 4px 0;
+      }
+
+      #${SHORTS_PLAY_BTN_ID} button {
+        border: 0;
+        cursor: pointer;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s ease, transform 0.15s ease;
+      }
+      #${SHORTS_PLAY_BTN_ID} button:hover  { background: rgba(255,255,255,0.22); }
+      #${SHORTS_PLAY_BTN_ID} button:active { transform: scale(0.93); }
+
+      #${SHORTS_PLAY_BTN_ID} .ds-shorts-icon svg {
+        width: 22px; height: 22px;
+        display: block; fill: #fff;
+      }
+
+      #${SHORTS_PLAY_BTN_ID} .ds-shorts-label {
+        font-size: 12px;
+        color: rgba(255,255,255,0.9);
+        font-family: 'Roboto', sans-serif;
+        font-weight: 500;
+        user-select: none;
+      }
+
+      /* Active = autoscroll on */
+      #${SHORTS_PLAY_BTN_ID}.ds-play-active button              { background: rgba(139,92,246,0.40); }
+      #${SHORTS_PLAY_BTN_ID}.ds-play-active .ds-shorts-icon svg { fill: #a78bfa; }
+      #${SHORTS_PLAY_BTN_ID}.ds-play-active .ds-shorts-label    { color: #a78bfa; }
     `;
     document.head.appendChild(style);
   }
@@ -248,6 +291,66 @@ window.addEventListener('unhandledrejection', (e) => {
     bar.appendChild(createShortsButton());
   }
 
+  function getShortsVideoId() {
+    const m = window.location.pathname.match(/\/shorts\/([^/?#]+)/);
+    return m ? m[1] : null;
+  }
+
+  function setPlayBtnState(wrapper, isActive) {
+    wrapper.classList.toggle('ds-play-active', isActive);
+    wrapper.querySelector('.ds-shorts-label').textContent = isActive ? 'Auto ✓' : 'Auto';
+  }
+
+  function createShortsPlayButton() {
+    const wrapper = document.createElement('div');
+    wrapper.id = SHORTS_PLAY_BTN_ID;
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.setAttribute('aria-label', 'Toggle autoscroll');
+    button.title = 'Toggle autoscroll';
+    button.innerHTML = `
+      <span class="ds-shorts-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+      </span>`;
+
+    button.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const current = await Storage.isEnabled('youtubeShortAutoscroll');
+      const next = !current;
+      await Storage.set({ youtubeShortAutoscrollEnabled: next });
+      setPlayBtnState(wrapper, next);
+    });
+
+    const label = document.createElement('span');
+    label.className   = 'ds-shorts-label';
+    label.textContent = 'Auto';
+
+    wrapper.appendChild(button);
+    wrapper.appendChild(label);
+    return wrapper;
+  }
+
+  async function injectShortsPlayButton() {
+    if (!isShortsPage()) { removeBtn(SHORTS_PLAY_BTN_ID); return; }
+    const enabled = await Storage.isEnabled('youtubeShorts');  // same toggle as Discord btn
+    if (!enabled)        { removeBtn(SHORTS_PLAY_BTN_ID); return; }
+    if (document.getElementById(SHORTS_PLAY_BTN_ID)) return;
+
+    const bar = getShortsActionBar();
+    if (!bar) return;
+
+    const wrapper = createShortsPlayButton();
+    bar.appendChild(wrapper);
+
+    // Set initial visual state from storage
+    const autoOn = await Storage.isEnabled('youtubeShortAutoscroll');
+    setPlayBtnState(wrapper, autoOn);
+  }
+
   // ═══════════════════════════════════════════════════════════════════════
   // SHARED HELPERS
   // ═══════════════════════════════════════════════════════════════════════
@@ -271,6 +374,7 @@ window.addEventListener('unhandledrejection', (e) => {
       if (!isContextValid()) return;
       injectWatchButton().catch(() => {});
       injectShortsButton().catch(() => {});
+      injectShortsPlayButton().catch(() => {});
     }, delay);
   }
 
@@ -286,7 +390,8 @@ window.addEventListener('unhandledrejection', (e) => {
 
       // Försök injicera om knappen saknas
       if (isWatchPage()  && !document.getElementById(WATCH_BTN_ID))  scheduleInject(200);
-      if (isShortsPage() && !document.getElementById(SHORTS_BTN_ID)) scheduleInject(200);
+      if (isShortsPage() && !document.getElementById(SHORTS_BTN_ID))      scheduleInject(200);
+      if (isShortsPage() && !document.getElementById(SHORTS_PLAY_BTN_ID)) scheduleInject(200);
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
@@ -296,6 +401,7 @@ window.addEventListener('unhandledrejection', (e) => {
   document.addEventListener('yt-navigate-finish', () => {
     removeBtn(WATCH_BTN_ID);
     removeBtn(SHORTS_BTN_ID);
+    removeBtn(SHORTS_PLAY_BTN_ID);
     scheduleInject(500);
   });
 
@@ -307,9 +413,12 @@ window.addEventListener('unhandledrejection', (e) => {
         : removeBtn(WATCH_BTN_ID);
     }
     if ('youtubeShortsEnabled' in changes) {
-      changes.youtubeShortsEnabled.newValue === true
-        ? scheduleInject(100)
-        : removeBtn(SHORTS_BTN_ID);
+      if (changes.youtubeShortsEnabled.newValue === true) {
+        scheduleInject(100);
+      } else {
+        removeBtn(SHORTS_BTN_ID);
+        removeBtn(SHORTS_PLAY_BTN_ID);
+      }
     }
   });
 

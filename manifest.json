@@ -13,7 +13,10 @@
 
   "host_permissions": [
     "https://www.instagram.com/*",
-    "https://www.youtube.com/*"
+    "https://www.youtube.com/*",
+    "https://raw.githubusercontent.com/*",
+    "https://api.languagetool.org/*",
+    "https://translate.googleapis.com/*"
   ],
 
   "background": {
@@ -27,7 +30,8 @@
         "components/storage.js",
         "components/webhook.js",
         "components/icons.js",
-        "content/instagram-content.js"
+        "content/instagram-content.js",
+        "content/instagram-autoscroll.js"
       ],
       "run_at": "document_idle"
     },
@@ -39,7 +43,8 @@
         "components/icons.js",
         "content/youtube-content.js",
         "content/youtube-stream.js",
-        "content/youtube-zoom.js"
+        "content/youtube-zoom.js",
+        "content/youtube-autoscroll.js"
       ],
       "run_at": "document_idle"
     }
@@ -49,8 +54,21 @@
     "default_path": "sidepanel/sidepanel.html"
   },
 
+  "icons": {
+    "16":  "icon.png",
+    "32":  "icon.png",
+    "48":  "icon.png",
+    "128": "icon.png"
+  },
+
   "action": {
-    "default_title": "RaccoonLagoon"
+    "default_title": "RaccoonLagoon",
+    "default_icon": {
+      "16":  "icon.png",
+      "32":  "icon.png",
+      "48":  "icon.png",
+      "128": "icon.png"
+    }
   },
 
   "commands": {

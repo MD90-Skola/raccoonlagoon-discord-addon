@@ -119,10 +119,76 @@
     leftGroup.appendChild(btn);
   }
 
+  // ─── Reel-knapp (Reels-fliken, vertikal action-bar) ─────────────────────
+
+  function addReelButton(article) {
+    if (article.querySelector('.ds-discord-reel-btn')) return;
+
+    const reelUrl = (function () {
+      // Försök hitta reel-länk i artikeln
+      const a = article.querySelector('a[href*="/reel/"]');
+      if (a) return a.href.startsWith('http') ? a.href : 'https://www.instagram.com' + a.getAttribute('href');
+      // Fallback: aktuell URL
+      if (window.location.href.includes('/reel/') || window.location.pathname.startsWith('/reels')) {
+        return window.location.href;
+      }
+      return null;
+    })();
+
+    if (!reelUrl) return;
+
+    // Hitta den vertikala action-kolumnen (like/comment-knapparna på högersidan)
+    const actionGroup =
+      article.querySelector('section') ||
+      article.querySelector('[role="group"]') ||
+      article.querySelector('div[class*="action"]');
+
+    if (!actionGroup) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'ds-discord-btn ds-discord-reel-btn';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Skicka Reel till Discord');
+    btn.title = 'Skicka Reel till Discord';
+    btn.innerHTML = Icons.discord;
+
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+
+      const isOn = await Storage.isEnabled('instagramReels');
+      if (!isOn) return;
+
+      const webhook = await Storage.getWebhook();
+      if (!webhook) {
+        alert('Ingen Discord webhook konfigurerad.\nÖppna tillägget och klistra in din webhook.');
+        return;
+      }
+
+      const result = await Webhook.send(webhook, convertUrl(reelUrl));
+      if (result.success) {
+        btn.classList.add('ds-sent');
+        setTimeout(() => btn.classList.remove('ds-sent'), 2000);
+      }
+    });
+
+    // Lägg knappen sist i action-gruppen
+    actionGroup.appendChild(btn);
+  }
+
   // ─── Hjälpfunktioner ─────────────────────────────────────────────────────
+
+  function isOnReelsPage() {
+    const p = window.location.pathname;
+    return p.startsWith('/reels') || p.includes('/reel/');
+  }
 
   function scanPosts() {
     document.querySelectorAll('article').forEach(addButton);
+  }
+
+  function scanReels() {
+    document.querySelectorAll('article').forEach(addReelButton);
   }
 
   function removeAllButtons() {
@@ -132,9 +198,11 @@
   // ─── Init ─────────────────────────────────────────────────────────────────
 
   async function init() {
-    const enabled = await Storage.isEnabled('instagram');
-    if (enabled) scanPosts();
-    else removeAllButtons();
+    const feedOn  = await Storage.isEnabled('instagram');
+    const reelsOn = await Storage.isEnabled('instagramReels');
+    if (feedOn)  scanPosts();
+    if (reelsOn) scanReels();
+    if (!feedOn && !reelsOn) removeAllButtons();
   }
 
   init();
@@ -145,7 +213,11 @@
   const observer = new MutationObserver(() => {
     clearTimeout(scanTimer);
     scanTimer = setTimeout(async () => {
-      if (await Storage.isEnabled('instagram')) scanPosts();
+      // Disconnect while scanning so our own DOM changes don't re-trigger the observer
+      observer.disconnect();
+      if (await Storage.isEnabled('instagram'))      scanPosts();
+      if (await Storage.isEnabled('instagramReels')) scanReels();
+      observer.observe(document.body, { childList: true, subtree: true });
     }, 400);
   });
 
@@ -153,9 +225,13 @@
 
   // ─── Realtidsuppdatering vid toggle-ändringar från popup ─────────────────
 
-  chrome.storage.onChanged.addListener((changes) => {
+  chrome.storage.onChanged.addListener(async (changes) => {
     if ('instagramEnabled' in changes) {
       changes.instagramEnabled.newValue ? scanPosts() : removeAllButtons();
+    }
+    if ('instagramReelsEnabled' in changes) {
+      if (changes.instagramReelsEnabled.newValue) scanReels();
+      else document.querySelectorAll('.ds-discord-reel-btn').forEach(b => b.remove());
     }
   });
 

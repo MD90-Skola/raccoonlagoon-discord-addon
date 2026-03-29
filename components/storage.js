@@ -32,7 +32,14 @@ var Storage = {
         'youtubeShortsEnabled',
         'youtubeStreamEnabled',
         'youtubeZoomEnabled',
-        'instagramEnabled'
+        'instagramEnabled',
+        'instagramReelsEnabled',
+        'dropZoneEnabled',
+        'spellCheckEnabled',
+        'translateEnabled',
+        'smartBoxEnabled',
+        'youtubeShortAutoscrollEnabled',
+        'instagramAutoscrollEnabled'
       ]);
     } catch (_) { return {}; }
   },
