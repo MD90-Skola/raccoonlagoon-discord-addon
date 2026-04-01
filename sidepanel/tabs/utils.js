@@ -3,6 +3,7 @@
 export function setBadge(state) {
   const dot   = document.querySelector('.badge-dot');
   const label = document.querySelector('.badge-label');
+  if (!dot || !label) return;
   dot.className = 'badge-dot ' + (state || '');
   const labels = { ready: 'Ready', sending: 'Sending...', sent: 'Sent!', error: 'Error', '': 'Ready' };
   label.textContent = labels[state] ?? 'Ready';

@@ -26,6 +26,7 @@ var Storage = {
     if (!this._ok()) return {};
     try {
       return await chrome.storage.local.get([
+        'webhooks',
         'webhookUrl',
         'imagesEnabled',
         'youtubeEnabled',
@@ -40,17 +41,22 @@ var Storage = {
         'smartBoxEnabled',
         'youtubeShortAutoscrollEnabled',
         'instagramAutoscrollEnabled',
+        'facebookReelsEnabled',
         'globalEnabled',
         'recorderEnabled'
       ]);
     } catch (_) { return {}; }
   },
 
-  // Hämta webhook URL (returnerar null om ej satt)
+  // Hämta webhook URL — returnerar första aktiverade webhook, eller null
   async getWebhook() {
     if (!this._ok()) return null;
     try {
-      const data = await chrome.storage.local.get('webhookUrl');
+      const data = await chrome.storage.local.get(['webhooks', 'webhookUrl']);
+      if (Array.isArray(data.webhooks) && data.webhooks.length) {
+        const found = data.webhooks.find(w => w.enabled !== false && w.url);
+        if (found) return found.url;
+      }
       return data.webhookUrl || null;
     } catch (_) { return null; }
   },

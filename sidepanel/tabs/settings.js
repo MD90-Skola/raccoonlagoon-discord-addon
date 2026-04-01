@@ -5,6 +5,130 @@ import { showStatus } from './utils.js';
 const REMOTE_MANIFEST = 'https://raw.githubusercontent.com/MD90-Skola/raccoonlagoon-discord-addon/master/manifest.json';
 const REPO_URL        = 'https://github.com/MD90-Skola/raccoonlagoon-discord-addon';
 
+// ─── Webhook state ────────────────────────────────────────────────────────────
+let webhooks = [];
+
+function isValidWebhookUrl(url) {
+  return url.startsWith('https://discord.com/api/webhooks/') ||
+         url.startsWith('https://discordapp.com/api/webhooks/') ||
+         url.startsWith('https://ptb.discord.com/api/webhooks/') ||
+         url.startsWith('https://canary.discord.com/api/webhooks/');
+}
+
+async function saveWebhooks() {
+  await Storage.set({ webhooks });
+}
+
+function buildWebhookEntry(wh) {
+  const el = document.createElement('div');
+  el.className = 'webhook-entry';
+  el.dataset.id = wh.id;
+
+  el.innerHTML = `
+    <div class="wh-top-row">
+      <label class="toggle-switch">
+        <input type="checkbox" class="wh-toggle" ${wh.enabled !== false ? 'checked' : ''} />
+        <span class="slider"></span>
+      </label>
+      <button class="btn-remove wh-remove" title="Ta bort">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="wh-field-row">
+      <span class="wh-field-label">Namn</span>
+      <input type="text" class="text-input wh-name" placeholder="Server namn" />
+    </div>
+    <div class="wh-field-row">
+      <span class="wh-field-label">Channel</span>
+      <input type="text" class="text-input wh-channel" placeholder="#kanal" />
+    </div>
+    <div class="wh-field-row">
+      <span class="wh-field-label">Key</span>
+      <div class="wh-key-wrap">
+        <input type="password" class="text-input wh-url" placeholder="https://discord.com/api/webhooks/..." autocomplete="off" />
+        <button class="wh-eye-btn" type="button" title="Visa / dölj">
+          <svg class="eye-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="eye-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="wh-actions-row">
+      <button class="btn-primary wh-save-btn">Spara</button>
+    </div>
+  `;
+
+  // Sätt värden säkert (undviker HTML-injection via value-property)
+  el.querySelector('.wh-name').value    = wh.name    || '';
+  el.querySelector('.wh-channel').value = wh.channel || '';
+  el.querySelector('.wh-url').value     = wh.url     || '';
+
+  // Toggle enabled/disabled
+  el.querySelector('.wh-toggle').addEventListener('change', async e => {
+    wh.enabled = e.target.checked;
+    await saveWebhooks();
+  });
+
+  // Ta bort
+  el.querySelector('.wh-remove').addEventListener('click', async () => {
+    webhooks = webhooks.filter(w => w.id !== wh.id);
+    await saveWebhooks();
+    el.remove();
+  });
+
+  // Visa/dölj key
+  const urlInput = el.querySelector('.wh-url');
+  el.querySelector('.wh-eye-btn').addEventListener('click', () => {
+    const show = urlInput.type === 'password';
+    urlInput.type = show ? 'text' : 'password';
+    el.querySelector('.eye-show').hidden = show;
+    el.querySelector('.eye-hide').hidden = !show;
+  });
+
+  // Spara
+  el.querySelector('.wh-save-btn').addEventListener('click', async () => {
+    const url      = urlInput.value.trim();
+    const statusEl = document.getElementById('settingsStatus');
+    if (!url)                    { showStatus(statusEl, 'Ange en webhook URL.', 'error'); return; }
+    if (!isValidWebhookUrl(url)) { showStatus(statusEl, 'Ogiltig Discord webhook URL.', 'error'); return; }
+    wh.name    = el.querySelector('.wh-name').value.trim();
+    wh.channel = el.querySelector('.wh-channel').value.trim();
+    wh.url     = url;
+    await saveWebhooks();
+    showStatus(statusEl, 'Webhook sparad.', 'success');
+  });
+
+  return el;
+}
+
+function renderWebhooks() {
+  const list = document.getElementById('webhookList');
+  list.innerHTML = '';
+  webhooks.forEach(wh => list.appendChild(buildWebhookEntry(wh)));
+}
+
+async function loadWebhooks() {
+  const data = await Storage.get(['webhooks', 'webhookUrl']);
+  if (Array.isArray(data.webhooks)) {
+    webhooks = data.webhooks;
+  } else if (data.webhookUrl) {
+    // Migration från gammal enskild webhook
+    webhooks = [{ id: Date.now().toString(36), name: '', channel: '', url: data.webhookUrl, enabled: true }];
+    await Storage.set({ webhooks });
+  } else {
+    webhooks = [];
+  }
+  renderWebhooks();
+}
+
+function addNewWebhook() {
+  const wh = { id: Date.now().toString(36), name: '', channel: '', url: '', enabled: true };
+  webhooks.push(wh);
+  const el = buildWebhookEntry(wh);
+  document.getElementById('webhookList').appendChild(el);
+  el.querySelector('.wh-name').focus();
+}
+
+// ─── Search ───────────────────────────────────────────────────────────────────
 function initSettingsSearch() {
   const input     = document.getElementById('settingsSearch');
   const clearBtn  = document.getElementById('settingsSearchClear');
@@ -65,9 +189,6 @@ function initSettingsSearch() {
 }
 
 export function initSettings() {
-  const webhookInput    = document.getElementById('webhookUrl');
-  const saveWebhookBtn  = document.getElementById('saveWebhookBtn');
-  const settingsStatus  = document.getElementById('settingsStatus');
   const imgToggle         = document.getElementById('imagesEnabled');
   const ytToggle          = document.getElementById('youtubeEnabled');
   const ytShortsToggle    = document.getElementById('youtubeShortsEnabled');
@@ -75,6 +196,7 @@ export function initSettings() {
   const ytZoomToggle      = document.getElementById('youtubeZoomEnabled');
   const igToggle          = document.getElementById('instagramEnabled');
   const igReelsToggle     = document.getElementById('instagramReelsEnabled');
+  const fbReelsToggle     = document.getElementById('facebookReelsEnabled');
   const dropZoneToggle    = document.getElementById('dropZoneEnabled');
   const spellCheckToggle  = document.getElementById('spellCheckEnabled');
   const translateToggle   = document.getElementById('translateEnabled');
@@ -93,23 +215,13 @@ export function initSettings() {
   // ─── Visa nuvarande version ──────────────────────────────────────────────
   currentVersionEl.textContent = `v${chrome.runtime.getManifest().version}`;
 
-  // ─── Spara webhook ────────────────────────────────────────────────────────
-  saveWebhookBtn.addEventListener('click', async () => {
-    const url = webhookInput.value.trim();
-    if (!url) { showStatus(settingsStatus, 'Enter a webhook URL.', 'error'); return; }
-    const valid =
-      url.startsWith('https://discord.com/api/webhooks/') ||
-      url.startsWith('https://discordapp.com/api/webhooks/') ||
-      url.startsWith('https://ptb.discord.com/api/webhooks/') ||
-      url.startsWith('https://canary.discord.com/api/webhooks/');
-    if (!valid) { showStatus(settingsStatus, 'Invalid Discord webhook URL.', 'error'); return; }
-    await Storage.set({ webhookUrl: url });
-    showStatus(settingsStatus, 'Webhook saved!', 'success');
-  });
+  // ─── Webhooks ─────────────────────────────────────────────────────────────
+  loadWebhooks();
+  document.getElementById('addWebhookBtn').addEventListener('click', addNewWebhook);
 
   // ─── Kill switch helpers ──────────────────────────────────────────────────
   function featureCheckboxes() {
-    return document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled)');
+    return document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle)');
   }
 
   function applyKillSwitch(globalOn) {
@@ -134,6 +246,7 @@ export function initSettings() {
   ytZoomToggle.addEventListener('change',      () => Storage.set({ youtubeZoomEnabled:    ytZoomToggle.checked      }));
   igToggle.addEventListener('change',         () => Storage.set({ instagramEnabled:      igToggle.checked      }));
   igReelsToggle.addEventListener('change',    () => Storage.set({ instagramReelsEnabled: igReelsToggle.checked }));
+  fbReelsToggle.addEventListener('change',    () => Storage.set({ facebookReelsEnabled:  fbReelsToggle.checked }));
   dropZoneToggle.addEventListener('change',   () => Storage.set({ dropZoneEnabled:      dropZoneToggle.checked   }));
   spellCheckToggle.addEventListener('change', () => Storage.set({ spellCheckEnabled:    spellCheckToggle.checked }));
   translateToggle.addEventListener('change',  () => Storage.set({ translateEnabled:     translateToggle.checked  }));
@@ -177,21 +290,19 @@ export function initSettings() {
 
 export async function loadSettings() {
   const s = await Storage.getAll();
-  const webhookInput = document.getElementById('webhookUrl');
-  if (s.webhookUrl) webhookInput.value = s.webhookUrl;
 
   const globalOn = s.globalEnabled !== false; // default ON
   document.getElementById('globalEnabled').checked = globalOn;
 
-  // If kill switch is OFF: show all feature toggles as disabled+unchecked
+  // Om kill switch är AV: visa alla feature-toggles som disabled+unchecked
   if (!globalOn) {
-    document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled)')
+    document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle)')
       .forEach(t => { t.checked = false; t.disabled = true; });
     return;
   }
 
-  // Kill switch is ON — restore actual values and ensure toggles are interactive
-  document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled)')
+  // Kill switch är PÅ — återställ faktiska värden
+  document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle)')
     .forEach(t => { t.disabled = false; });
 
   document.getElementById('recorderEnabled').checked = s.recorderEnabled !== false; // default ON
@@ -202,6 +313,7 @@ export async function loadSettings() {
   document.getElementById('youtubeZoomEnabled').checked        = s.youtubeZoomEnabled        === true;
   document.getElementById('instagramEnabled').checked      = s.instagramEnabled      === true;
   document.getElementById('instagramReelsEnabled').checked = s.instagramReelsEnabled === true;
+  document.getElementById('facebookReelsEnabled').checked  = s.facebookReelsEnabled  === true;
   document.getElementById('dropZoneEnabled').checked      = s.dropZoneEnabled      !== false;
   document.getElementById('spellCheckEnabled').checked    = s.spellCheckEnabled    !== false;
   document.getElementById('translateEnabled').checked     = s.translateEnabled     !== false;

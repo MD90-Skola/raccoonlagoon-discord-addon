@@ -15,7 +15,7 @@
   <!-- ═══════════════════════════════════════════════════════════════════
        TOPBAR
   ════════════════════════════════════════════════════════════════════ -->
-  <header class="topbar">
+<!--  <header class="topbar">
     <div class="topbar-logo">
       <img class="logo-raccoon" src="../icon.png" alt="RaccoonLagoon" />
       <span class="logo-text">RaccoonLagoon</span>
@@ -24,7 +24,7 @@
       <span class="badge-dot"></span>
       <span class="badge-label">Ready</span>
     </div>
-  </header>
+  </header>-->
 
   <!-- ═══════════════════════════════════════════════════════════════════
        TAB BAR
@@ -65,52 +65,15 @@
             </svg>
           </div>
           <p class="drop-title">Drop anything here</p>
-          <p class="drop-hint">Image, URL or text &nbsp;&middot;&nbsp; <kbd>Ctrl+V</kbd> to paste</p>
-          <p class="drop-limit">Images max 9.9 MB &mdash; Discord limit</p>
-          <input type="file" id="fileInput" accept="image/*" hidden />
+          <p class="drop-hint">Image, audio, URL or text &nbsp;&middot;&nbsp; <kbd>Ctrl+V</kbd> to paste</p>
+          <p class="drop-limit">Files max 9.9 MB &mdash; Discord limit</p>
+          <input type="file" id="fileInput" accept="image/*,audio/*" multiple hidden />
           <button class="btn-ghost" id="browseBtn">Browse image</button>
         </div>
       </div>
 
-      <!-- Preview (dold tills payload laddas) -->
-      <div class="preview-area" id="previewArea" hidden>
-
-        <!-- Bild-preview -->
-        <div class="preview-card" id="previewCardImage" hidden>
-          <img id="previewImg" src="" alt="preview" />
-          <div class="preview-meta">
-            <span class="preview-name" id="previewName"></span>
-            <span class="preview-size" id="previewSize"></span>
-          </div>
-          <button class="btn-remove" id="removeFileBtn" title="Remove">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Text/URL-preview -->
-        <div class="preview-card preview-card--text" id="previewCardText" hidden>
-          <div class="preview-text-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-            </svg>
-          </div>
-          <div class="preview-meta">
-            <span class="preview-text-label">Text / URL</span>
-            <span class="preview-text-content" id="previewTextContent"></span>
-          </div>
-          <button class="btn-remove" id="removeTextBtn" title="Remove">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <line x1="18" y1="6" x2="6" y2="18"/>
-              <line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-        </div>
-
-      </div>
+      <!-- Items queue (dynamically populated) -->
+      <div class="items-queue" id="itemsQueue" hidden></div>
 
       <!-- Send button -->
       <button class="btn-primary btn-send" id="sendBtn">
@@ -366,11 +329,16 @@
       <div class="settings-no-results" id="settingsNoResults">No settings found</div>
 
       <!-- Kill Switch -->
-      <div class="card">
+      <div class="card killswitch-card">
         <div class="toggle-row">
-          <div class="toggle-info">
-            <span class="toggle-label">Extension Active</span>
-            <span class="toggle-desc">Stäng av — inga knappar eller features injiceras på några sidor</span>
+          <div class="killswitch-left">
+            <div class="platform-icon platform-icon--power">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+            </div>
+            <div class="toggle-info">
+              <span class="toggle-label">Kill Switch</span>
+              <span class="toggle-desc">Disables all content injection on all pages</span>
+            </div>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="globalEnabled" />
@@ -379,17 +347,162 @@
         </div>
       </div>
 
-      <!-- Home Tab Toggles -->
+      <!-- YouTube -->
       <div class="card">
-        <label class="section-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          Home Tab
-        </label>
+        <div class="platform-label">
+          <div class="platform-icon platform-icon--yt">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.5v-7.3l8.1 3.7-8.1 3.6z"/></svg>
+          </div>
+          <span class="platform-name">YouTube</span>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Watch page</span>
+            <span class="toggle-desc">Discord button on video watch page</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="youtubeEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Shorts</span>
+            <span class="toggle-desc">Discord button in Shorts action bar</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="youtubeShortsEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Autoscroll Shorts</span>
+            <span class="toggle-desc">Auto-scroll to next Short when video ends</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="youtubeShortAutoscrollEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Stream mode</span>
+            <span class="toggle-desc">Hides everything except the video</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="youtubeStreamEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Zoom &amp; Pan</span>
+            <span class="toggle-desc">Alt+scroll to zoom, Alt+drag to pan</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="youtubeZoomEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Instagram -->
+      <div class="card">
+        <div class="platform-label">
+          <div class="platform-icon platform-icon--ig">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+          </div>
+          <span class="platform-name">Instagram</span>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Feed posts</span>
+            <span class="toggle-desc">Discord button on feed posts</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="instagramEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Reels</span>
+            <span class="toggle-desc">Discord button on Reels</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="instagramReelsEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Autoscroll Reels</span>
+            <span class="toggle-desc">Auto-scroll to next Reel when video ends</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="instagramAutoscrollEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Facebook -->
+      <div class="card">
+        <div class="platform-label">
+          <div class="platform-icon platform-icon--fb">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </div>
+          <span class="platform-name">Facebook</span>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Reels</span>
+            <span class="toggle-desc">Discord button on Reels</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="facebookReelsEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Other Features -->
+      <div class="card">
+        <div class="platform-label">
+          <div class="platform-icon platform-icon--tools">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          </div>
+          <span class="platform-name">Features</span>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Images</span>
+            <span class="toggle-desc">Send images via right-click context menu</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="imagesEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
 
         <div class="toggle-row">
           <div class="toggle-info">
             <span class="toggle-label">Drop Zone</span>
-            <span class="toggle-desc">Show the drag & drop / send area</span>
+            <span class="toggle-desc">Drag &amp; drop / paste area on Home tab</span>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="dropZoneEnabled" />
@@ -432,133 +545,6 @@
 
       </div>
 
-      <!-- Feature Toggles -->
-      <div class="card">
-        <label class="section-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="5" width="22" height="14" rx="7"/><circle cx="8" cy="12" r="3" fill="currentColor"/></svg>
-          Features
-        </label>
-
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <span class="toggle-label">Images</span>
-            <span class="toggle-desc">Send images via right-click menu</span>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="imagesEnabled" />
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <span class="toggle-label">Instagram</span>
-            <span class="toggle-desc">Send button on feed posts</span>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="instagramEnabled" />
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <span class="toggle-label">Instagram Reels</span>
-            <span class="toggle-desc">Send button on Reels</span>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="instagramReelsEnabled" />
-            <span class="slider"></span>
-          </label>
-        </div>
-
-      </div>
-
-      <!-- YouTube -->
-      <div class="card">
-        <label class="section-label">
-          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.2 2.8 12 2.8 12 2.8s-4.2 0-6.8.1c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.1.7 11.2v2c0 2.1.3 4.2.3 4.2s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.2 21.6 12 21.6 12 21.6s4.2 0 6.8-.2c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.1.3-4.2v-2C23.3 9.1 23 7 23 7zm-13.5 8.5v-7.3l8.1 3.7-8.1 3.6z"/></svg>
-          YouTube
-        </label>
-
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <span class="toggle-label">YouTube</span>
-            <span class="toggle-desc">Discord-knapp på watch-sidan</span>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="youtubeEnabled" />
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <span class="toggle-label">Shorts</span>
-            <span class="toggle-desc">Discord-knapp i Shorts action-bar</span>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="youtubeShortsEnabled" />
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <span class="toggle-label">Stream mode</span>
-            <span class="toggle-desc">Döljer allt utom videon</span>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="youtubeStreamEnabled" />
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <span class="toggle-label">Zoom & Pan</span>
-            <span class="toggle-desc">Alt+scroll zoomar, Alt+drag panorerar</span>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="youtubeZoomEnabled" />
-            <span class="slider"></span>
-          </label>
-        </div>
-
-
-      </div>
-
-      <!-- Autoscroller -->
-      <div class="card">
-        <label class="section-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 11 12 6 7 11"/><polyline points="17 18 12 13 7 18"/></svg>
-          Autoscroller
-        </label>
-
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <span class="toggle-label">YouTube Shorts</span>
-            <span class="toggle-desc">Auto-scroll to next Short when video ends</span>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="youtubeShortAutoscrollEnabled" />
-            <span class="slider"></span>
-          </label>
-        </div>
-
-        <div class="toggle-row">
-          <div class="toggle-info">
-            <span class="toggle-label">Instagram</span>
-            <span class="toggle-desc">Auto-scroll to next Reel when video ends</span>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="instagramAutoscrollEnabled" />
-            <span class="slider"></span>
-          </label>
-        </div>
-
-      </div>
-
       <!-- Recorder -->
       <div class="card">
         <label class="section-label">
@@ -569,7 +555,7 @@
         <div class="toggle-row">
           <div class="toggle-info">
             <span class="toggle-label">Recorder</span>
-            <span class="toggle-desc">Visa inspelningskortet på Home-tabben</span>
+            <span class="toggle-desc">Show recorder card on Home tab</span>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="recorderEnabled" />
@@ -619,14 +605,16 @@
         <div class="status-bar" id="updateStatus"></div>
       </div>
 
-      <!-- Webhook URL -->
+      <!-- Webhooks -->
       <div class="card">
-        <label class="section-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-          Discord Webhook URL
-        </label>
-        <input type="url" class="text-input" id="webhookUrl" placeholder="https://discord.com/api/webhooks/..." />
-        <button class="btn-primary" id="saveWebhookBtn">Save webhook</button>
+        <div class="webhook-card-header">
+          <label class="section-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Discord Webhooks
+          </label>
+          <button class="btn-ghost" id="addWebhookBtn">+ Lägg till</button>
+        </div>
+        <div id="webhookList"></div>
         <div class="status-bar" id="settingsStatus"></div>
       </div>
 

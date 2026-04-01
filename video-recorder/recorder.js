@@ -30,13 +30,23 @@ export async function prepareRecording({ source, format, audioMode, sizeLimitMb,
 
   // ── Get display stream ─────────────────────────────────────────────────────
   const captureAudio = audioMode !== 'mic';
-  const displayConstraints = {
-    video: { cursor: 'always' },
-    audio: captureAudio,
-    ...(source === 'tab' && { preferCurrentTab: true })
-  };
 
-  displayStream = await navigator.mediaDevices.getDisplayMedia(displayConstraints);
+  if (source === 'tab') {
+    // Open the Chrome tab picker, excluding the extension sidepanel itself.
+    // selfBrowserSurface:'exclude' hides extension pages from the list.
+    // displaySurface:'browser' pre-selects the "Chrome Tab" section.
+    displayStream = await navigator.mediaDevices.getDisplayMedia({
+      video: { cursor: 'always', displaySurface: 'browser' },
+      audio: captureAudio,
+      selfBrowserSurface: 'exclude'
+    });
+  } else {
+    // 'pick' — full picker: screen, window, and tabs
+    displayStream = await navigator.mediaDevices.getDisplayMedia({
+      video: { cursor: 'always' },
+      audio: captureAudio
+    });
+  }
 
   // ── Mic mixing ─────────────────────────────────────────────────────────────
   if (audioMode === 'mic' || audioMode === 'both') {

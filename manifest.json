@@ -8,15 +8,20 @@
     "storage",
     "contextMenus",
     "sidePanel",
-    "tabs"
+    "activeTab",
+    "tabs",
+    "tabCapture",
+    "offscreen"
   ],
 
   "host_permissions": [
     "https://www.instagram.com/*",
     "https://www.youtube.com/*",
+    "https://www.facebook.com/*",
     "https://raw.githubusercontent.com/*",
     "https://api.languagetool.org/*",
-    "https://translate.googleapis.com/*"
+    "https://translate.googleapis.com/*",
+    "*://*/*"
   ],
 
   "background": {
@@ -45,6 +50,16 @@
         "content/youtube-stream.js",
         "content/youtube-zoom.js",
         "content/youtube-autoscroll.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.facebook.com/*"],
+      "js": [
+        "components/storage.js",
+        "components/webhook.js",
+        "components/icons.js",
+        "content/facebook-content.js"
       ],
       "run_at": "document_idle"
     }

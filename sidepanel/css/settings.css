@@ -147,3 +147,126 @@
 /* ─── Update card ────────────────────────────────────────────────────────── */
 .update-version      { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
 .update-version span { color: var(--text-secondary); font-weight: 600; }
+
+/* ─── Platform card header ───────────────────────────────────────────────── */
+.platform-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.platform-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.1px;
+}
+
+.platform-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.platform-icon svg { width: 15px; height: 15px; }
+
+.platform-icon--yt    { background: rgba(255, 48, 48, 0.14); color: #ff4040; }
+.platform-icon--ig    { background: rgba(225, 48, 108, 0.14); color: #e1306c; }
+.platform-icon--fb    { background: rgba(24, 119, 242, 0.14); color: #4e96f5; }
+.platform-icon--tools { background: var(--purple-glow); color: var(--purple-light); }
+.platform-icon--power { background: var(--purple-glow); color: var(--purple-light); }
+
+/* First toggle-row after a platform-label needs no top padding */
+.platform-label + .toggle-row { padding-top: 8px; }
+
+/* ─── Webhook multi-entry ────────────────────────────────────────────────── */
+.webhook-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.webhook-card-header .section-label { margin-bottom: 0; }
+
+.webhook-entry {
+  padding: 12px 0 4px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.webhook-entry:first-child { border-top: none; padding-top: 0; }
+
+.wh-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.wh-field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.wh-field-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  width: 54px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.wh-key-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wh-key-wrap .text-input { min-width: 0; }
+
+.wh-eye-btn {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.wh-eye-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.wh-eye-btn svg   { width: 13px; height: 13px; }
+
+.wh-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 0 8px;
+}
+
+/* ─── Kill Switch card ───────────────────────────────────────────────────── */
+.killswitch-card .toggle-row {
+  border-bottom: none;
+  padding: 0;
+}
+
+.killswitch-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

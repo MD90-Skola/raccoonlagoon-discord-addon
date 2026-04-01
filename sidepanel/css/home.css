@@ -78,6 +78,28 @@ kbd {
   font-weight: 600;
 }
 
+/* ─── Drop zone compact mode (items queued) ──────────────────────────────── */
+.drop-zone--compact {
+  padding: 10px 16px;
+}
+.drop-zone--compact .drop-icon,
+.drop-zone--compact .drop-limit,
+.drop-zone--compact #browseBtn { display: none; }
+.drop-zone--compact .drop-zone-inner { gap: 2px; }
+.drop-zone--compact .drop-title { font-size: 13px; }
+.drop-zone--compact .drop-hint  { font-size: 11.5px; }
+
+/* ─── Items Queue ─────────────────────────────────────────────────────────── */
+.items-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.queue-item {
+  animation: fadeUp var(--t-normal) var(--ease) both;
+}
+
 /* ─── Preview ────────────────────────────────────────────────────────────── */
 .preview-area { animation: fadeUp var(--t-normal) var(--ease) both; }
 
@@ -225,3 +247,174 @@ kbd {
 .tool-status.success { color: var(--green); }
 .tool-status.error   { color: var(--red); }
 .tool-status.info    { color: var(--purple-light); }
+
+/* ─── Audio preview card ─────────────────────────────────────────────────── */
+.preview-card--audio {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+.preview-audio-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(139, 92, 246, 0.12);
+  border-radius: var(--radius-sm);
+  color: var(--purple-light);
+}
+
+.preview-audio-icon svg { width: 16px; height: 16px; }
+
+.preview-audio-controls {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.preview-play-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: var(--purple);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--t-fast), box-shadow var(--t-fast);
+  line-height: 0;
+}
+
+.preview-play-btn:hover {
+  background: var(--purple-light);
+  box-shadow: 0 0 0 3px var(--purple-glow);
+}
+
+.preview-play-btn svg { width: 11px; height: 11px; display: block; }
+
+.preview-seek-wrap { flex: 1; }
+
+.preview-seek {
+  width: 100%;
+  display: block;
+  accent-color: var(--purple);
+  cursor: pointer;
+  height: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--border);
+  border-radius: 99px;
+  outline: none;
+}
+
+.preview-seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--purple);
+  cursor: grab;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+}
+
+.preview-seek::-webkit-slider-thumb:active { cursor: grabbing; }
+
+.preview-time {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  min-width: 26px;
+  text-align: right;
+  flex-shrink: 0;
+  letter-spacing: 0.3px;
+}
+
+/* ─── Carousel preview card ──────────────────────────────────────────────── */
+.preview-card--carousel {
+  padding: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.preview-carousel {
+  position: relative;
+  line-height: 0;
+}
+
+.preview-carousel img {
+  width: 100%;
+  height: 148px;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.52);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--t-fast);
+  z-index: 2;
+  line-height: 0;
+}
+
+.carousel-arrow:hover { background: rgba(0, 0, 0, 0.72); }
+.carousel-arrow svg   { width: 14px; height: 14px; display: block; }
+
+.carousel-arrow--left  { left: 7px; }
+.carousel-arrow--right { right: 7px; }
+
+.carousel-dots {
+  position: absolute;
+  bottom: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  padding: 4px 7px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 99px;
+}
+
+.carousel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  transition: background var(--t-fast);
+  flex-shrink: 0;
+}
+
+.carousel-dot.active { background: #fff; }
+.carousel-dot:hover  { background: rgba(255, 255, 255, 0.65); }
+
+.preview-carousel-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px 9px;
+}
+
+.preview-carousel-footer .preview-meta { flex: 1; min-width: 0; }
+
+/* Carousel remove btn is a static flex item, not absolute */
+.preview-card--carousel .btn-remove { position: static; }
