@@ -141,7 +141,7 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.4);
 }
 
-.toggle-switch input:checked + .slider          { background: rgba(139, 92, 246, 0.20); border-color: var(--purple); box-shadow: 0 0 10px var(--purple-glow-md); }
+.toggle-switch input:checked + .slider          { background: color-mix(in srgb, var(--purple) 20%, transparent); border-color: var(--purple); box-shadow: 0 0 10px var(--purple-glow-md); }
 .toggle-switch input:checked + .slider::before  { transform: translateX(18px); background: var(--purple); }
 
 /* ─── Update card ────────────────────────────────────────────────────────── */
@@ -258,6 +258,59 @@
   justify-content: flex-end;
   padding: 4px 0 8px;
 }
+
+/* ─── Accent color picker ────────────────────────────────────────────────── */
+.accent-color-picker {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--purple-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  padding: 2px;
+  background: var(--bg-raised);
+  flex-shrink: 0;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.accent-color-picker:hover {
+  border-color: var(--purple);
+  box-shadow: 0 0 8px var(--purple-glow);
+}
+
+.accent-color-picker::-webkit-color-swatch-wrapper { padding: 0; }
+.accent-color-picker::-webkit-color-swatch         { border: none; border-radius: 5px; }
+
+.accent-color-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-accent-reset {
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+}
+
+.btn-accent-reset:hover {
+  border-color: var(--purple-border);
+  color: var(--purple-light);
+  background: var(--purple-glow);
+}
+
+.btn-accent-reset svg { width: 14px; height: 14px; display: block; }
 
 /* ─── Kill Switch card ───────────────────────────────────────────────────── */
 .killswitch-card .toggle-row {

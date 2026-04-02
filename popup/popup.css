@@ -1,4 +1,4 @@
-/* popup.css — Stilar för Discord Sender popup */
+/* popup.css — RaccoonLagoon popup — dark theme */
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -7,23 +7,25 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 14px;
-  background: #ffffff;
-  color: #1a1a2e;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', system-ui, sans-serif;
+  font-size: 13px;
+  background: #1a1a2e;
+  color: #ffffff;
   width: 320px;
   min-height: 100px;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ─── Header ────────────────────────────────────────────────────────────── */
 
 .popup-header {
-  background: #5865F2;
+  background: #1e1e38;
   color: #fff;
   padding: 14px 18px;
   display: flex;
   align-items: center;
   gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .header-icon {
@@ -39,7 +41,7 @@ body {
 }
 
 .popup-header h1 {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.2px;
 }
@@ -48,7 +50,7 @@ body {
 
 .webhook-section {
   padding: 16px 18px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .field-label {
@@ -57,38 +59,40 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.7px;
-  color: #888;
+  color: rgba(255, 255, 255, 0.25);
   margin-bottom: 8px;
 }
 
 .webhook-section input {
   width: 100%;
   padding: 9px 12px;
-  border: 1.5px solid #e2e2e2;
-  border-radius: 6px;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
   font-size: 13px;
   font-family: inherit;
-  color: #333;
+  color: #ffffff;
+  background: #252548;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
   margin-bottom: 10px;
 }
 
 .webhook-section input:focus {
-  border-color: #5865F2;
+  border-color: #6C5CE7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
 }
 
 .webhook-section input::placeholder {
-  color: #bbb;
+  color: rgba(255, 255, 255, 0.25);
 }
 
 .webhook-section button {
   width: 100%;
   padding: 9px;
-  background: #5865F2;
+  background: #6C5CE7;
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
   font-family: inherit;
@@ -96,13 +100,8 @@ body {
   transition: background 0.15s;
 }
 
-.webhook-section button:hover {
-  background: #4752C4;
-}
-
-.webhook-section button:active {
-  background: #3c45a5;
-}
+.webhook-section button:hover  { background: #5a4bd1; }
+.webhook-section button:active { background: #4a3bbf; }
 
 /* Statusmeddelande under spara-knappen */
 .status {
@@ -112,8 +111,8 @@ body {
   transition: color 0.15s;
 }
 
-.status.success { color: #2d8a4e; }
-.status.error   { color: #c0392b; }
+.status.success { color: #22c55e; }
+.status.error   { color: #ef4444; }
 
 /* ─── Toggles-sektion ───────────────────────────────────────────────────── */
 
@@ -126,7 +125,7 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.7px;
-  color: #888;
+  color: rgba(255, 255, 255, 0.25);
   margin-bottom: 10px;
 }
 
@@ -139,22 +138,22 @@ body {
 }
 
 .toggle-row + .toggle-row {
-  border-top: 1px solid #f5f5f5;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .toggle-label {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #333;
-  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
   user-select: none;
 }
 
 .label-icon {
   display: flex;
   align-items: center;
-  color: #555;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .label-icon svg {
@@ -186,9 +185,10 @@ body {
 .toggle-track {
   position: absolute;
   inset: 0;
-  background: #d4d4d4;
+  background: #2c2c52;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 22px;
-  transition: background 0.2s;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 /* Cirkel-tummen */
@@ -197,19 +197,21 @@ body {
   position: absolute;
   width: 16px;
   height: 16px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  top: 3px;
-  left: 3px;
-  transition: transform 0.2s;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s, background 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 /* Aktivt tillstånd */
 .toggle input:checked + .toggle-track {
-  background: #5865F2;
+  background: rgba(108, 92, 231, 0.2);
+  border-color: #6C5CE7;
 }
 
 .toggle input:checked + .toggle-track::after {
   transform: translateX(18px);
+  background: #6C5CE7;
 }

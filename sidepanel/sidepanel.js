@@ -1,8 +1,9 @@
 // sidepanel.js — Entry point
 
+import { initClock }                            from './tabs/clock.js';
 import { initHome }                             from './tabs/home.js';
 import { initNotes, loadNotes }                 from './tabs/notes.js';
-import { initSettings, loadSettings }           from './tabs/settings.js';
+import { initSettings, loadSettings, initColorPicker } from './tabs/settings.js';
 import { setBadge }                             from './tabs/utils.js';
 import { initRecorderTab, loadRecorderSettings } from '../video-recorder/recorder-tab.js';
 import { initRecorderHome }                     from '../video-recorder/recorder-home.js';
@@ -24,9 +25,11 @@ tabBtns.forEach(btn => {
 });
 
 // ─── Init ─────────────────────────────────────────────────────────────────
+initClock();
 initHome();
 initNotes();
 initSettings();
+initColorPicker();
 initRecorderTab();
 initRecorderHome();
 

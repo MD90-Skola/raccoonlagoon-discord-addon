@@ -5,36 +5,36 @@
 
 /* ─── Design Tokens ─────────────────────────────────────────────────────── */
 :root {
-  --bg-base:             #0b0b11;
-  --bg-surface:          #111118;
-  --bg-raised:           #18181f;
-  --bg-hover:            #1f1f2e;
-  --bg-card:             #14141c;
+  --bg-base:             #202020;
+  --bg-surface:          #1f1f1f;
+  --bg-raised:           #2a2a2a;
+  --bg-hover:            #333333;
+  --bg-card:             #252525;
 
-  --border:              #252535;
-  --border-subtle:       #1d1d2b;
+  --border:              rgba(255, 255, 255, 0.08);
+  --border-subtle:       rgba(255, 255, 255, 0.05);
 
-  --purple:              #8b5cf6;
-  --purple-light:        #a78bfa;
-  --purple-dim:          #6d44d1;
-  --purple-glow:         rgba(139, 92, 246, 0.18);
-  --purple-glow-md:      rgba(139, 92, 246, 0.30);
-  --purple-glow-strong:  rgba(139, 92, 246, 0.55);
-  --purple-border:       rgba(139, 92, 246, 0.40);
+  --purple:              #6D54CF;
+  --purple-light:        #9880e8;
+  --purple-dim:          #5a44b8;
+  --purple-glow:         rgba(109, 84, 207, 0.15);
+  --purple-glow-md:      rgba(109, 84, 207, 0.25);
+  --purple-glow-strong:  rgba(109, 84, 207, 0.45);
+  --purple-border:       rgba(109, 84, 207, 0.45);
 
-  --text-primary:        #eeeef8;
-  --text-secondary:      #7a7a9a;
-  --text-muted:          #45455a;
+  --text-primary:        #ffffff;
+  --text-secondary:      rgba(255, 255, 255, 0.5);
+  --text-muted:          rgba(255, 255, 255, 0.25);
 
   --green:               #22c55e;
   --red:                 #ef4444;
   --orange:              #f97316;
 
   --radius-xs:           4px;
-  --radius-sm:           7px;
-  --radius-md:           10px;
-  --radius-lg:           14px;
-  --radius-xl:           18px;
+  --radius-sm:           6px;
+  --radius-md:           8px;
+  --radius-lg:           12px;
+  --radius-xl:           16px;
 
   --ease:                cubic-bezier(0.4, 0, 0.2, 1);
   --t-fast:              0.15s;
@@ -88,14 +88,14 @@ html, body {
   width: 26px;
   height: 26px;
   flex-shrink: 0;
-  filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.5));
+  filter: drop-shadow(0 0 6px rgba(109, 84, 207, 0.5));
 }
 
 .logo-text {
   font-size: 14.5px;
   font-weight: 700;
   letter-spacing: -0.4px;
-  background: linear-gradient(130deg, #c4b5fd 0%, #8b5cf6 60%, #7c3aed 100%);
+  background: linear-gradient(130deg, #c4b5fd 0%, #9880e8 55%, #6D54CF 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -175,14 +175,14 @@ html, body {
 }
 
 .tab-btn:hover {
-  color: var(--text-secondary);
-  background: rgba(139, 92, 246, 0.05);
+  color: rgba(255, 255, 255, 0.5);
+  background: none;
 }
 
 .tab-btn.active {
-  color: var(--purple-light);
+  color: #ffffff;
   border-bottom-color: var(--purple);
-  background: rgba(139, 92, 246, 0.08);
+  background: none;
 }
 
 .tab-btn.active svg {
@@ -227,7 +227,8 @@ html, body {
 }
 
 .card:hover {
-  border-color: #2e2e45;
+  border-color: rgba(109, 84, 207, 0.6);
+  box-shadow: 0 0 18px rgba(109, 84, 207, 0.25);
 }
 
 /* ─── Section Label ──────────────────────────────────────────────────────── */
@@ -409,8 +410,8 @@ kbd {
 
 /* Text/URL preview-variant */
 .preview-card--text {
-  border-color: rgba(139, 92, 246, 0.25);
-  background: rgba(139, 92, 246, 0.06);
+  border-color: rgba(109, 84, 207, 0.25);
+  background: rgba(109, 84, 207, 0.06);
 }
 
 .preview-text-icon {
@@ -482,7 +483,7 @@ kbd {
   gap: 8px;
   width: 100%;
   padding: 11px 20px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: var(--purple);
   color: #fff;
   border: none;
   border-radius: var(--radius-md);
@@ -515,8 +516,8 @@ kbd {
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #9d71f8 0%, #8b5cf6 100%);
-  box-shadow: 0 0 0 1px rgba(139,92,246,0.4), 0 4px 20px var(--purple-glow-strong);
+  background: var(--purple-dim);
+  box-shadow: 0 0 0 1px rgba(109,84,207,0.35), 0 4px 20px var(--purple-glow-strong);
   transform: translateY(-1px);
 }
 
@@ -563,8 +564,8 @@ kbd {
 }
 
 .btn-add {
-  background: rgba(139, 92, 246, 0.12);
-  border: 1px solid rgba(139, 92, 246, 0.25);
+  background: rgba(109, 84, 207, 0.12);
+  border: 1px solid rgba(109, 84, 207, 0.25);
   color: var(--purple-light);
   padding: 9px 11px;
   border-radius: var(--radius-md);
@@ -581,7 +582,7 @@ kbd {
 }
 
 .btn-add:hover {
-  background: rgba(139, 92, 246, 0.22);
+  background: rgba(109, 84, 207, 0.22);
   border-color: var(--purple);
   box-shadow: 0 0 8px var(--purple-glow);
 }
@@ -828,7 +829,7 @@ kbd {
 }
 
 .toggle-switch input:checked + .slider {
-  background: rgba(139, 92, 246, 0.20);
+  background: rgba(109, 84, 207, 0.20);
   border-color: var(--purple);
   box-shadow: 0 0 10px var(--purple-glow-md);
 }
@@ -853,7 +854,7 @@ kbd {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a3a55;
+  background: rgba(255,255,255,0.22);
 }
 
 /* ─── Misc helpers ───────────────────────────────────────────────────────── */

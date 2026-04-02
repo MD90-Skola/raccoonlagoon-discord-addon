@@ -288,6 +288,38 @@ export function initSettings() {
   });
 }
 
+// ─── Accent color picker ───────────────────────────────────────────────────────
+
+function applyAccentColor(hex) {
+  // All derived colors (--purple-light, --purple-glow, etc.) use color-mix(in srgb, var(--purple) X%, ...)
+  // in CSS, so they auto-recompute when only --purple changes.
+  document.documentElement.style.setProperty('--purple', hex);
+}
+
+const DEFAULT_ACCENT = '#6D54CF';
+
+export function initColorPicker() {
+  const picker    = document.getElementById('accentColorPicker');
+  const resetBtn  = document.getElementById('accentColorReset');
+  if (!picker) return;
+
+  chrome.storage.local.get('accentColor', ({ accentColor }) => {
+    if (accentColor) {
+      picker.value = accentColor;
+      applyAccentColor(accentColor);
+    }
+  });
+
+  picker.addEventListener('input',  () => applyAccentColor(picker.value));
+  picker.addEventListener('change', () => chrome.storage.local.set({ accentColor: picker.value }));
+
+  resetBtn?.addEventListener('click', () => {
+    picker.value = DEFAULT_ACCENT;
+    applyAccentColor(DEFAULT_ACCENT);
+    chrome.storage.local.remove('accentColor');
+  });
+}
+
 export async function loadSettings() {
   const s = await Storage.getAll();
 

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/notes.css" />
   <link rel="stylesheet" href="css/settings.css" />
   <link rel="stylesheet" href="../video-recorder/recorder.css" />
+  <link rel="stylesheet" href="css/clock.css" />
 </head>
 <body>
 
@@ -51,6 +52,63 @@
 
     <!-- ─── HOME TAB ──────────────────────────────────────────────── -->
     <section id="tab-home" class="tab-pane active">
+
+      <!-- Matlagning / Planering / Larm -->
+      <div class="card clock-card" id="clockCard">
+
+        <!-- Inner tab bar -->
+        <div class="clock-tab-bar">
+          <button class="clock-tab active" data-clock-tab="cooking">Matlagning</button>
+          <button class="clock-tab" data-clock-tab="planning">Planering</button>
+          <button class="clock-tab" data-clock-tab="alarm">Larm</button>
+        </div>
+
+        <!-- Cooking pane -->
+        <div class="clock-pane" id="clockPane-cooking">
+          <div class="timer-display" id="cookingDisplay">05:00</div>
+          <div class="cooking-presets">
+            <button class="cooking-preset" data-min="5">5 min</button>
+            <button class="cooking-preset" data-min="10">10 min</button>
+            <button class="cooking-preset" data-min="15">15 min</button>
+            <button class="cooking-preset" data-min="20">20 min</button>
+          </div>
+          <div class="clock-btn-row">
+            <button class="btn-primary" id="cookingStartBtn">Start</button>
+            <button class="btn-ghost" id="cookingResetBtn">Reset</button>
+          </div>
+        </div>
+
+        <!-- Planning pane -->
+        <div class="clock-pane" id="clockPane-planning" hidden>
+          <div class="plan-form">
+            <div class="plan-field">
+              <span class="plan-label">Ankomst</span>
+              <input type="time" class="text-input" id="planArrival" />
+            </div>
+            <div class="plan-field">
+              <span class="plan-label">Restid</span>
+              <input type="number" class="text-input" id="planTravelMin" placeholder="minuter" min="0" max="999" />
+              <span class="plan-unit">min</span>
+            </div>
+          </div>
+          <button class="btn-primary" id="planCalcBtn">Räkna ut avgångstid</button>
+          <div class="plan-result" id="planResult" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span id="planResultText"></span>
+          </div>
+          <div class="timer-display" id="planCountdown" hidden></div>
+        </div>
+
+        <!-- Alarm pane -->
+        <div class="clock-pane" id="clockPane-alarm" hidden>
+          <div class="alarm-add-row">
+            <input type="time" class="text-input" id="alarmTimeInput" />
+            <button class="btn-primary" id="alarmAddBtn">+ Larm</button>
+          </div>
+          <ul class="alarm-list" id="alarmList"></ul>
+          <p class="alarm-empty" id="alarmEmpty">Inga larm inställda</p>
+        </div>
+      </div>
 
       <!-- Record Clip -->
       <div class="card" id="recorderCard">
@@ -330,6 +388,26 @@
         </button>
       </div>
       <div class="settings-no-results" id="settingsNoResults">No settings found</div>
+
+      <!-- Appearance -->
+      <div class="card">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83"/></svg>
+          Appearance
+        </label>
+        <div class="toggle-row" style="border-bottom:none; padding:0;">
+          <div class="toggle-info">
+            <span class="toggle-label">Accent color</span>
+            <span class="toggle-desc">Container outline and glow color</span>
+          </div>
+          <div class="accent-color-wrap">
+            <input type="color" id="accentColorPicker" class="accent-color-picker" value="#6D54CF" />
+            <button id="accentColorReset" class="btn-accent-reset" title="Reset to default">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- Kill Switch -->
       <div class="card killswitch-card">
