@@ -165,8 +165,32 @@ kbd {
 .btn-remove:hover { color: var(--red); background: rgba(239, 68, 68, 0.12); }
 .btn-remove svg   { width: 13px; height: 13px; }
 
-/* Send button spacing */
-.btn-send { margin-top: 2px; }
+/* ─── Drop zone send button (top-right icon) ─────────────────────────────── */
+.btn-drop-send {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--purple);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: background var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast);
+}
+
+.btn-drop-send:hover {
+  background: var(--purple-light);
+  box-shadow: 0 0 0 3px var(--purple-glow);
+  transform: scale(1.08);
+}
+
+.btn-drop-send svg { width: 14px; height: 14px; display: block; }
 
 /* ─── Tool Cards (spell check / translate) ───────────────────────────────── */
 .tool-input {

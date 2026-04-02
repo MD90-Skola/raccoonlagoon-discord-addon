@@ -319,6 +319,7 @@ window.addEventListener('unhandledrejection', (e) => {
   }
 
   function exitStream() {
+    const wasActive = streamActive;
     streamActive  = false;
     thumbsVisible = true;
     document.body.classList.remove(STREAM_CLASS, THUMBS_HIDDEN);
@@ -328,23 +329,25 @@ window.addEventListener('unhandledrejection', (e) => {
     const btn = document.getElementById(STREAM_BTN_ID);
     if (btn) btn.classList.remove('ds-stream-on');
 
-    // Tvinga YouTube att räkna om spelardimensioner.
-    // Ett enda resize-event fångas inte alltid av den debounced listener —
-    // skicka flera på staggerade intervall och försök anropa setSize direkt.
+    // Räkna bara om spelardimensioner om stream faktiskt var igång —
+    // annars triggar vi YouTubes captions-reinit i onödan (t.ex. vid Shorts-navigering)
+    if (!wasActive) return;
+
     requestAnimationFrame(() => {
       const player = document.getElementById('movie_player');
 
       // Om spelaren exponerar setSize (YouTubes inbyggda API) — använd det
+      // och hoppa över resize-dispatch (undviker YouTubes captions-reinit)
       if (player && typeof player.setSize === 'function') {
         const par = player.parentElement;
         if (par) {
           const r = par.getBoundingClientRect();
           player.setSize(Math.floor(r.width), Math.floor(r.height));
+          return; // setSize räcker — ingen resize-dispatch behövs
         }
       }
 
-      // Skicka resize-events — rAF för första (undviker main-thread block), sedan en gång till efter 400ms
-      requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+      // Fallback: setSize saknas — skicka resize-event efter 400ms
       setTimeout(() => window.dispatchEvent(new Event('resize')), 400);
     });
   }

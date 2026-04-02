@@ -45,18 +45,26 @@ function tryAttach() {
 
   for (const video of document.querySelectorAll('video')) {
     if (attached.has(video)) continue;
-    if (video.readyState === 0)  continue; // skip unloaded elements
+    if (video.readyState === 0) continue; // skip unloaded elements
 
     attached.add(video);
 
-    // ── Primary: 'ended' fires exactly once when the Short finishes ──────────
+    // ── Primary: 'ended' fires när Shortet är klart ──────────────────────────
     video.addEventListener('ended', onVideoEnded, { passive: true });
 
-    // ── Backup: timeupdate throttled to once every 2 s at 97% ────────────────
-    // Catches cases where YouTube loops/replaces the video without firing 'ended'
+    // ── Backup: timeupdate vid 97% ────────────────────────────────────────────
+    // Fångar fall där YouTube loopar utan att skicka 'ended'
     let lastCheck = 0;
+
+    // Nollställ throttle vid seek — annars missar vi om användaren spolar nära slutet
+    video.addEventListener('seeked', () => { lastCheck = 0; }, { passive: true });
+
     video.addEventListener('timeupdate', () => {
       if (!enabled) return;
+      // Kontrollera bara aktiv video — inte preloaddade Shorts bredvid
+      const renderer = video.closest('ytd-reel-video-renderer');
+      if (renderer && !renderer.hasAttribute('is-active')) return;
+
       const now = Date.now();
       if (now - lastCheck < 2000) return;
       lastCheck = now;

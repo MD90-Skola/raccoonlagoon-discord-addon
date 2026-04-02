@@ -24,13 +24,17 @@ export function initRecorderHome() {
   const recFileName       = document.getElementById('recFileName');
   const recFileSize       = document.getElementById('recFileSize');
   const recStatus         = document.getElementById('recStatus');
-  const recSourceGroup    = document.getElementById('recSourceGroup');
+  const recFormatBtn      = document.getElementById('recFormatBtn');
+  const recFormatDropdown = document.getElementById('recFormatDropdown');
 
   // ── Video player ───────────────────────────────────────────────────────────
   const recVideo      = document.getElementById('recVideo');
   const recPlayBtn    = document.getElementById('recPlayBtn');
   const recPlayIcon   = document.getElementById('recPlayIcon');
   const recPauseIcon  = document.getElementById('recPauseIcon');
+  const recLoopBtn    = document.getElementById('recLoopBtn');
+  const recVolWrap    = document.getElementById('recVolWrap');
+  const recVolSlider  = document.getElementById('recVolSlider');
   const recMuteBtn    = document.getElementById('recMuteBtn');
   const recSoundIcon  = document.getElementById('recSoundIcon');
   const recMuteIcon   = document.getElementById('recMuteIcon');
@@ -52,25 +56,30 @@ export function initRecorderHome() {
   const recCropMaskL  = document.getElementById('recCropMaskL');
   const recCropMaskR  = document.getElementById('recCropMaskR');
   const recCropBorder = document.getElementById('recCropBorder');
-  const recCropXTrack = document.getElementById('recCropXTrack');
-  const recCropYTrack = document.getElementById('recCropYTrack');
-  const recCropLSlider = document.getElementById('recCropLSlider');
-  const recCropRSlider = document.getElementById('recCropRSlider');
-  const recCropTSlider = document.getElementById('recCropTSlider');
-  const recCropBSlider = document.getElementById('recCropBSlider');
+
+  // ── Video area (zoom target) ───────────────────────────────────────────────
+  const recVideoArea = recVideo.parentElement;
 
   // ── State ──────────────────────────────────────────────────────────────────
   let currentBlob    = null;
   let currentFormat  = 'webm';
-  let selectedSource = 'tab';
+  const selectedSource = 'pick';
   let countdownTimer = null;
   let videoBlobUrl   = null;
   let isScrubbing    = false;
   let isProcessing   = false;
   let knownDuration  = 0;   // elapsed seconds from recorder (reliable fallback)
+  let loopEnabled = false;
   let trimA = 0;  let trimB = 1;   // 0–1 fractions
   let cropL = 0;  let cropR = 1;   // horizontal: left / right
   let cropT = 0;  let cropB = 1;   // vertical:   top  / bottom
+  let previewZoom    = 1;          // scroll-zoom på preview-videon
+  let panX = 0; let panY = 0;      // panning offset i px (mouse3)
+  let isPanning      = false;
+  let panStart       = null;       // { ox, oy } – clientX/Y minus pan vid drag-start
+  let cropDragState  = null;       // 'draw' | 'move' | 'resize'
+  let cropDragHandle = null;       // 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w'
+  let cropDragStart  = null;       // { x, y } fractions vid drag-start
 
   // WebM files from MediaRecorder often have duration = Infinity.
   // Use seekable range or elapsed time as fallback.
@@ -89,14 +98,39 @@ export function initRecorderHome() {
     return _getVideoDuration() > 0;
   }
 
-  // ── Source picker ──────────────────────────────────────────────────────────
-  recSourceGroup.querySelectorAll('.seg-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      recSourceGroup.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      selectedSource = btn.dataset.value;
+  // ── Format dropdown ────────────────────────────────────────────────────────
+  // Ladda sparat format och markera rätt knapp
+  Storage.getAll().then(s => {
+    const saved = s.recorderFormat ?? 'webm';
+    _setActiveFormat(saved);
+  });
+
+  recFormatBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = recFormatDropdown.classList.toggle('open');
+    recFormatBtn.classList.toggle('open', open);
+  });
+
+  recFormatDropdown.querySelectorAll('.rec-fmt-opt').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const fmt = btn.dataset.fmt;
+      _setActiveFormat(fmt);
+      await Storage.set({ recorderFormat: fmt });
+      recFormatDropdown.classList.remove('open');
+      recFormatBtn.classList.remove('open');
     });
   });
+
+  document.addEventListener('click', () => {
+    recFormatDropdown.classList.remove('open');
+    recFormatBtn.classList.remove('open');
+  });
+
+  function _setActiveFormat(fmt) {
+    recFormatDropdown.querySelectorAll('.rec-fmt-opt').forEach(b => {
+      b.classList.toggle('active', b.dataset.fmt === fmt);
+    });
+  }
 
   // ── Start (immediate) ──────────────────────────────────────────────────────
   recStartBtn.addEventListener('click', () => _launch());
@@ -220,14 +254,28 @@ export function initRecorderHome() {
     _updatePlayhead(frac);
     recVideoTime.textContent = `${_vidTime(recVideo.currentTime)} / ${_vidTime(dur)}`;
     if (frac >= trimB && !recVideo.paused) {
-      recVideo.pause();
       recVideo.currentTime = trimA * dur;
+      if (!loopEnabled) recVideo.pause();
     }
   });
 
-  recVideo.addEventListener('play',  () => { recPlayIcon.hidden = true;  recPauseIcon.hidden = false; });
-  recVideo.addEventListener('pause', () => { recPlayIcon.hidden = false; recPauseIcon.hidden = true;  });
-  recVideo.addEventListener('ended', () => { recPlayIcon.hidden = false; recPauseIcon.hidden = true;  });
+  recVideo.addEventListener('play',  () => {
+    recPlayIcon.style.display = 'none'; recPauseIcon.style.display = '';
+    recTrimTrack.parentElement.classList.add('playing');
+  });
+  recVideo.addEventListener('pause', () => {
+    recPlayIcon.style.display = ''; recPauseIcon.style.display = 'none';
+    recTrimTrack.parentElement.classList.remove('playing');
+  });
+  recVideo.addEventListener('ended', () => {
+    recPlayIcon.style.display = ''; recPauseIcon.style.display = 'none';
+    recTrimTrack.parentElement.classList.remove('playing');
+    if (loopEnabled) {
+      const dur = _getVideoDuration();
+      recVideo.currentTime = trimA * dur;
+      recVideo.play().catch(() => {});
+    }
+  });
 
   // ── Play / Pause ───────────────────────────────────────────────────────────
   recPlayBtn.addEventListener('click', () => {
@@ -239,6 +287,12 @@ export function initRecorderHome() {
     } else {
       recVideo.pause();
     }
+  });
+
+  // ── Loop ───────────────────────────────────────────────────────────────────
+  recLoopBtn.addEventListener('click', () => {
+    loopEnabled = !loopEnabled;
+    recLoopBtn.classList.toggle('loop-active', loopEnabled);
   });
 
   // ── Trim handle A ──────────────────────────────────────────────────────────
@@ -265,7 +319,10 @@ export function initRecorderHome() {
     recTrimB.value = Math.round(trimB * 1000);
     _updateTrimBar();
     const dur = _getVideoDuration();
-    if (dur > 0) recTrimBLabel.textContent = _vidTime(trimB * dur);
+    if (dur > 0) {
+      recVideo.currentTime      = trimB * dur;
+      recTrimBLabel.textContent = _vidTime(trimB * dur);
+    }
   });
 
   // ── Click on trim track to seek ────────────────────────────────────────────
@@ -277,55 +334,194 @@ export function initRecorderHome() {
     recVideo.currentTime = Math.max(trimA, Math.min(trimB, frac)) * dur;
   });
 
+  // ── Volume popup hover (JS-styrd för att undvika gap-problem) ────────────
+  let volHideTimer = null;
+  recVolWrap.addEventListener('mouseenter', () => {
+    clearTimeout(volHideTimer);
+    recVolWrap.classList.add('vol-open');
+  });
+  recVolWrap.addEventListener('mouseleave', () => {
+    volHideTimer = setTimeout(() => recVolWrap.classList.remove('vol-open'), 120);
+  });
+
+  // ── Volume slider ──────────────────────────────────────────────────────────
+  recVolSlider.addEventListener('input', () => {
+    const vol = recVolSlider.value / 100;
+    recVideo.volume = vol;
+    recVideo.muted  = vol === 0;
+    _syncVolIcons();
+  });
+
   // ── Mute ──────────────────────────────────────────────────────────────────
   recMuteBtn.addEventListener('click', () => {
     recVideo.muted = !recVideo.muted;
-    recSoundIcon.hidden = recVideo.muted;
-    recMuteIcon.hidden  = !recVideo.muted;
+    if (!recVideo.muted && recVideo.volume === 0) recVideo.volume = 0.5;
+    _syncVolIcons();
   });
 
-  // ── Crop W (left / right) ─────────────────────────────────────────────────
-  recCropLSlider.addEventListener('mousedown',  () => { isScrubbing = true; });
-  recCropRSlider.addEventListener('mousedown',  () => { isScrubbing = true; });
-  recCropLSlider.addEventListener('touchstart', () => { isScrubbing = true; }, { passive: true });
-  recCropRSlider.addEventListener('touchstart', () => { isScrubbing = true; }, { passive: true });
+  function _syncVolIcons() {
+    const muted = recVideo.muted || recVideo.volume === 0;
+    recMuteBtn.classList.toggle('is-muted', muted);
+    if (!recVideo.muted) recVolSlider.value = Math.round(recVideo.volume * 100);
+  }
 
-  recCropLSlider.addEventListener('input', () => {
-    cropL = Math.min(recCropLSlider.value / 1000, cropR - 0.01);
-    recCropLSlider.value = Math.round(cropL * 1000);
-    recCropLSlider.style.zIndex = cropL > 0.5 ? 5 : 4;
-    recCropRSlider.style.zIndex = cropL > 0.5 ? 4 : 5;
-    _updateCropBar();
+  // ── Zoom / pan helpers ─────────────────────────────────────────────────────
+  function _applyTransform() {
+    if (previewZoom <= 1 && panX === 0 && panY === 0) {
+      recVideoArea.style.transform = '';
+    } else {
+      recVideoArea.style.transform =
+        `translate(${panX.toFixed(1)}px,${panY.toFixed(1)}px) scale(${previewZoom.toFixed(2)})`;
+    }
+  }
+
+  function _clampPan() {
+    const maxX = recVideoArea.clientWidth  * (previewZoom - 1) / 2;
+    const maxY = recVideoArea.clientHeight * (previewZoom - 1) / 2;
+    panX = Math.max(-maxX, Math.min(maxX, panX));
+    panY = Math.max(-maxY, Math.min(maxY, panY));
+  }
+
+  // ── Preview scroll-zoom ────────────────────────────────────────────────────
+  recVideoArea.addEventListener('wheel', (e) => {
+    if (recPreview.hidden) return;
+    e.preventDefault();
+    const dir = e.deltaY < 0 ? 1 : -1;
+    previewZoom = Math.max(1, Math.min(4, previewZoom + dir * 0.15));
+    if (previewZoom <= 1) { panX = 0; panY = 0; }
+    _clampPan();
+    _applyTransform();
+  }, { passive: false });
+
+  // Dubbelklick återställer zoom + pan
+  recVideoArea.addEventListener('dblclick', () => {
+    previewZoom = 1; panX = 0; panY = 0;
+    recVideoArea.style.transform = '';
+  });
+
+  // ── Interaktiv drag-crop på video-arean ───────────────────────────────────
+
+  // Beräkna video-innehållets rect inuti elementet (object-fit: contain kan ha letterbox)
+  function _getVideoContentRect() {
+    const ew = recVideo.clientWidth;
+    const eh = recVideo.clientHeight;
+    const vw = recVideo.videoWidth  || ew;
+    const vh = recVideo.videoHeight || eh;
+    const scale = Math.min(ew / vw, eh / vh);
+    const cw = vw * scale;
+    const ch = vh * scale;
+    return { ox: (ew - cw) / 2, oy: (eh - ch) / 2, cw, ch, ew, eh };
+  }
+
+  // Konvertera mouse-event till fractions (0–1) i video-innehållets koordinatrymnd.
+  // Kompenserar för zoom — getBoundingClientRect() returnerar den skalade ramen,
+  // så vi räknar bakåt till element-space via (mousePos - center) / zoom.
+  function _eventToFrac(e) {
+    const areaRect = recVideoArea.getBoundingClientRect();
+    const ew = recVideoArea.clientWidth;
+    const eh = recVideoArea.clientHeight;
+    const centerX = areaRect.left + areaRect.width  / 2;
+    const centerY = areaRect.top  + areaRect.height / 2;
+    const mx = ew / 2 + (e.clientX - centerX) / previewZoom;
+    const my = eh / 2 + (e.clientY - centerY) / previewZoom;
+    const { ox, oy, cw, ch } = _getVideoContentRect();
+    return {
+      x: Math.max(0, Math.min(1, (mx - ox) / cw)),
+      y: Math.max(0, Math.min(1, (my - oy) / ch))
+    };
+  }
+
+  // Förhindra webbläsarens auto-scroll-cursor vid middle-click
+  recVideoArea.addEventListener('mousedown', (e) => {
+    if (e.button === 1 && !recPreview.hidden) {
+      e.preventDefault();
+      isPanning = true;
+      panStart  = { ox: e.clientX - panX, oy: e.clientY - panY };
+      return;
+    }
+    if (e.button !== 0 || recPreview.hidden) return;
+
+    const handleEl = e.target.closest('[data-handle]');
+    if (handleEl) {
+      // Resize via handtag
+      e.stopPropagation();
+      cropDragHandle = handleEl.dataset.handle;
+      cropDragState  = 'resize';
+      cropDragStart  = _eventToFrac(e);
+      return;
+    }
+
+    if (e.target === recCropBorder) {
+      // Flytta hela rektangeln
+      cropDragState = 'move';
+      cropDragStart = _eventToFrac(e);
+      return;
+    }
+
+    // Rita ny selection
+    const f = _eventToFrac(e);
+    cropL = f.x; cropR = f.x;
+    cropT = f.y; cropB = f.y;
+    cropDragState = 'draw';
+    cropDragStart = f;
     _updateCropOverlay();
   });
 
-  recCropRSlider.addEventListener('input', () => {
-    cropR = Math.max(recCropRSlider.value / 1000, cropL + 0.01);
-    recCropRSlider.value = Math.round(cropR * 1000);
-    _updateCropBar();
+  document.addEventListener('mousemove', (e) => {
+    if (isPanning) {
+      panX = e.clientX - panStart.ox;
+      panY = e.clientY - panStart.oy;
+      _clampPan();
+      _applyTransform();
+      return;
+    }
+    if (!cropDragState) return;
+    const f = _eventToFrac(e);
+
+    if (cropDragState === 'draw') {
+      cropL = Math.min(cropDragStart.x, f.x);
+      cropR = Math.max(cropDragStart.x, f.x);
+      cropT = Math.min(cropDragStart.y, f.y);
+      cropB = Math.max(cropDragStart.y, f.y);
+
+    } else if (cropDragState === 'move') {
+      const dx = f.x - cropDragStart.x;
+      const dy = f.y - cropDragStart.y;
+      const w  = cropR - cropL;
+      const h  = cropB - cropT;
+      cropL = Math.max(0, Math.min(1 - w, cropL + dx));
+      cropR = cropL + w;
+      cropT = Math.max(0, Math.min(1 - h, cropT + dy));
+      cropB = cropT + h;
+      cropDragStart = f;
+
+    } else if (cropDragState === 'resize') {
+      const h = cropDragHandle;
+      if (h.includes('w')) cropL = Math.max(0,        Math.min(cropR - 0.02, f.x));
+      if (h.includes('e')) cropR = Math.min(1,        Math.max(cropL + 0.02, f.x));
+      if (h.includes('n')) cropT = Math.max(0,        Math.min(cropB - 0.02, f.y));
+      if (h.includes('s')) cropB = Math.min(1,        Math.max(cropT + 0.02, f.y));
+    }
+
     _updateCropOverlay();
   });
 
-  // ── Crop H (top / bottom) ─────────────────────────────────────────────────
-  recCropTSlider.addEventListener('mousedown',  () => { isScrubbing = true; });
-  recCropBSlider.addEventListener('mousedown',  () => { isScrubbing = true; });
-  recCropTSlider.addEventListener('touchstart', () => { isScrubbing = true; }, { passive: true });
-  recCropBSlider.addEventListener('touchstart', () => { isScrubbing = true; }, { passive: true });
-
-  recCropTSlider.addEventListener('input', () => {
-    cropT = Math.min(recCropTSlider.value / 1000, cropB - 0.01);
-    recCropTSlider.value = Math.round(cropT * 1000);
-    recCropTSlider.style.zIndex = cropT > 0.5 ? 5 : 4;
-    recCropBSlider.style.zIndex = cropT > 0.5 ? 4 : 5;
-    _updateCropBar();
-    _updateCropOverlay();
+  document.addEventListener('mouseup', (e) => {
+    if (e.button === 1) { isPanning = false; panStart = null; return; }
+    if (!cropDragState) return;
+    // Om ritad rektangel är för liten: återställ
+    if (cropDragState === 'draw' && (cropR - cropL < 0.02 || cropB - cropT < 0.02)) {
+      _resetCrop();
+    }
+    cropDragState  = null;
+    cropDragHandle = null;
+    cropDragStart  = null;
   });
 
-  recCropBSlider.addEventListener('input', () => {
-    cropB = Math.max(recCropBSlider.value / 1000, cropT + 0.01);
-    recCropBSlider.value = Math.round(cropB * 1000);
-    _updateCropBar();
-    _updateCropOverlay();
+  // Dubbelklick på video-arean återställer crop
+  recVideoArea.addEventListener('dblclick', (e) => {
+    if (e.target === recCropBorder || recCropBorder.contains(e.target)) return;
+    _resetCrop();
   });
 
   document.addEventListener('mouseup',  () => { isScrubbing = false; });
@@ -376,9 +572,13 @@ export function initRecorderHome() {
     recVideo.src         = videoBlobUrl;
     recVideo.currentTime = 0;
     recVideo.muted       = false;
+    recVolSlider.value   = 100;
+    _syncVolIcons();
 
     _resetTrim();
     _resetCrop();
+    previewZoom = 1; panX = 0; panY = 0;
+    recVideoArea.style.transform = '';
 
     recPlayIcon.hidden  = false;
     recPauseIcon.hidden = true;
@@ -403,7 +603,8 @@ export function initRecorderHome() {
   async function _getActiveBlob() {
     const needsTrim = trimA > 0 || trimB < 1;
     const needsCrop = cropL > 0.001 || cropR < 0.999 || cropT > 0.001 || cropB < 0.999;
-    if (!needsTrim && !needsCrop) return currentBlob;
+    const needsMute = recVideo.muted;
+    if (!needsTrim && !needsCrop && !needsMute) return currentBlob;
 
     // Ensure duration is available — for WebM blobs, seekable range may need
     // a brief moment to populate even after loadedmetadata fires.
@@ -476,7 +677,7 @@ export function initRecorderHome() {
 
         const audioStream = recVideo.captureStream();
         stream = canvas.captureStream(30);
-        audioStream.getAudioTracks().forEach(t => stream.addTrack(t));
+        if (!wasMuted) audioStream.getAudioTracks().forEach(t => stream.addTrack(t));
 
         function drawLoop() {
           if (!recVideo.paused && !recVideo.ended) {
@@ -492,6 +693,7 @@ export function initRecorderHome() {
       } else {
         // No crop — captureStream captures video + audio as-is
         stream = recVideo.captureStream();
+        if (wasMuted) stream.getAudioTracks().forEach(t => stream.removeTrack(t));
       }
 
       const chunks   = [];
@@ -538,6 +740,8 @@ export function initRecorderHome() {
 
   // ── Discard ────────────────────────────────────────────────────────────────
   function _discard() {
+    previewZoom = 1; panX = 0; panY = 0;
+    recVideoArea.style.transform = '';
     recVideo.pause();
     recVideo.src = '';
     if (videoBlobUrl) { URL.revokeObjectURL(videoBlobUrl); videoBlobUrl = null; }
@@ -565,11 +769,7 @@ export function initRecorderHome() {
 
   function _resetCrop() {
     cropL = 0; cropR = 1; cropT = 0; cropB = 1;
-    recCropLSlider.value = 0;    recCropRSlider.value = 1000;
-    recCropTSlider.value = 0;    recCropBSlider.value = 1000;
-    recCropLSlider.style.zIndex = 4; recCropRSlider.style.zIndex = 5;
-    recCropTSlider.style.zIndex = 4; recCropBSlider.style.zIndex = 5;
-    _updateCropBar();
+    cropDragState = null;
     _updateCropOverlay();
   }
 
@@ -580,28 +780,9 @@ export function initRecorderHome() {
       `linear-gradient(to right, rgba(255,255,255,0.08) ${a}%, var(--purple) ${a}%, var(--purple) ${b}%, rgba(255,255,255,0.08) ${b}%)`;
   }
 
-  function _updateCropBar() {
-    const l = (cropL * 100).toFixed(1), r = (cropR * 100).toFixed(1);
-    const t = (cropT * 100).toFixed(1), b = (cropB * 100).toFixed(1);
-    recCropXTrack.style.background =
-      `linear-gradient(to right, rgba(255,255,255,0.08) ${l}%, var(--purple) ${l}%, var(--purple) ${r}%, rgba(255,255,255,0.08) ${r}%)`;
-    recCropYTrack.style.background =
-      `linear-gradient(to right, rgba(255,255,255,0.08) ${t}%, var(--purple) ${t}%, var(--purple) ${b}%, rgba(255,255,255,0.08) ${b}%)`;
-  }
-
   function _updateCropOverlay() {
-    const ew = recVideo.clientWidth;
-    const eh = recVideo.clientHeight;
+    const { ox, oy, cw, ch, ew, eh } = _getVideoContentRect();
     if (!ew || !eh) return;
-
-    // Compute actual video content rect (accounts for object-fit: contain letterboxing)
-    const vw    = recVideo.videoWidth  || ew;
-    const vh    = recVideo.videoHeight || eh;
-    const scale = Math.min(ew / vw, eh / vh);
-    const cw    = vw * scale;
-    const ch    = vh * scale;
-    const ox    = (ew - cw) / 2;  // horizontal offset
-    const oy    = (eh - ch) / 2;  // vertical offset
 
     // Crop edges in element-pixel space
     const left   = ox + cropL * cw;

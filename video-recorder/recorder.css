@@ -58,29 +58,123 @@
   min-width: 56px;
 }
 
-/* ─── Source picker (home card) ──────────────────────────────────────────── */
-#recSourceGroup {
-  margin-bottom: 2px;
-}
-
-/* ─── Start row (Start Recording + +5 sec) ───────────────────────────────── */
-.rec-start-row {
+/* ─── Split record button ─────────────────────────────────────────────────── */
+.rec-split-wrap {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rec-split-btn {
+  display: flex;
   align-items: stretch;
-  margin-top: 6px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--purple);
+  box-shadow: 0 1px 8px var(--purple-glow-md);
 }
 
-.rec-start-row .btn-primary {
+.rec-split-main {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--t-fast);
+  letter-spacing: 0.01em;
 }
 
-.rec-delay-btn {
-  margin-top: 0 !important;
-  padding: 0 14px;
+.rec-split-main:hover { background: rgba(255,255,255,0.1); }
+.rec-split-main:active { background: rgba(255,255,255,0.18); }
+.rec-split-main svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+.rec-split-divider {
+  width: 1px;
+  background: rgba(255,255,255,0.25);
+  align-self: stretch;
+}
+
+.rec-split-arrow {
+  padding: 10px 13px;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--t-fast);
+}
+
+.rec-split-arrow:hover { background: rgba(255,255,255,0.1); }
+.rec-split-arrow:active { background: rgba(255,255,255,0.18); }
+.rec-split-arrow svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  transition: transform var(--t-fast);
+}
+.rec-split-arrow.open svg { transform: rotate(180deg); }
+
+/* ─── Format dropdown ─────────────────────────────────────────────────────── */
+.rec-format-dropdown {
+  display: none;
+  gap: 4px;
+  padding: 5px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  animation: fadeUp 0.1s var(--ease) both;
+}
+
+.rec-format-dropdown.open { display: flex; }
+
+.rec-fmt-opt {
+  flex: 1;
+  padding: 6px 4px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 600;
-  flex-shrink: 0;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+  text-align: center;
+}
+
+.rec-fmt-opt:hover:not(.active) { background: var(--bg-hover); color: var(--text-primary); }
+.rec-fmt-opt.active { background: var(--purple); color: #fff; }
+
+.rec-fmt-badge {
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.75);
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  vertical-align: middle;
+}
+
+/* ─── Delay button ────────────────────────────────────────────────────────── */
+.rec-delay-btn {
+  margin-top: 0 !important;
+  width: 100%;
+  font-size: 12px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -227,11 +321,13 @@
 .rec-video-area {
   position: relative;
   line-height: 0;
+  overflow: hidden;
+  cursor: crosshair;
+  user-select: none;
 }
 
 .rec-video {
   width: 100%;
-  max-height: 178px;
   object-fit: contain;
   display: block;
 }
@@ -254,7 +350,29 @@
   border: 1.5px solid rgba(139, 92, 246, 0.9);
   box-sizing: border-box;
   display: none;
+  pointer-events: all;
+  cursor: move;
 }
+
+/* ─── Crop drag handles ──────────────────────────────────────────────────── */
+.rec-crop-handle {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background: #fff;
+  border: 1.5px solid rgba(139, 92, 246, 0.9);
+  box-sizing: border-box;
+  border-radius: 1px;
+}
+
+.rec-crop-handle[data-handle="nw"] { top: -5px;    left: -5px;   cursor: nw-resize; }
+.rec-crop-handle[data-handle="n"]  { top: -5px;    left: 50%; transform: translateX(-50%); cursor: n-resize; }
+.rec-crop-handle[data-handle="ne"] { top: -5px;    right: -5px;  cursor: ne-resize; }
+.rec-crop-handle[data-handle="e"]  { top: 50%;  transform: translateY(-50%); right: -5px;  cursor: e-resize; }
+.rec-crop-handle[data-handle="se"] { bottom: -5px; right: -5px;  cursor: se-resize; }
+.rec-crop-handle[data-handle="s"]  { bottom: -5px; left: 50%; transform: translateX(-50%); cursor: s-resize; }
+.rec-crop-handle[data-handle="sw"] { bottom: -5px; left: -5px;   cursor: sw-resize; }
+.rec-crop-handle[data-handle="w"]  { top: 50%;  transform: translateY(-50%); left: -5px;   cursor: w-resize; }
 
 /* ─── Crop bars (inside player-controls) ────────────────────────────────── */
 .rec-ctrl-separator {
@@ -312,7 +430,7 @@
   cursor: pointer;
 }
 
-/* White playhead line */
+/* White playhead line — only visible during playback */
 .rec-playhead {
   position: absolute;
   top: 50%;
@@ -323,6 +441,20 @@
   border-radius: 1px;
   pointer-events: none;
   z-index: 6;
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}
+
+.rec-trim-wrap.playing .rec-playhead { opacity: 1; }
+
+/* Loop button active state */
+.rec-ctrl-btn.loop-active {
+  color: var(--red);
+}
+
+.rec-ctrl-btn.loop-active:hover {
+  color: var(--red);
+  background: rgba(239, 68, 68, 0.12);
 }
 
 /* Both handle inputs are overlaid — only thumbs get pointer events */
@@ -450,6 +582,94 @@
   width: 13px;
   height: 13px;
   flex-shrink: 0;
+}
+
+/* ─── Volume popup ───────────────────────────────────────────────────────── */
+.rec-vol-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rec-vol-popup {
+  position: absolute;
+  right: calc(100% + 6px);
+  top: 50%;
+  transform: translateY(-50%) translateX(4px);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-fast), transform var(--t-fast);
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+.rec-vol-wrap.vol-open .rec-vol-popup {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Osynlig brygga åt höger som fyller gapet mot knappen */
+.rec-vol-popup::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  width: 8px;
+  pointer-events: none;
+}
+
+#recMuteIcon {
+  display: none;
+  color: var(--red);
+}
+
+.rec-ctrl-btn.is-muted #recMuteIcon  { display: block; }
+.rec-ctrl-btn.is-muted #recSoundIcon { display: none; }
+.rec-ctrl-btn.is-muted { color: var(--red); }
+
+.rec-vol-slider {
+  width: 72px;
+  height: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--border);
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--purple);
+  display: block;
+}
+
+.rec-vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--purple);
+  cursor: grab;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+}
+
+.rec-vol-slider::-webkit-slider-thumb:active { cursor: grabbing; }
+
+.rec-vol-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--purple);
+  border: none;
+  cursor: grab;
 }
 
 /* ─── Processing progress bar ────────────────────────────────────────────── */
