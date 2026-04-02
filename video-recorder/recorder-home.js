@@ -65,6 +65,7 @@ export function initRecorderHome() {
   let currentFormat  = 'webm';
   const selectedSource = 'pick';
   let countdownTimer = null;
+  let delayEnabled   = false;
   let videoBlobUrl   = null;
   let isScrubbing    = false;
   let isProcessing   = false;
@@ -111,7 +112,7 @@ export function initRecorderHome() {
     recFormatBtn.classList.toggle('open', open);
   });
 
-  recFormatDropdown.querySelectorAll('.rec-fmt-opt').forEach(btn => {
+  recFormatDropdown.querySelectorAll('.rec-fmt-opt:not(#recDelayBtn)').forEach(btn => {
     btn.addEventListener('click', async () => {
       const fmt = btn.dataset.fmt;
       _setActiveFormat(fmt);
@@ -127,58 +128,23 @@ export function initRecorderHome() {
   });
 
   function _setActiveFormat(fmt) {
-    recFormatDropdown.querySelectorAll('.rec-fmt-opt').forEach(b => {
+    recFormatDropdown.querySelectorAll('.rec-fmt-opt[data-fmt]').forEach(b => {
       b.classList.toggle('active', b.dataset.fmt === fmt);
     });
   }
 
-  // ── Start (immediate) ──────────────────────────────────────────────────────
-  recStartBtn.addEventListener('click', () => _launch());
+  // ── Start ──────────────────────────────────────────────────────────────────
+  recStartBtn.addEventListener('click', () => {
+    if (delayEnabled) _launchWithDelay();
+    else _launch();
+  });
 
-  // ── Start with 5-second delay ──────────────────────────────────────────────
-  recDelayBtn.addEventListener('click', async () => {
-    clearStatus(recStatus);
-    const settings = await getRecorderSettings();
-    currentFormat = settings.format;
-
-    if (currentFormat === 'gif') {
-      showStatus(recStatus, 'GIF is coming soon — switch to WebM or MP4 in Settings.', 'error');
-      return;
-    }
-
-    recStartBtn.disabled = true;
-    recDelayBtn.disabled = true;
-    try {
-      await prepareRecording({
-        source: selectedSource, format: settings.format,
-        audioMode: settings.audioMode, sizeLimitMb: settings.sizeLimitMb,
-        onTick: ({ elapsed, bytes }) => {
-          recTimer.textContent    = _formatTime(elapsed);
-          recLiveSize.textContent = formatBytes(bytes);
-        },
-        onStop: _onStop
-      });
-    } catch (err) {
-      recStartBtn.disabled = false;
-      recDelayBtn.disabled = false;
-      if (err.name !== 'NotAllowedError')
-        showStatus(recStatus, 'Could not start: ' + err.message, 'error');
-      return;
-    }
-
-    _showState('countdown');
-    let count = 5;
-    recCountdownNum.textContent = count;
-    countdownTimer = setInterval(() => {
-      count--;
-      recCountdownNum.textContent = count;
-      if (count <= 0) {
-        clearInterval(countdownTimer);
-        countdownTimer = null;
-        beginRecording();
-        _showState('live');
-      }
-    }, 1000);
+  // ── +5 sec delay toggle ────────────────────────────────────────────────────
+  recDelayBtn.addEventListener('click', () => {
+    delayEnabled = !delayEnabled;
+    recDelayBtn.classList.toggle('active', delayEnabled);
+    recFormatDropdown.classList.remove('open');
+    recFormatBtn.classList.remove('open');
   });
 
   // ── Cancel countdown ───────────────────────────────────────────────────────
@@ -526,6 +492,52 @@ export function initRecorderHome() {
 
   document.addEventListener('mouseup',  () => { isScrubbing = false; });
   document.addEventListener('touchend', () => { isScrubbing = false; });
+
+  // ── Launch with 5-second countdown ────────────────────────────────────────
+  async function _launchWithDelay() {
+    clearStatus(recStatus);
+    const settings = await getRecorderSettings();
+    currentFormat = settings.format;
+
+    if (currentFormat === 'gif') {
+      showStatus(recStatus, 'GIF is coming soon — switch to WebM or MP4 in Settings.', 'error');
+      return;
+    }
+
+    recStartBtn.disabled = true;
+    recDelayBtn.disabled = true;
+    try {
+      await prepareRecording({
+        source: selectedSource, format: settings.format,
+        audioMode: settings.audioMode, sizeLimitMb: settings.sizeLimitMb,
+        onTick: ({ elapsed, bytes }) => {
+          recTimer.textContent    = _formatTime(elapsed);
+          recLiveSize.textContent = formatBytes(bytes);
+        },
+        onStop: _onStop
+      });
+    } catch (err) {
+      recStartBtn.disabled = false;
+      recDelayBtn.disabled = false;
+      if (err.name !== 'NotAllowedError')
+        showStatus(recStatus, 'Could not start: ' + err.message, 'error');
+      return;
+    }
+
+    _showState('countdown');
+    let count = 5;
+    recCountdownNum.textContent = count;
+    countdownTimer = setInterval(() => {
+      count--;
+      recCountdownNum.textContent = count;
+      if (count <= 0) {
+        clearInterval(countdownTimer);
+        countdownTimer = null;
+        beginRecording();
+        _showState('live');
+      }
+    }, 1000);
+  }
 
   // ── Shared launch ──────────────────────────────────────────────────────────
   async function _launch() {

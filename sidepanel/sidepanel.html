@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="css/settings.css" />
   <link rel="stylesheet" href="../video-recorder/recorder.css" />
   <link rel="stylesheet" href="css/clock.css" />
+  <link rel="stylesheet" href="css/fasturl.css" />
 </head>
 <body>
 
@@ -53,8 +54,81 @@
     <!-- ─── HOME TAB ──────────────────────────────────────────────── -->
     <section id="tab-home" class="tab-pane active">
 
+      <!-- FastURL snabblänkar -->
+      <div class="card fasturl-card" id="fastUrlCard">
+        <div class="fasturl-row">
+          <div class="fasturl-slot" id="fuSlot0"></div>
+          <div class="fasturl-slot" id="fuSlot1"></div>
+          <div class="fasturl-slot" id="fuSlot2"></div>
+        </div>
+      </div>
+
       <!-- Matlagning / Planering / Larm -->
       <div class="card clock-card" id="clockCard">
+
+        <!-- Header: date + week + alarm sound -->
+        <div class="clock-header">
+          <div class="clock-date-wrap">
+            <span class="clock-date-day" id="clockDateDay">Måndag 1 Januari</span>
+            <span class="clock-week" id="clockWeek">Vecka 1</span>
+          </div>
+          <div class="alarm-sound-wrap">
+            <button class="alarm-sound-btn" id="alarmSoundBtn" title="Välj alarmlåt">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </button>
+            <div class="alarm-sound-picker" id="alarmSoundPicker" hidden>
+              <div class="alarm-sound-opt" data-src="assets/dash.mp3">
+                <button class="sound-play-btn" title="Förhandslyssna">
+                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+                </button>
+                <span class="sound-name">Dash</span>
+              </div>
+              <div class="alarm-sound-opt" data-src="assets/dragon-roost-island.mp3">
+                <button class="sound-play-btn" title="Förhandslyssna">
+                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+                </button>
+                <span class="sound-name">Dragon Roost Island</span>
+              </div>
+              <div class="alarm-sound-opt" data-src="assets/full-steam.mp3">
+                <button class="sound-play-btn" title="Förhandslyssna">
+                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+                </button>
+                <span class="sound-name">Full Steam</span>
+              </div>
+              <div class="alarm-sound-opt" data-src="assets/pedro.mp3">
+                <button class="sound-play-btn" title="Förhandslyssna">
+                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+                </button>
+                <span class="sound-name">Pedro</span>
+              </div>
+              <div class="alarm-sound-opt" data-src="assets/ready-to-roll-out.mp3">
+                <button class="sound-play-btn" title="Förhandslyssna">
+                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+                </button>
+                <span class="sound-name">Ready to Roll Out</span>
+              </div>
+              <div class="alarm-sound-opt" data-src="assets/smash-bros-eurobeat.mp3">
+                <button class="sound-play-btn" title="Förhandslyssna">
+                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+                </button>
+                <span class="sound-name">Smash Bros Eurobeat</span>
+              </div>
+              <div class="alarm-sound-opt" data-src="assets/wii.mp3">
+                <button class="sound-play-btn" title="Förhandslyssna">
+                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+                </button>
+                <span class="sound-name">Wii</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Inner tab bar -->
         <div class="clock-tab-bar">
@@ -65,7 +139,20 @@
 
         <!-- Cooking pane -->
         <div class="clock-pane" id="clockPane-cooking">
-          <div class="timer-display" id="cookingDisplay">05:00</div>
+          <div class="cooking-display-row">
+            <button class="cooking-arrow" id="cookingDecBtn" title="-30 sek">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="timer-display editable" id="cookingDisplay">05:00</div>
+            <div class="timer-edit-wrap" id="cookingEditWrap" hidden>
+              <input class="timer-edit-part" id="cookingEditMin" type="text" inputmode="numeric" maxlength="2" placeholder="00" />
+              <span class="timer-edit-colon">:</span>
+              <input class="timer-edit-part" id="cookingEditSec" type="text" inputmode="numeric" maxlength="2" placeholder="00" />
+            </div>
+            <button class="cooking-arrow" id="cookingIncBtn" title="+30 sek">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
           <div class="cooking-presets">
             <button class="cooking-preset" data-min="5">5 min</button>
             <button class="cooking-preset" data-min="10">10 min</button>
@@ -97,6 +184,7 @@
             <span id="planResultText"></span>
           </div>
           <div class="timer-display" id="planCountdown" hidden></div>
+          <button class="btn-ghost" id="planCancelBtn" hidden>Avbryt nedräkning</button>
         </div>
 
         <!-- Alarm pane -->
@@ -134,9 +222,10 @@
               <button class="rec-fmt-opt active" data-fmt="webm">WebM</button>
               <button class="rec-fmt-opt" data-fmt="mp4">MP4</button>
               <button class="rec-fmt-opt" data-fmt="gif">GIF <span class="rec-fmt-badge">soon</span></button>
+              <div class="rec-fmt-divider"></div>
+              <button class="rec-fmt-opt" id="recDelayBtn">+5 sec delay</button>
             </div>
           </div>
-          <button class="btn-ghost rec-delay-btn" id="recDelayBtn">+5 sec</button>
         </div>
 
         <!-- COUNTDOWN -->
@@ -624,6 +713,25 @@
           </label>
         </div>
 
+      </div>
+
+      <!-- FastURL -->
+      <div class="card" id="fastUrlSettingsCard">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          FastURL
+        </label>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Visa FastURL</span>
+            <span class="toggle-desc">Snabblänkar längst upp på Home-fliken</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="fastUrlEnabled" class="fu-toggle" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="fu-slot-list" id="fuSlotList"></div>
       </div>
 
       <!-- Recorder -->

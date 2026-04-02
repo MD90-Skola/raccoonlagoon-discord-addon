@@ -7,6 +7,7 @@ import { initSettings, loadSettings, initColorPicker } from './tabs/settings.js'
 import { setBadge }                             from './tabs/utils.js';
 import { initRecorderTab, loadRecorderSettings } from '../video-recorder/recorder-tab.js';
 import { initRecorderHome }                     from '../video-recorder/recorder-home.js';
+import { initFastURL }                          from './tabs/fasturl.js';
 
 // ─── Tab navigation ───────────────────────────────────────────────────────
 const tabBtns  = document.querySelectorAll('.tab-btn');
@@ -32,6 +33,7 @@ initSettings();
 initColorPicker();
 initRecorderTab();
 initRecorderHome();
+initFastURL();
 
 (async function init() {
   setBadge('ready');

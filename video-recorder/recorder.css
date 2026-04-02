@@ -136,7 +136,7 @@
   animation: fadeUp 0.1s var(--ease) both;
 }
 
-.rec-format-dropdown.open { display: flex; }
+.rec-format-dropdown.open { display: flex; flex-wrap: wrap; }
 
 .rec-fmt-opt {
   flex: 1;
@@ -155,6 +155,20 @@
 
 .rec-fmt-opt:hover:not(.active) { background: var(--bg-hover); color: var(--text-primary); }
 .rec-fmt-opt.active { background: var(--purple); color: #fff; }
+
+.rec-fmt-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 2px 0;
+}
+
+/* +5 sec delay option — full width row, left-aligned */
+#recDelayBtn.rec-fmt-opt {
+  flex: 0 0 100%;
+  text-align: left;
+  padding: 6px 8px;
+}
 
 .rec-fmt-badge {
   font-size: 9px;

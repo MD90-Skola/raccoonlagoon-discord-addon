@@ -1,0 +1,171 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   fasturl.css — FastURL snabblänkar
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Home card ──────────────────────────────────────────────────────────── */
+.fasturl-card {
+  padding: 10px 12px;
+}
+
+.fasturl-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+/* ─── Slot box ───────────────────────────────────────────────────────────── */
+.fasturl-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 6px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  min-height: 72px;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+
+.fasturl-slot.filled:hover {
+  background: var(--purple-glow);
+  border-color: var(--purple-border);
+}
+
+.fasturl-slot.empty {
+  border-style: dashed;
+  opacity: 0.4;
+  cursor: default;
+  pointer-events: none;
+}
+
+.fasturl-plus {
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+/* ─── Icon ───────────────────────────────────────────────────────────────── */
+.fasturl-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-xs);
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.fasturl-icon-fallback {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.fasturl-icon-fallback svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ─── Label ──────────────────────────────────────────────────────────────── */
+.fasturl-label {
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+/* ─── Settings slot editors ──────────────────────────────────────────────── */
+.fu-slot-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.fu-slot-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 12px 0 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.fu-slot-num {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--purple-light);
+}
+
+.fu-editor-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fu-editor-label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  min-width: 38px;
+  flex-shrink: 0;
+}
+
+.fu-editor-field .text-input {
+  flex: 1;
+  font-size: 12px;
+}
+
+/* ─── Image field ────────────────────────────────────────────────────────── */
+.fu-image-field {
+  align-items: flex-start;
+}
+
+.fu-image-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.fu-preview-img {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  object-fit: contain;
+  background: var(--bg-raised);
+  flex-shrink: 0;
+}
+
+.fu-image-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fu-upload-label {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* ─── Save / Clear actions ───────────────────────────────────────────────── */
+.fu-editor-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.fu-editor-actions .btn-primary { flex: 1; font-size: 12px; padding: 8px 12px; margin-top: 0; }
+.fu-editor-actions .btn-ghost   { font-size: 12px; padding: 7px 12px; margin-top: 0; }

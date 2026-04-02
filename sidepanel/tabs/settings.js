@@ -221,7 +221,7 @@ export function initSettings() {
 
   // ─── Kill switch helpers ──────────────────────────────────────────────────
   function featureCheckboxes() {
-    return document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle)');
+    return document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle):not(.fu-toggle)');
   }
 
   function applyKillSwitch(globalOn) {
@@ -328,13 +328,13 @@ export async function loadSettings() {
 
   // Om kill switch är AV: visa alla feature-toggles som disabled+unchecked
   if (!globalOn) {
-    document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle)')
+    document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle):not(.fu-toggle)')
       .forEach(t => { t.checked = false; t.disabled = true; });
     return;
   }
 
   // Kill switch är PÅ — återställ faktiska värden
-  document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle)')
+  document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle):not(.fu-toggle)')
     .forEach(t => { t.disabled = false; });
 
   document.getElementById('recorderEnabled').checked = s.recorderEnabled !== false; // default ON
