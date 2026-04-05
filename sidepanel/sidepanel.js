@@ -1,41 +1,28 @@
 // sidepanel.js — Entry point
 
-import { initClock }                            from './tabs/clock.js';
-import { initHome }                             from './tabs/home.js';
-import { initNotes, loadNotes }                 from './tabs/notes.js';
-import { initSettings, loadSettings, initColorPicker } from './tabs/settings.js';
-import { setBadge }                             from './tabs/utils.js';
-import { initRecorderTab, loadRecorderSettings } from '../video-recorder/recorder-tab.js';
-import { initRecorderHome }                     from '../video-recorder/recorder-home.js';
-import { initFastURL }                          from './tabs/fasturl.js';
+import { template as headerTpl, init as initHeader }        from '../components/header/header.js';
+import { initHome }                                          from './tabs/home.js';
+import { initNotes, loadNotes }                              from './tabs/notes.js';
+import { initSettings, loadSettings, initColorPicker }       from './tabs/settings.js';
+import { setBadge }                                          from './tabs/utils.js';
+import { initRecorderTab, loadRecorderSettings }             from '../components/video-recorder/recorder-tab.js';
+import { initScanner }                                       from './tabs/scanner.js';
+import { initFreeGames }                                     from '../components/freegames/freegames.js';
+import { initOptimize }                                      from './tabs/Optimize.js';
 
-// ─── Tab navigation ───────────────────────────────────────────────────────
-const tabBtns  = document.querySelectorAll('.tab-btn');
-const tabPanes = document.querySelectorAll('.tab-pane');
 
-tabBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = btn.dataset.tab;
-    tabBtns.forEach(b => b.classList.remove('active'));
-    tabPanes.forEach(p => { p.hidden = true; p.classList.remove('active'); });
-    btn.classList.add('active');
-    const pane = document.getElementById('tab-' + target);
-    pane.hidden = false;
-    requestAnimationFrame(() => pane.classList.add('active'));
-  });
-});
-
-// ─── Init ─────────────────────────────────────────────────────────────────
-initClock();
+document.getElementById('tab-bar').innerHTML = headerTpl;
+initHeader();
 initHome();
 initNotes();
 initSettings();
 initColorPicker();
 initRecorderTab();
-initRecorderHome();
-initFastURL();
+initScanner();
+initFreeGames();
+initOptimize();
 
-(async function init() {
+(async () => {
   setBadge('ready');
   await loadNotes();
   await loadSettings();

@@ -103,7 +103,7 @@
 }
 
 .rec-split-arrow {
-  padding: 10px 13px;
+  padding: 10px 11px;
   background: none;
   border: none;
   color: #fff;
@@ -111,9 +111,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
   flex-shrink: 0;
-  transition: background var(--t-fast);
+  transition: background var(--t-fast), padding var(--t-fast);
 }
+
+.rec-split-fmt-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  line-height: 1;
+  opacity: 0.9;
+}
+.rec-split-fmt-label:empty { display: none; }
 
 .rec-split-arrow:hover { background: rgba(255,255,255,0.1); }
 .rec-split-arrow:active { background: rgba(255,255,255,0.18); }
@@ -163,12 +173,51 @@
   margin: 2px 0;
 }
 
-/* +5 sec delay option — full width row, left-aligned */
-#recDelayBtn.rec-fmt-opt {
-  flex: 0 0 100%;
-  text-align: left;
+/* +5 sec delay toggle row */
+.rec-delay-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
   padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--t-fast);
 }
+.rec-delay-row:hover { background: var(--bg-hover); }
+
+.rec-delay-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: color var(--t-fast);
+}
+.rec-delay-row.active .rec-delay-label { color: var(--text-primary); }
+
+.rec-toggle-wrap {
+  width: 28px;
+  height: 16px;
+  background: var(--border);
+  border-radius: 99px;
+  position: relative;
+  flex-shrink: 0;
+  transition: background var(--t-fast);
+}
+.rec-delay-row.active .rec-toggle-wrap { background: var(--purple); box-shadow: 0 0 0 2px var(--purple-glow-md); }
+
+.rec-toggle-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  transition: transform var(--t-fast);
+}
+.rec-delay-row.active .rec-toggle-thumb { transform: translateX(12px); }
 
 .rec-fmt-badge {
   font-size: 9px;
@@ -263,6 +312,18 @@
   color: var(--text-muted);
   margin-left: auto;
 }
+
+.rec-live-fmt {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.65);
+  background: rgba(255,255,255,0.12);
+  padding: 2px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.rec-live-fmt:empty { display: none; }
 
 /* ─── Stop button ────────────────────────────────────────────────────────── */
 .btn-rec-stop {

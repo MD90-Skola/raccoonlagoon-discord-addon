@@ -1,0 +1,264 @@
+.opt-intro {
+  margin-bottom: 14px;
+  opacity: 0.8;
+}
+
+.opt-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.opt-mode-row {
+  display: flex;
+  gap: 10px;
+}
+
+.opt-mode-btn.active {
+  outline: 2px solid rgba(255,255,255,0.18);
+}
+
+.opt-command-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.opt-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* =========================
+   GROUPS
+========================= */
+.opt-group {
+  margin-bottom: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.02);
+}
+
+.opt-group-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.opt-group-toggle-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.opt-group-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.opt-group-meta {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.opt-group-icon {
+  font-size: 20px;
+  line-height: 1;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.opt-group-body {
+  padding: 0 14px 14px 14px;
+}
+
+/* =========================
+   ITEMS
+========================= */
+.opt-item {
+  padding: 12px 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  transition: all 0.2s ease;
+}
+
+.opt-item.expanded {
+  padding-bottom: 14px;
+}
+
+.opt-item-standalone {
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  background: rgba(255,255,255,0.02);
+}
+
+.opt-item-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.opt-item-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.opt-item-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.opt-item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.opt-item-title {
+  font-weight: 600;
+  margin-bottom: 0;
+  word-break: break-word;
+}
+
+.opt-item-desc {
+  font-size: 12px;
+  opacity: 0.75;
+  word-break: break-word;
+}
+
+.opt-item-group-badge {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  opacity: 0.75;
+}
+
+/* =========================
+   INFO BUTTON + TOGGLE
+========================= */
+.opt-info-btn {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.04);
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.opt-info-btn:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.toggle-switch {
+  flex-shrink: 0;
+}
+
+/* =========================
+   INLINE COMMAND
+========================= */
+.opt-inline-command {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.opt-inline-command-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  opacity: 0.65;
+  margin-bottom: 6px;
+}
+
+.opt-inline-code {
+  display: block;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  opacity: 0.9;
+}
+
+/* =========================
+   BADGES / RISK
+========================= */
+.opt-risk-badge,
+.opt-admin-badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.opt-admin-badge {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.9);
+}
+
+.opt-risk-low {
+  color: #cfcfcf;
+}
+
+.opt-risk-medium {
+  color: #ff9f43;
+}
+
+.opt-risk-high {
+  color: #ff5c5c;
+}
+
+.opt-risk-badge.opt-risk-low {
+  background: rgba(255,255,255,0.08);
+}
+
+.opt-risk-badge.opt-risk-medium {
+  background: rgba(255,159,67,0.16);
+  border: 1px solid rgba(255,159,67,0.35);
+}
+
+.opt-risk-badge.opt-risk-high {
+  background: rgba(255,92,92,0.16);
+  border: 1px solid rgba(255,92,92,0.35);
+}
+s
+.opt-item.opt-risk-medium .opt-item-title {
+  color: #ff9f43;
+}
+
+.opt-item.opt-risk-high .opt-item-title {
+  color: #ff5c5c;
+}
+
+.opt-preset-btn.active {
+  opacity: 1;
+  border: 1px solid #4da3ff;
+  box-shadow: 0 0 0 1px rgba(77,163,255,0.25);
+}

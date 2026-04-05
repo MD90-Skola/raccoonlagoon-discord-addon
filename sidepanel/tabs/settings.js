@@ -205,6 +205,7 @@ export function initSettings() {
   const igAutoscrollToggle      = document.getElementById('instagramAutoscrollEnabled');
   const globalToggle    = document.getElementById('globalEnabled');
   const recorderToggle  = document.getElementById('recorderEnabled');
+  const rustReaToggle   = document.getElementById('rustReaEnabled');
   const checkUpdateBtn  = document.getElementById('checkUpdateBtn');
   const updateStatus    = document.getElementById('updateStatus');
   const currentVersionEl = document.getElementById('currentVersion');
@@ -253,6 +254,7 @@ export function initSettings() {
   smartBoxToggle.addEventListener('change',          () => Storage.set({ smartBoxEnabled:               smartBoxToggle.checked          }));
   ytShortAutoscrollToggle.addEventListener('change', () => Storage.set({ youtubeShortAutoscrollEnabled: ytShortAutoscrollToggle.checked }));
   igAutoscrollToggle.addEventListener('change',      () => Storage.set({ instagramAutoscrollEnabled:    igAutoscrollToggle.checked      }));
+  rustReaToggle.addEventListener('change',           () => Storage.set({ rustReaEnabled:                rustReaToggle.checked           }));
 
   // ─── Update check ─────────────────────────────────────────────────────────
   const currentVersion = chrome.runtime.getManifest().version;
@@ -352,4 +354,5 @@ export async function loadSettings() {
   document.getElementById('smartBoxEnabled').checked                  = s.smartBoxEnabled                  !== false;
   document.getElementById('youtubeShortAutoscrollEnabled').checked   = s.youtubeShortAutoscrollEnabled   === true;
   document.getElementById('instagramAutoscrollEnabled').checked      = s.instagramAutoscrollEnabled      === true;
+  document.getElementById('rustReaEnabled').checked                  = s.rustReaEnabled                  === true;
 }

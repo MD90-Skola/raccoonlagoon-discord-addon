@@ -43,7 +43,12 @@ var Storage = {
         'instagramAutoscrollEnabled',
         'facebookReelsEnabled',
         'globalEnabled',
-        'recorderEnabled'
+        'recorderEnabled',
+        'rustReaEnabled',
+        'rustAutoScanEnabled',
+        'rustProducts',
+        'rustAlerts',
+        'rustLastScanAt'
       ]);
     } catch (_) { return {}; }
   },

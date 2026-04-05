@@ -1,0 +1,21 @@
+<div class="card" id="steamFreeCard">
+    <label class="section-label">Steam Free Games</label>
+
+    <div class="steam-controls">
+        <div class="steam-autoscan-row">
+            <span class="steam-label">Auto-scan (daglig)</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="steamAutoScanToggle" />
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <span class="steam-last-scan" id="steamLastScan">Aldrig skannat</span>
+    </div>
+
+    <button class="btn-primary" id="steamScanBtn">Scan Steam</button>
+
+    <div id="steamGamesList" class="steam-list"></div>
+
+    <span class="scan-status" id="steamScanStatus">Status: Idle</span>
+</div>

@@ -8,433 +8,30 @@
   <link rel="stylesheet" href="css/home.css" />
   <link rel="stylesheet" href="css/notes.css" />
   <link rel="stylesheet" href="css/settings.css" />
-  <link rel="stylesheet" href="../video-recorder/recorder.css" />
-  <link rel="stylesheet" href="css/clock.css" />
-  <link rel="stylesheet" href="css/fasturl.css" />
+  <link rel="stylesheet" href="../components/video-recorder/recorder.css" />
+  <link rel="stylesheet" href="../components/clock/clock.css" />
+  <link rel="stylesheet" href="../components/fasturl/fasturl.css" />
+  <link rel="stylesheet" href="css/scanner.css" />
+  <link rel="stylesheet" href="../components/freegames/freegames.css" />
+    <link rel="stylesheet" href="../components/optimize/commandbox.css">
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       TOPBAR
-  ════════════════════════════════════════════════════════════════════ -->
-<!--  <header class="topbar">
-    <div class="topbar-logo">
-      <img class="logo-raccoon" src="../icon.png" alt="RaccoonLagoon" />
-      <span class="logo-text">RaccoonLagoon</span>
-    </div>
-    <div class="topbar-badge" id="connectionBadge">
-      <span class="badge-dot"></span>
-      <span class="badge-label">Ready</span>
-    </div>
-  </header>-->
+  <div id="tab-bar"></div>
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       TAB BAR
-  ════════════════════════════════════════════════════════════════════ -->
-  <nav class="tab-bar">
-    <button class="tab-btn active" data-tab="home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      Home
-    </button>
-    <button class="tab-btn" data-tab="notes">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-      Notes
-    </button>
-    <button class="tab-btn" data-tab="settings">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      Settings
-    </button>
-  </nav>
-
-  <!-- ═══════════════════════════════════════════════════════════════════
-       CONTENT AREA
-  ════════════════════════════════════════════════════════════════════ -->
   <main class="content">
 
-    <!-- ─── HOME TAB ──────────────────────────────────────────────── -->
-    <section id="tab-home" class="tab-pane active">
+    <!-- ===================================================== -->
+    <!-- TODO: TAB - HOME                                      -->
+    <!-- ===================================================== -->
+    <section id="tab-home" class="tab-pane active"></section>
 
-      <!-- FastURL snabblänkar -->
-      <div class="card fasturl-card" id="fastUrlCard">
-        <div class="fasturl-row">
-          <div class="fasturl-slot" id="fuSlot0"></div>
-          <div class="fasturl-slot" id="fuSlot1"></div>
-          <div class="fasturl-slot" id="fuSlot2"></div>
-        </div>
-      </div>
-
-      <!-- Matlagning / Planering / Larm -->
-      <div class="card clock-card" id="clockCard">
-
-        <!-- Header: date + week + alarm sound -->
-        <div class="clock-header">
-          <div class="clock-date-wrap">
-            <span class="clock-date-day" id="clockDateDay">Måndag 1 Januari</span>
-            <span class="clock-week" id="clockWeek">Vecka 1</span>
-          </div>
-          <div class="alarm-sound-wrap">
-            <button class="alarm-sound-btn" id="alarmSoundBtn" title="Välj alarmlåt">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            </button>
-            <div class="alarm-sound-picker" id="alarmSoundPicker" hidden>
-              <div class="alarm-sound-opt" data-src="assets/dash.mp3">
-                <button class="sound-play-btn" title="Förhandslyssna">
-                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
-                </button>
-                <span class="sound-name">Dash</span>
-              </div>
-              <div class="alarm-sound-opt" data-src="assets/dragon-roost-island.mp3">
-                <button class="sound-play-btn" title="Förhandslyssna">
-                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
-                </button>
-                <span class="sound-name">Dragon Roost Island</span>
-              </div>
-              <div class="alarm-sound-opt" data-src="assets/full-steam.mp3">
-                <button class="sound-play-btn" title="Förhandslyssna">
-                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
-                </button>
-                <span class="sound-name">Full Steam</span>
-              </div>
-              <div class="alarm-sound-opt" data-src="assets/pedro.mp3">
-                <button class="sound-play-btn" title="Förhandslyssna">
-                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
-                </button>
-                <span class="sound-name">Pedro</span>
-              </div>
-              <div class="alarm-sound-opt" data-src="assets/ready-to-roll-out.mp3">
-                <button class="sound-play-btn" title="Förhandslyssna">
-                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
-                </button>
-                <span class="sound-name">Ready to Roll Out</span>
-              </div>
-              <div class="alarm-sound-opt" data-src="assets/smash-bros-eurobeat.mp3">
-                <button class="sound-play-btn" title="Förhandslyssna">
-                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
-                </button>
-                <span class="sound-name">Smash Bros Eurobeat</span>
-              </div>
-              <div class="alarm-sound-opt" data-src="assets/wii.mp3">
-                <button class="sound-play-btn" title="Förhandslyssna">
-                  <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                  <svg class="icon-stop" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
-                </button>
-                <span class="sound-name">Wii</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Inner tab bar -->
-        <div class="clock-tab-bar">
-          <button class="clock-tab active" data-clock-tab="cooking">Matlagning</button>
-          <button class="clock-tab" data-clock-tab="planning">Planering</button>
-          <button class="clock-tab" data-clock-tab="alarm">Larm</button>
-        </div>
-
-        <!-- Cooking pane -->
-        <div class="clock-pane" id="clockPane-cooking">
-          <div class="cooking-display-row">
-            <button class="cooking-arrow" id="cookingDecBtn" title="-30 sek">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
-            <div class="timer-display editable" id="cookingDisplay">05:00</div>
-            <div class="timer-edit-wrap" id="cookingEditWrap" hidden>
-              <input class="timer-edit-part" id="cookingEditMin" type="text" inputmode="numeric" maxlength="2" placeholder="00" />
-              <span class="timer-edit-colon">:</span>
-              <input class="timer-edit-part" id="cookingEditSec" type="text" inputmode="numeric" maxlength="2" placeholder="00" />
-            </div>
-            <button class="cooking-arrow" id="cookingIncBtn" title="+30 sek">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-            </button>
-          </div>
-          <div class="cooking-presets">
-            <button class="cooking-preset" data-min="5">5 min</button>
-            <button class="cooking-preset" data-min="10">10 min</button>
-            <button class="cooking-preset" data-min="15">15 min</button>
-            <button class="cooking-preset" data-min="20">20 min</button>
-          </div>
-          <div class="clock-btn-row">
-            <button class="btn-primary" id="cookingStartBtn">Start</button>
-            <button class="btn-ghost" id="cookingResetBtn">Reset</button>
-          </div>
-        </div>
-
-        <!-- Planning pane -->
-        <div class="clock-pane" id="clockPane-planning" hidden>
-          <div class="plan-form">
-            <div class="plan-field">
-              <span class="plan-label">Ankomst</span>
-              <input type="time" class="text-input" id="planArrival" />
-            </div>
-            <div class="plan-field">
-              <span class="plan-label">Restid</span>
-              <input type="number" class="text-input" id="planTravelMin" placeholder="minuter" min="0" max="999" />
-              <span class="plan-unit">min</span>
-            </div>
-          </div>
-          <button class="btn-primary" id="planCalcBtn">Räkna ut avgångstid</button>
-          <div class="plan-result" id="planResult" hidden>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span id="planResultText"></span>
-          </div>
-          <div class="timer-display" id="planCountdown" hidden></div>
-          <button class="btn-ghost" id="planCancelBtn" hidden>Avbryt nedräkning</button>
-        </div>
-
-        <!-- Alarm pane -->
-        <div class="clock-pane" id="clockPane-alarm" hidden>
-          <div class="alarm-add-row">
-            <input type="time" class="text-input" id="alarmTimeInput" />
-            <button class="btn-primary" id="alarmAddBtn">+ Larm</button>
-          </div>
-          <ul class="alarm-list" id="alarmList"></ul>
-          <p class="alarm-empty" id="alarmEmpty">Inga larm inställda</p>
-        </div>
-      </div>
-
-      <!-- Record Clip -->
-      <div class="card" id="recorderCard">
-        <label class="section-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></svg>
-          Record Clip
-        </label>
-
-        <!-- IDLE -->
-        <div id="recIdle">
-          <div class="rec-split-wrap">
-            <div class="rec-split-btn">
-              <button class="rec-split-main" id="recStartBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></svg>
-                Start Recording
-              </button>
-              <div class="rec-split-divider"></div>
-              <button class="rec-split-arrow" id="recFormatBtn" title="Format">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-            </div>
-            <div class="rec-format-dropdown" id="recFormatDropdown">
-              <button class="rec-fmt-opt active" data-fmt="webm">WebM</button>
-              <button class="rec-fmt-opt" data-fmt="mp4">MP4</button>
-              <button class="rec-fmt-opt" data-fmt="gif">GIF <span class="rec-fmt-badge">soon</span></button>
-              <div class="rec-fmt-divider"></div>
-              <button class="rec-fmt-opt" id="recDelayBtn">+5 sec delay</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- COUNTDOWN -->
-        <div id="recCountdown" hidden>
-          <div class="rec-countdown-display">
-            <span class="rec-countdown-num" id="recCountdownNum">5</span>
-            <span class="rec-countdown-label">Starting in…</span>
-          </div>
-          <button class="btn-ghost rec-cancel-delay-btn" id="recCancelDelayBtn">Cancel</button>
-        </div>
-
-        <!-- LIVE -->
-        <div id="recLive" hidden>
-          <div class="rec-live-bar">
-            <span class="rec-dot"></span>
-            <span class="rec-timer" id="recTimer">00:00</span>
-            <span class="rec-live-size" id="recLiveSize">0 KB</span>
-          </div>
-          <button class="btn-primary btn-rec-stop" id="recStopBtn" style="margin-top:6px">
-            <svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
-            Stop Recording
-          </button>
-        </div>
-
-        <!-- PREVIEW -->
-        <div id="recPreview" hidden>
-          <!-- Inline video player -->
-          <div class="rec-player">
-            <!-- Video + crop overlay -->
-            <div class="rec-video-area">
-              <video id="recVideo" class="rec-video" preload="metadata"></video>
-              <div class="rec-crop-overlay" id="recCropOverlay">
-                <div class="rec-crop-mask" id="recCropMaskT"></div>
-                <div class="rec-crop-mask" id="recCropMaskB"></div>
-                <div class="rec-crop-mask" id="recCropMaskL"></div>
-                <div class="rec-crop-mask" id="recCropMaskR"></div>
-                <div class="rec-crop-border" id="recCropBorder">
-                  <div class="rec-crop-handle" data-handle="nw"></div>
-                  <div class="rec-crop-handle" data-handle="n"></div>
-                  <div class="rec-crop-handle" data-handle="ne"></div>
-                  <div class="rec-crop-handle" data-handle="e"></div>
-                  <div class="rec-crop-handle" data-handle="se"></div>
-                  <div class="rec-crop-handle" data-handle="s"></div>
-                  <div class="rec-crop-handle" data-handle="sw"></div>
-                  <div class="rec-crop-handle" data-handle="w"></div>
-                </div>
-              </div>
-            </div>
-            <div class="rec-player-controls">
-              <!-- A/B trim bar -->
-              <div class="rec-trim-wrap" id="recTrimWrap">
-                <div class="rec-trim-track" id="recTrimTrack"></div>
-                <div class="rec-playhead"   id="recPlayhead"></div>
-                <input type="range" class="rec-trim-handle" id="recTrimA" min="0" max="1000" step="1" value="0"    />
-                <input type="range" class="rec-trim-handle" id="recTrimB" min="0" max="1000" step="1" value="1000" />
-              </div>
-              <!-- A / B time labels -->
-              <div class="rec-trim-labels">
-                <span id="recTrimALabel">0:00</span>
-                <span id="recTrimBLabel">—</span>
-              </div>
-              <!-- Controls row -->
-              <div class="rec-player-row">
-                <button class="rec-ctrl-btn" id="recPlayBtn" title="Play / Pause">
-                  <svg id="recPlayIcon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                  <svg id="recPauseIcon" viewBox="0 0 24 24" fill="currentColor" hidden><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-                </button>
-                <button class="rec-ctrl-btn" id="recLoopBtn" title="Loop">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-                </button>
-                <span class="rec-player-time" id="recVideoTime">0:00 / 0:00</span>
-                <div class="rec-vol-wrap" id="recVolWrap">
-                  <div class="rec-vol-popup">
-                    <input type="range" class="rec-vol-slider" id="recVolSlider" min="0" max="100" step="1" value="100" />
-                  </div>
-                  <button class="rec-ctrl-btn" id="recMuteBtn" title="Mute / Unmute">
-                    <svg id="recSoundIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-                    <svg id="recMuteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- File info + discard -->
-          <div class="rec-preview-card">
-            <div class="rec-preview-info">
-              <span class="rec-preview-name" id="recFileName">clip.webm</span>
-              <span class="rec-preview-size" id="recFileSize">—</span>
-            </div>
-            <button class="btn-remove" id="recDiscardBtn" title="Discard">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-          </div>
-          <div class="rec-preview-actions" style="margin-top:8px">
-            <button class="btn-ghost" id="recDownloadBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Download
-            </button>
-            <button class="btn-primary" id="recSendBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              Discord
-            </button>
-          </div>
-          <!-- Processing progress bar -->
-          <div class="rec-process-wrap" id="recProcessWrap" hidden>
-            <div class="rec-process-bar" id="recProcessBar"></div>
-          </div>
-        </div>
-
-        <div class="status-bar" id="recStatus"></div>
-      </div>
-
-      <!-- Smart Box: Spell Check + Translate -->
-      <div class="card" id="smartCard">
-        <label class="section-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          Smart Box
-        </label>
-        <textarea class="tool-input" id="smartInput" placeholder="Type anything — spell check + translation appear below…" rows="3"></textarea>
-        <div class="tool-result" id="smartSpellResult" hidden>
-          <span class="tool-result-label">Spell Checked</span>
-          <div class="tool-result-body">
-            <span class="tool-result-text" id="smartSpellText"></span>
-            <button class="btn-copy" id="smartSpellCopy">Copy</button>
-          </div>
-        </div>
-        <div class="tool-result" id="smartTranslateResult" hidden>
-          <span class="tool-result-label">Translated to English</span>
-          <div class="tool-result-body">
-            <span class="tool-result-text" id="smartTranslateText"></span>
-            <button class="btn-copy" id="smartTranslateCopy">Copy</button>
-          </div>
-        </div>
-        <div class="tool-status" id="smartStatus"></div>
-      </div>
-
-      <!-- Spell Check -->
-      <div class="card" id="spellCard">
-        <label class="section-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-          Spell Check
-        </label>
-        <textarea class="tool-input" id="spellInput" placeholder="Type or paste text to spell-check…" rows="3"></textarea>
-        <div class="tool-result" id="spellResult" hidden>
-          <span class="tool-result-label">Corrected</span>
-          <div class="tool-result-body">
-            <span class="tool-result-text" id="spellResultText"></span>
-            <button class="btn-copy" id="spellCopyBtn">Copy</button>
-          </div>
-        </div>
-        <div class="tool-status" id="spellStatus"></div>
-      </div>
-
-      <!-- Translate to English -->
-      <div class="card" id="translateCard">
-        <label class="section-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
-          Translate to English
-        </label>
-        <textarea class="tool-input" id="translateInput" placeholder="Type or paste text to translate…" rows="3"></textarea>
-        <div class="tool-result" id="translateResult" hidden>
-          <span class="tool-result-label">Translation</span>
-          <div class="tool-result-body">
-            <span class="tool-result-text" id="translateResultText"></span>
-            <button class="btn-copy" id="translateCopyBtn">Copy</button>
-          </div>
-        </div>
-        <div class="tool-status" id="translateStatus"></div>
-      </div>
-
-      <!-- Drop Zone -->
-      <div class="drop-zone" id="dropZone">
-        <div class="drop-glow"></div>
-        <button class="btn-drop-send" id="sendBtn" title="Send to Discord">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="22" y1="2" x2="11" y2="13"/>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-          </svg>
-        </button>
-        <div class="drop-zone-inner">
-          <div class="drop-icon">
-            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="4" y="12" width="56" height="40" rx="6" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4"/>
-              <circle cx="22" cy="28" r="5" stroke="currentColor" stroke-width="2"/>
-              <path d="M4 44 L18 30 L30 42 L42 28 L60 44" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M32 20 L32 8 M28 12 L32 8 L36 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <p class="drop-title">Drop anything here</p>
-          <p class="drop-hint">Image, audio, URL or text &nbsp;&middot;&nbsp; <kbd>Ctrl+V</kbd> to paste</p>
-          <p class="drop-limit">Files max 9.9 MB &mdash; Discord limit</p>
-          <input type="file" id="fileInput" accept="image/*,audio/*" multiple hidden />
-          <button class="btn-ghost" id="browseBtn">Browse image</button>
-        </div>
-      </div>
-
-      <!-- Items queue (dynamically populated) -->
-      <div class="items-queue" id="itemsQueue" hidden></div>
-
-      <!-- Status feedback -->
-      <div class="status-bar" id="homeStatus"></div>
-
-    </section>
-
-    <!-- ─── NOTES TAB ─────────────────────────────────────────────── -->
+    <!-- ===================================================== -->
+    <!-- TODO: TAB - NOTES                                     -->
+    <!-- ===================================================== -->
     <section id="tab-notes" class="tab-pane" hidden>
 
-      <!-- Anteckningar -->
+      <!-- ------- TODO: COMPONENT - NOTES ------- -->
       <div class="card">
         <label class="section-label">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -445,7 +42,7 @@
         <div class="status-bar" id="notesStatus"></div>
       </div>
 
-      <!-- Checklista -->
+      <!-- ----- TODO: COMPONENT - CHECKLIST ----- -->
       <div class="card">
         <label class="section-label">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -465,10 +62,90 @@
 
     </section>
 
-    <!-- ─── SETTINGS TAB ──────────────────────────────────────────── -->
+
+
+
+    <!-- ===================================================== -->
+    <!-- TODO: TAB - SCANNER                                   -->
+    <!-- ===================================================== -->
+
+
+    <section id="tab-scanner" class="tab-pane" hidden>
+
+      <!-- ------ TODO: COMPONENT - RUST FINDER ------ -->
+      <div class="card" id="rustFinderCard">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          Rust Finder
+        </label>
+
+        <div class="rust-controls">
+          <div class="rust-autoscan-row">
+            <span class="rust-label">Auto-scan (daglig)</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="rustAutoScanToggle" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <span class="rust-last-scan" id="rustLastScan">Aldrig skannat</span>
+        </div>
+
+        <button class="btn-primary" id="startScanBtn">Scan</button>
+        <span class="scan-status" id="scanStatus">Status: Idle</span>
+
+        <div id="rustNewSection" hidden>
+          <div class="rust-section-header rust-section-header--new">Nya produkter</div>
+          <div class="dlc-list" id="rustNewList"></div>
+        </div>
+
+        <div id="rustSaleSection" hidden>
+          <div class="rust-section-header rust-section-header--sale">Aktiva reor</div>
+          <div class="dlc-list" id="rustSaleList"></div>
+        </div>
+
+        <div id="rustChangedSection" hidden>
+          <div class="rust-section-header rust-section-header--changed">Prisändringar</div>
+          <div class="dlc-list" id="rustChangedList"></div>
+        </div>
+
+        <div class="rust-all-wrap">
+          <button class="rust-all-toggle" id="rustAllToggle">Visa produkter</button>
+          <div class="dlc-list" id="rustAllList" hidden></div>
+        </div>
+      </div>
+
+      <!-- ------- TODO: COMPONENT - FREE GAMES ------- -->
+      <div class="card" id="freeGamesCard">
+        <label class="section-label">Free Games</label>
+
+        <div class="fg-controls">
+          <div class="fg-autoscan-row">
+            <span class="fg-label">Auto-scan (daglig)</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="freeGamesAutoScanToggle" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <span class="fg-last-scan" id="freeGamesLastScan">Aldrig skannat</span>
+        </div>
+
+        <button class="btn-primary" id="freeGamesScanBtn">Scan</button>
+
+        <div id="freeGamesList" class="fg-list"></div>
+
+        <span class="scan-status" id="freeGamesStatus">Status: Idle</span>
+      </div>
+
+    </section>
+
+          <!-- ===================================================== -->
+          <!--                                                       -->
+          <!--            TODO: TAB - SETTINGS                       -->
+          <!--                                                       -->
+          <!-- ===================================================== -->
     <section id="tab-settings" class="tab-pane" hidden>
 
-      <!-- Search -->
+      <!-- -------- TODO: COMPONENT - SEARCH -------- -->
       <div class="settings-search">
         <svg class="settings-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" id="settingsSearch" class="settings-search-input" placeholder="Search settings…" autocomplete="off" />
@@ -478,7 +155,9 @@
       </div>
       <div class="settings-no-results" id="settingsNoResults">No settings found</div>
 
-      <!-- Appearance -->
+
+
+      <!-- ------ TODO: COMPONENT - APPEARANCE ------ -->
       <div class="card">
         <label class="section-label">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83"/></svg>
@@ -498,7 +177,9 @@
         </div>
       </div>
 
-      <!-- Kill Switch -->
+
+
+      <!-- ----- TODO: COMPONENT - KILL SWITCH ----- -->
       <div class="card killswitch-card">
         <div class="toggle-row">
           <div class="killswitch-left">
@@ -517,7 +198,7 @@
         </div>
       </div>
 
-      <!-- YouTube -->
+      <!-- ------- TODO: COMPONENT - YOUTUBE ------- -->
       <div class="card">
         <div class="platform-label">
           <div class="platform-icon platform-icon--yt">
@@ -583,7 +264,7 @@
 
       </div>
 
-      <!-- Instagram -->
+      <!-- ------ TODO: COMPONENT - INSTAGRAM ------ -->
       <div class="card">
         <div class="platform-label">
           <div class="platform-icon platform-icon--ig">
@@ -627,7 +308,7 @@
 
       </div>
 
-      <!-- Facebook -->
+      <!-- ------- TODO: COMPONENT - FACEBOOK ------- -->
       <div class="card">
         <div class="platform-label">
           <div class="platform-icon platform-icon--fb">
@@ -649,7 +330,7 @@
 
       </div>
 
-      <!-- Other Features -->
+      <!-- ------- TODO: COMPONENT - FEATURES ------- -->
       <div class="card">
         <div class="platform-label">
           <div class="platform-icon platform-icon--tools">
@@ -713,9 +394,20 @@
           </label>
         </div>
 
+        <div class="toggle-row" style="border-bottom:none; padding-bottom:0;">
+          <div class="toggle-info">
+            <span class="toggle-label">Rust-rea</span>
+            <span class="toggle-desc">Visar Scanner-fliken för Rust DLC-priser</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="rustReaEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
       </div>
 
-      <!-- FastURL -->
+      <!-- ------- TODO: COMPONENT - FASTURL ------- -->
       <div class="card" id="fastUrlSettingsCard">
         <label class="section-label">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -734,7 +426,7 @@
         <div class="fu-slot-list" id="fuSlotList"></div>
       </div>
 
-      <!-- Recorder -->
+      <!-- ------- TODO: COMPONENT - RECORDER ------- -->
       <div class="card">
         <label class="section-label">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></svg>
@@ -781,7 +473,7 @@
 
       </div>
 
-      <!-- Update -->
+      <!-- -------- TODO: COMPONENT - UPDATE -------- -->
       <div class="card">
         <label class="section-label">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -794,7 +486,7 @@
         <div class="status-bar" id="updateStatus"></div>
       </div>
 
-      <!-- Webhooks -->
+      <!-- ------- TODO: COMPONENT - WEBHOOKS ------- -->
       <div class="card">
         <div class="webhook-card-header">
           <label class="section-label">
@@ -807,7 +499,15 @@
         <div class="status-bar" id="settingsStatus"></div>
       </div>
 
+
     </section>
+      <section id="tab-optimize" class="tab-pane" hidden></section>
+
+
+
+
+
+
 
   </main>
 

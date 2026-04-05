@@ -2,7 +2,8 @@
 
 import { startRecording, prepareRecording, beginRecording, cancelPrepared, stopRecording, resetRecorder } from './recorder.js';
 import { getRecorderSettings }                                        from './recorder-tab.js';
-import { showStatus, clearStatus, formatBytes }                       from '../sidepanel/tabs/utils.js';
+import { encodeGif }                                                  from './gif-encoder.js';
+import { showStatus, clearStatus, formatBytes }                       from '../../sidepanel/tabs/utils.js';
 
 const DISCORD_MAX_BYTES = 10 * 1024 * 1024;
 
@@ -26,6 +27,8 @@ export function initRecorderHome() {
   const recStatus         = document.getElementById('recStatus');
   const recFormatBtn      = document.getElementById('recFormatBtn');
   const recFormatDropdown = document.getElementById('recFormatDropdown');
+  const recFormatLabel    = document.getElementById('recFormatLabel');
+  const recLiveFmt        = document.getElementById('recLiveFmt');
 
   // ── Video player ───────────────────────────────────────────────────────────
   const recVideo      = document.getElementById('recVideo');
@@ -103,6 +106,7 @@ export function initRecorderHome() {
   // Ladda sparat format och markera rätt knapp
   Storage.getAll().then(s => {
     const saved = s.recorderFormat ?? 'webm';
+    currentFormat = saved;
     _setActiveFormat(saved);
   });
 
@@ -115,6 +119,7 @@ export function initRecorderHome() {
   recFormatDropdown.querySelectorAll('.rec-fmt-opt:not(#recDelayBtn)').forEach(btn => {
     btn.addEventListener('click', async () => {
       const fmt = btn.dataset.fmt;
+      currentFormat = fmt;
       _setActiveFormat(fmt);
       await Storage.set({ recorderFormat: fmt });
       recFormatDropdown.classList.remove('open');
@@ -131,6 +136,7 @@ export function initRecorderHome() {
     recFormatDropdown.querySelectorAll('.rec-fmt-opt[data-fmt]').forEach(b => {
       b.classList.toggle('active', b.dataset.fmt === fmt);
     });
+    recFormatLabel.textContent = fmt.toUpperCase();
   }
 
   // ── Start ──────────────────────────────────────────────────────────────────
@@ -140,11 +146,10 @@ export function initRecorderHome() {
   });
 
   // ── +5 sec delay toggle ────────────────────────────────────────────────────
-  recDelayBtn.addEventListener('click', () => {
+  recDelayBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     delayEnabled = !delayEnabled;
     recDelayBtn.classList.toggle('active', delayEnabled);
-    recFormatDropdown.classList.remove('open');
-    recFormatBtn.classList.remove('open');
   });
 
   // ── Cancel countdown ───────────────────────────────────────────────────────
@@ -165,7 +170,7 @@ export function initRecorderHome() {
     if (!currentBlob || isProcessing) return;
     const blob = await _getActiveBlob();
     if (!blob) return;
-    const ext = currentFormat === 'mp4' ? 'mp4' : 'webm';
+    const ext = currentFormat === 'mp4' ? 'mp4' : currentFormat === 'gif' ? 'gif' : 'webm';
     const url = URL.createObjectURL(blob);
     Object.assign(document.createElement('a'), {
       href: url, download: `raccoon-clip-${Date.now()}.${ext}`
@@ -187,7 +192,7 @@ export function initRecorderHome() {
     recDownloadBtn.disabled = true;
     showStatus(recStatus, 'Sending to Discord...', 'info');
     try {
-      const ext = currentFormat === 'mp4' ? 'mp4' : 'webm';
+      const ext = currentFormat === 'mp4' ? 'mp4' : currentFormat === 'gif' ? 'gif' : 'webm';
       const fd  = new FormData();
       fd.append('files[0]', blob, `raccoon-clip-${Date.now()}.${ext}`);
       const res = await fetch(settings.webhookUrl, { method: 'POST', body: fd });
@@ -497,18 +502,13 @@ export function initRecorderHome() {
   async function _launchWithDelay() {
     clearStatus(recStatus);
     const settings = await getRecorderSettings();
-    currentFormat = settings.format;
-
-    if (currentFormat === 'gif') {
-      showStatus(recStatus, 'GIF is coming soon — switch to WebM or MP4 in Settings.', 'error');
-      return;
-    }
+    if (currentFormat === 'webm') currentFormat = settings.format;
 
     recStartBtn.disabled = true;
     recDelayBtn.disabled = true;
     try {
       await prepareRecording({
-        source: selectedSource, format: settings.format,
+        source: selectedSource, format: currentFormat,
         audioMode: settings.audioMode, sizeLimitMb: settings.sizeLimitMb,
         onTick: ({ elapsed, bytes }) => {
           recTimer.textContent    = _formatTime(elapsed);
@@ -543,19 +543,15 @@ export function initRecorderHome() {
   async function _launch() {
     clearStatus(recStatus);
     const settings = await getRecorderSettings();
-    currentFormat = settings.format;
-
-    if (currentFormat === 'gif') {
-      showStatus(recStatus, 'GIF is coming soon — switch to WebM or MP4 in Settings.', 'error');
-      _showState('idle');
-      return;
-    }
+    // Use currentFormat (set synchronously at dropdown click) — avoids storage race condition.
+    // Fall back to settings.format if currentFormat is somehow still the default 'webm'.
+    if (currentFormat === 'webm') currentFormat = settings.format;
 
     try {
       recStartBtn.disabled = true;
       recDelayBtn.disabled = true;
       await startRecording({
-        source: selectedSource, format: settings.format,
+        source: selectedSource, format: currentFormat,
         audioMode: settings.audioMode, sizeLimitMb: settings.sizeLimitMb,
         onTick: ({ elapsed, bytes }) => {
           recTimer.textContent    = _formatTime(elapsed);
@@ -598,21 +594,89 @@ export function initRecorderHome() {
     recMuteIcon.hidden  = true;
     recVideoTime.textContent = '0:00 / 0:00';
 
-    const ext = format === 'mp4' ? 'mp4' : 'webm';
+    const ext = format === 'mp4' ? 'mp4' : format === 'gif' ? 'gif' : 'webm';
     recFileName.textContent = `raccoon-clip-${Date.now()}.${ext}`;
-    recFileSize.textContent = formatBytes(bytes);
+    recFileSize.textContent = format === 'gif' ? '— (GIF)' : formatBytes(bytes);
 
-    recSendBtn.disabled = bytes > DISCORD_MAX_BYTES;
-    if (bytes > DISCORD_MAX_BYTES)
-      showStatus(recStatus, `${formatBytes(bytes)} — too large for Discord free. Download only.`, 'error');
-    else
+    if (format === 'gif') {
+      recSendBtn.disabled = false;
       clearStatus(recStatus);
+    } else {
+      recSendBtn.disabled = bytes > DISCORD_MAX_BYTES;
+      if (bytes > DISCORD_MAX_BYTES)
+        showStatus(recStatus, `${formatBytes(bytes)} — too large for Discord free. Download only.`, 'error');
+      else
+        clearStatus(recStatus);
+    }
 
     _showState('preview');
   }
 
   // ── Get active blob (original or processed) ────────────────────────────────
   async function _getActiveBlob() {
+    // GIF: two-pass — first apply trim+crop via _processBlob (plays video in
+    // real-time, no seek artifacts), then encode the resulting WebM to GIF.
+    if (currentFormat === 'gif') {
+      isProcessing = true;
+      recDownloadBtn.disabled = true;
+      recSendBtn.disabled     = true;
+      recPlayBtn.disabled     = true;
+      recProcessWrap.hidden   = false;
+      recProcessBar.style.width = '0%';
+
+      try {
+        const needsCrop = cropL > 0.001 || cropR < 0.999 || cropT > 0.001 || cropB < 0.999;
+        const needsTrim = trimA > 0 || trimB < 1;
+        let sourceBlob = currentBlob;
+        let progressOffset = 0;
+
+        if (needsCrop || needsTrim) {
+          // Ensure duration is known before _processBlob tries to seek
+          if (!_hasDuration()) {
+            await new Promise(r => setTimeout(r, 200));
+            if (!_hasDuration()) {
+              showStatus(recStatus, 'Video not ready — try again.', 'error');
+              return null;
+            }
+          }
+          showStatus(recStatus, 'Processing…', 'info');
+          sourceBlob = await _processBlob(needsCrop, (frac) => {
+            recProcessBar.style.width = (frac * 50).toFixed(1) + '%';
+            showStatus(recStatus, `Processing… ${Math.round(frac * 100)}%`, 'info');
+          });
+          recSendBtn.disabled = true; // _processBlob onstop may have toggled this
+          progressOffset = 50;
+        }
+
+        // Encode pre-processed blob to GIF (no crop/trim needed — already applied)
+        showStatus(recStatus, 'Converting to GIF…', 'info');
+        const blob = await encodeGif(sourceBlob, {
+          onProgress: (p) => {
+            recProcessBar.style.width = (progressOffset + p * (100 - progressOffset)).toFixed(1) + '%';
+            showStatus(recStatus, `Converting to GIF… ${Math.round(p * 100)}%`, 'info');
+          }
+        });
+        recFileSize.textContent = formatBytes(blob.size);
+        if (blob.size > DISCORD_MAX_BYTES) {
+          showStatus(recStatus, `${formatBytes(blob.size)} — too large for Discord free. Download only.`, 'error');
+          recSendBtn.disabled = true;
+        } else {
+          clearStatus(recStatus);
+          recSendBtn.disabled = false;
+        }
+        return blob;
+      } catch (err) {
+        showStatus(recStatus, 'GIF conversion failed: ' + err.message, 'error');
+        return null;
+      } finally {
+        isProcessing = false;
+        recPlayBtn.disabled       = false;
+        recDownloadBtn.disabled   = false;
+        recProcessWrap.hidden     = true;
+        recProcessBar.style.width = '0%';
+      }
+    }
+
     const needsTrim = trimA > 0 || trimB < 1;
     const needsCrop = cropL > 0.001 || cropR < 0.999 || cropT > 0.001 || cropB < 0.999;
     const needsMute = recVideo.muted;
@@ -830,6 +894,7 @@ export function initRecorderHome() {
     recCountdown.hidden = state !== 'countdown';
     recLive.hidden      = state !== 'live';
     recPreview.hidden   = state !== 'preview';
+    if (state === 'live') recLiveFmt.textContent = currentFormat.toUpperCase();
   }
 }
 

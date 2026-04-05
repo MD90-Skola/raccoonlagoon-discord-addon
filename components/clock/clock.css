@@ -6,7 +6,6 @@
 .clock-card {
   gap: 0;
   padding: 0;
-  overflow: hidden;
 }
 
 /* ─── Header: date + week + sound button ─────────────────────────────────── */

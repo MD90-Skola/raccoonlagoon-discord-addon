@@ -11,7 +11,10 @@
     "activeTab",
     "tabs",
     "tabCapture",
-    "offscreen"
+    "offscreen",
+    "alarms",
+    "notifications",
+    "scripting"
   ],
 
   "host_permissions": [
@@ -25,7 +28,8 @@
   ],
 
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
 
   "content_scripts": [
@@ -35,8 +39,8 @@
         "components/storage.js",
         "components/webhook.js",
         "components/icons.js",
-        "content/instagram-content.js",
-        "content/instagram-autoscroll.js"
+        "components/instagram/instagram-content.js",
+        "components/instagram/instagram-autoscroll.js"
       ],
       "run_at": "document_idle"
     },
@@ -46,10 +50,10 @@
         "components/storage.js",
         "components/webhook.js",
         "components/icons.js",
-        "content/youtube-content.js",
-        "content/youtube-stream.js",
-        "content/youtube-zoom.js",
-        "content/youtube-autoscroll.js"
+        "components/youtube/youtube-content.js",
+        "components/youtube/youtube-stream.js",
+        "components/youtube/youtube-zoom.js",
+        "components/youtube/youtube-autoscroll.js"
       ],
       "run_at": "document_idle"
     },
@@ -59,7 +63,7 @@
         "components/storage.js",
         "components/webhook.js",
         "components/icons.js",
-        "content/facebook-content.js"
+        "components/facebook/facebook-content.js"
       ],
       "run_at": "document_idle"
     }
