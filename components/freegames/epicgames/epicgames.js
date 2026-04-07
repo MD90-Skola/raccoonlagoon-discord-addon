@@ -14,7 +14,7 @@ export function initEpicGames() {
   btn.addEventListener('click', async () => {
     btn.disabled = true;
     status.textContent = 'Status: Scanning...';
-    list.innerHTML = '';
+    renderSkeletons();
 
     try {
       const res = await chrome.runtime.sendMessage({ type: 'EPIC_SCAN' });
@@ -87,6 +87,35 @@ export function initEpicGames() {
       console.error('[EpicGames] Failed to load initial state:', error);
       status.textContent = 'Status: Error loading saved games';
     }
+  }
+}
+
+// ─── Skeleton loader ───────────────────────────────────────────────────────────
+function renderSkeletons(count = 3) {
+  const list = document.getElementById('epicGamesList');
+  if (!list) return;
+  list.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const item = document.createElement('div');
+    item.className = 'epic-game epic-skeleton';
+
+    const thumb = document.createElement('div');
+    thumb.className = 'epic-skeleton-thumb';
+    item.appendChild(thumb);
+
+    const content = document.createElement('div');
+    content.className = 'epic-game-content';
+
+    const titleLine = document.createElement('div');
+    titleLine.className = 'epic-skeleton-line epic-skeleton-line--title';
+    content.appendChild(titleLine);
+
+    const metaLine = document.createElement('div');
+    metaLine.className = 'epic-skeleton-line epic-skeleton-line--meta';
+    content.appendChild(metaLine);
+
+    item.appendChild(content);
+    list.appendChild(item);
   }
 }
 

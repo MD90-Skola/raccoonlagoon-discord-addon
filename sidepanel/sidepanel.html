@@ -83,16 +83,16 @@
         <div class="rust-controls">
           <div class="rust-autoscan-row">
             <span class="rust-label">Auto-scan (daglig)</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="rustAutoScanToggle" />
-              <span class="slider"></span>
-            </label>
+            <div class="rust-row-right">
+              <button class="rust-scan-btn" id="startScanBtn">Scan</button>
+              <label class="toggle-switch">
+                <input type="checkbox" id="rustAutoScanToggle" />
+                <span class="slider"></span>
+              </label>
+            </div>
           </div>
           <span class="rust-last-scan" id="rustLastScan">Aldrig skannat</span>
         </div>
-
-        <button class="btn-primary" id="startScanBtn">Scan</button>
-        <span class="scan-status" id="scanStatus">Status: Idle</span>
 
         <div id="rustNewSection" hidden>
           <div class="rust-section-header rust-section-header--new">Nya produkter</div>
@@ -111,30 +111,42 @@
 
         <div class="rust-all-wrap">
           <button class="rust-all-toggle" id="rustAllToggle">Visa produkter</button>
+          <div class="rust-sort-bar" id="rustSortBar" hidden>
+            <button class="rust-sort-btn active" data-sort="newest">Nyast</button>
+            <button class="rust-sort-btn" data-sort="cheapest">Billigast</button>
+            <button class="rust-sort-btn" data-sort="discount">Högst rea</button>
+          </div>
           <div class="dlc-list" id="rustAllList" hidden></div>
+        </div>
+
+        <div class="rust-footer" id="scanStatus">
+          <a href="https://store.steampowered.com/itemstore/252490/browse/?filter=All&cc=us&l=en"
+             target="_blank" rel="noopener" class="rust-footer-link">Rust items</a>
         </div>
       </div>
 
       <!-- ------- TODO: COMPONENT - FREE GAMES ------- -->
       <div class="card" id="freeGamesCard">
-        <label class="section-label">Free Games</label>
-
-        <div class="fg-controls">
-          <div class="fg-autoscan-row">
-            <span class="fg-label">Auto-scan (daglig)</span>
+        <div class="fg-header">
+          <label class="section-label">Free Games</label>
+          <div class="fg-row-right">
+            <button class="fg-scan-btn" id="freeGamesScanBtn">Scan</button>
             <label class="toggle-switch">
               <input type="checkbox" id="freeGamesAutoScanToggle" />
               <span class="slider"></span>
             </label>
           </div>
-          <span class="fg-last-scan" id="freeGamesLastScan">Aldrig skannat</span>
         </div>
 
-        <button class="btn-primary" id="freeGamesScanBtn">Scan</button>
+        <div class="fg-all-wrap">
+          <button class="fg-all-toggle" id="freeGamesAllToggle">Visa spel</button>
+          <div id="freeGamesList" class="fg-list" hidden></div>
+        </div>
 
-        <div id="freeGamesList" class="fg-list"></div>
-
-        <span class="scan-status" id="freeGamesStatus">Status: Idle</span>
+        <div class="fg-footer">
+          <span class="scan-status" id="freeGamesStatus">Status: Idle</span>
+          <span class="fg-last-scan" id="freeGamesLastScan"></span>
+        </div>
       </div>
 
       <!-- ------- TODO: COMPONENT - LIDL ------- -->

@@ -14,7 +14,7 @@ export function initLidl() {
   btn.addEventListener('click', async () => {
     btn.disabled = true;
     status.textContent = 'Status: Hämtar...';
-    list.innerHTML = '';
+    renderSkeletons();
 
     try {
       const res = await chrome.runtime.sendMessage({ type: 'LIDL_FETCH' });
@@ -65,6 +65,40 @@ export function initLidl() {
     status.textContent = leaflets.length > 0
       ? `Status: ${leaflets.length} reklamblad`
       : 'Status: Idle';
+  }
+}
+
+// ─── Skeleton loader ───────────────────────────────────────────────────────────
+function renderSkeletons(count = 3) {
+  const list = document.getElementById('lidlList');
+  if (!list) return;
+  list.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const item = document.createElement('div');
+    item.className = 'lidl-item lidl-skeleton';
+
+    const thumb = document.createElement('div');
+    thumb.className = 'lidl-skeleton-thumb';
+    item.appendChild(thumb);
+
+    const body = document.createElement('div');
+    body.className = 'lidl-item-body';
+
+    const titleLine = document.createElement('div');
+    titleLine.className = 'lidl-skeleton-line lidl-skeleton-line--title';
+    body.appendChild(titleLine);
+
+    const datesLine = document.createElement('div');
+    datesLine.className = 'lidl-skeleton-line lidl-skeleton-line--dates';
+    body.appendChild(datesLine);
+
+    item.appendChild(body);
+
+    const badge = document.createElement('div');
+    badge.className = 'lidl-skeleton-badge';
+    item.appendChild(badge);
+
+    list.appendChild(item);
   }
 }
 

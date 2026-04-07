@@ -21,6 +21,8 @@ export function initScanner() {
 
   const allToggleBtn    = document.getElementById('rustAllToggle');
   const allList         = document.getElementById('rustAllList');
+  const sortBar         = document.getElementById('rustSortBar');
+  let   currentSort     = 'newest';
 
   const steamScanBtn    = document.getElementById('steamScanBtn');
   const steamGamesList  = document.getElementById('steamGamesList');
@@ -33,6 +35,7 @@ export function initScanner() {
   startScanBtn?.addEventListener('click', async () => {
     startScanBtn.disabled = true;
     scanStatus.textContent = 'Status: Scanning…';
+    renderRustSkeletons();
 
     try {
       const response = await sendRuntimeMessage({ type: 'RUST_SCAN_FULL' });
@@ -41,15 +44,14 @@ export function initScanner() {
         throw new Error(response?.error || 'Unknown error');
       }
 
-      scanStatus.textContent =
-        `Status: Done — ${response.count ?? 0} produkter hittade`;
+      setRustCount(scanStatus, response.count ?? 0);
 
       const data = await Storage.get(['rustLastScanAt', 'rustAlerts', 'rustProducts']);
       updateLastScanLabel(lastScanEl, data.rustLastScanAt);
       renderRustResults(data);
 
       if (!allList.hidden) {
-        renderAllProducts(data.rustProducts ?? {}, allList, allToggleBtn);
+        renderAllProducts(data.rustProducts ?? {}, allList, allToggleBtn, currentSort);
       }
     } catch (error) {
       console.error('[RaccoonLagoon] Rust scan failed:', error);
@@ -66,23 +68,39 @@ export function initScanner() {
 
   allToggleBtn?.addEventListener('click', async () => {
     if (!allList.hidden) {
-      allList.hidden = true;
+      allList.hidden   = true;
+      sortBar.hidden   = true;
       allToggleBtn.textContent = 'Visa produkter';
       return;
     }
 
-    const data = await Storage.get(['rustProducts']);
+    const data     = await Storage.get(['rustProducts']);
     const products = data.rustProducts ?? {};
 
     if (Object.keys(products).length === 0) {
       allList.hidden = true;
+      sortBar.hidden = true;
       allToggleBtn.textContent = 'Visa produkter';
-      scanStatus.textContent = 'Status: Inga produkter i storage — kör Scan först';
+      scanStatus.textContent   = 'Status: Inga produkter i storage — kör Scan först';
       return;
     }
 
-    renderAllProducts(products, allList, allToggleBtn);
+    renderAllProducts(products, allList, allToggleBtn, currentSort);
     allList.hidden = false;
+    sortBar.hidden = false;
+  });
+
+  sortBar?.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.rust-sort-btn');
+    if (!btn) return;
+
+    sortBar.querySelectorAll('.rust-sort-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentSort = btn.dataset.sort;
+
+    const data     = await Storage.get(['rustProducts']);
+    const products = data.rustProducts ?? {};
+    renderAllProducts(products, allList, allToggleBtn, currentSort);
   });
 
   chrome.storage.onChanged.addListener((changes, area) => {
@@ -102,12 +120,10 @@ export function initScanner() {
         renderRustResults(data);
 
         const count = Object.keys(data.rustProducts ?? {}).length;
-        if (count > 0) {
-          scanStatus.textContent = `Status: Done — ${count} produkter hittade`;
-        }
+        if (count > 0) setRustCount(scanStatus, count);
 
         if (!allList.hidden) {
-          renderAllProducts(data.rustProducts ?? {}, allList, allToggleBtn);
+          renderAllProducts(data.rustProducts ?? {}, allList, allToggleBtn, currentSort);
         }
       });
     }
@@ -174,7 +190,21 @@ export function initScanner() {
 
     updateLastScanLabel(lastScanEl, data.rustLastScanAt);
     renderRustResults(data);
+    const count = Object.keys(data.rustProducts ?? {}).length;
+    if (count > 0) setRustCount(scanStatus, count);
   }
+}
+
+function setRustCount(el, count) {
+  if (!el) return;
+  // Bevara länken, uppdatera bara räknartexten bredvid den
+  const link = el.querySelector('.rust-footer-link');
+  if (!link) { el.textContent = `Rust items - ${count}st`; return; }
+  // Ta bort gamla textnoder utan att röra länken
+  Array.from(el.childNodes)
+    .filter(n => n.nodeType === Node.TEXT_NODE)
+    .forEach(n => n.remove());
+  el.appendChild(document.createTextNode(` - ${count}st`));
 }
 
 function setTabVisible(tabBtn, tabPane, visible) {
@@ -194,7 +224,8 @@ function updateLastScanLabel(el, timestamp) {
 }
 
 function renderRustResults(data) {
-  const alerts = Array.isArray(data.rustAlerts) ? data.rustAlerts : [];
+  const alerts   = Array.isArray(data.rustAlerts) ? data.rustAlerts : [];
+  const products = data.rustProducts ?? {};
 
   const newSection     = document.getElementById('rustNewSection');
   const saleSection    = document.getElementById('rustSaleSection');
@@ -208,21 +239,26 @@ function renderRustResults(data) {
     newSection,
     newList,
     alerts.filter((a) => a.type === 'new'),
-    (a) => makeRow(a.url, a.name, '', a.price, '')
+    (a) => makeRow(a.url, a.name, '', a.price, '', products[String(a.id)]?.image)
   );
 
   renderSection(
     saleSection,
     saleList,
     alerts.filter((a) => a.type === 'sale_started'),
-    (a) => makeRow(a.url, a.name, `-${a.discount}%`, a.price, 'discounted')
+    (a) => makeRow(a.url, a.name, `-${a.discount}%`, a.price, 'discounted', products[String(a.id)]?.image)
   );
 
   renderSection(
     changedSection,
     changedList,
     alerts.filter((a) => a.type === 'price_changed'),
-    (a) => makeRow(a.url, a.name, '', `${a.oldPrice} → ${a.newPrice}`, 'discounted')
+    (a) => makeRow(
+      a.url, a.name, '',
+      a.newPrice, 'discounted',
+      products[String(a.id)]?.image,
+      a.oldPrice !== '?' ? a.oldPrice : null
+    )
   );
 }
 
@@ -237,9 +273,17 @@ function renderSection(section, list, items, makeRowFn) {
   }
 }
 
-function renderAllProducts(productsMap, allList, allToggleBtn) {
-  const entries = Object.values(productsMap)
-    .sort((a, b) => String(a.name).localeCompare(String(b.name), 'sv'));
+function parsePrice(priceStr) {
+  const n = parseFloat(String(priceStr || '').replace(/[^\d.,]/g, '').replace(',', '.'));
+  return isNaN(n) ? Infinity : n;
+}
+
+function renderAllProducts(productsMap, allList, allToggleBtn, sort = 'newest') {
+  const entries = Object.values(productsMap).sort((a, b) => {
+    if (sort === 'cheapest')  return parsePrice(a.price) - parsePrice(b.price);
+    if (sort === 'discount')  return (b.discountPercent || 0) - (a.discountPercent || 0);
+    return (b.lastSeen || 0) - (a.lastSeen || 0); // newest
+  });
 
   allList.innerHTML = '';
 
@@ -250,7 +294,8 @@ function renderAllProducts(productsMap, allList, allToggleBtn) {
         p.name,
         p.isOnSale ? `-${p.discountPercent}%` : '',
         p.price,
-        p.isOnSale ? 'discounted' : ''
+        p.isOnSale ? 'discounted' : '',
+        p.image
       )
     );
   }
@@ -258,36 +303,90 @@ function renderAllProducts(productsMap, allList, allToggleBtn) {
   allToggleBtn.textContent = `Dölj produkter (${entries.length})`;
 }
 
-function makeRow(url, name, badgeText, priceText, priceClass) {
+function makeRow(url, name, badgeText, priceText, priceClass, image, oldPrice = null) {
   const row = document.createElement('a');
   row.className = 'dlc-item' + (priceClass ? ' on-sale' : '');
   row.href = url || '#';
   row.target = '_blank';
   row.rel = 'noopener';
 
-  const nameEl = document.createElement('span');
-  nameEl.className = 'dlc-name';
+  if (image) {
+    const img = document.createElement('img');
+    img.className    = 'dlc-thumb';
+    img.src          = image;
+    img.alt          = '';
+    img.loading      = 'lazy';
+    row.appendChild(img);
+  }
+
+  const content = document.createElement('div');
+  content.className = 'dlc-content';
+
+  const nameEl = document.createElement('div');
+  nameEl.className   = 'dlc-name';
   nameEl.textContent = name || 'Unknown';
+  content.appendChild(nameEl);
 
   const right = document.createElement('div');
   right.className = 'dlc-right';
 
   if (badgeText) {
     const badge = document.createElement('span');
-    badge.className = 'dlc-badge';
+    badge.className   = 'dlc-badge';
     badge.textContent = badgeText;
     right.appendChild(badge);
   }
 
+  if (oldPrice) {
+    const oldEl = document.createElement('span');
+    oldEl.className   = 'dlc-price dlc-price--old';
+    oldEl.textContent = oldPrice;
+    right.appendChild(oldEl);
+  }
+
   const priceEl = document.createElement('span');
-  priceEl.className = 'dlc-price' + (priceClass ? ' ' + priceClass : '');
+  priceEl.className   = 'dlc-price' + (priceClass ? ' ' + priceClass : '');
   priceEl.textContent = priceText || '?';
   right.appendChild(priceEl);
 
-  row.appendChild(nameEl);
-  row.appendChild(right);
+  content.appendChild(right);
+  row.appendChild(content);
 
   return row;
+}
+
+// ─── Skeleton loader ───────────────────────────────────────────────────────────
+function renderRustSkeletons(count = 4) {
+  const allList      = document.getElementById('rustAllList');
+  const allToggleBtn = document.getElementById('rustAllToggle');
+  if (!allList) return;
+
+  allList.innerHTML = '';
+  allList.hidden    = false;
+  if (allToggleBtn) allToggleBtn.textContent = 'Dölj produkter';
+
+  for (let i = 0; i < count; i++) {
+    const item = document.createElement('div');
+    item.className = 'dlc-item dlc-skeleton';
+
+    const thumb = document.createElement('div');
+    thumb.className = 'dlc-skeleton-thumb';
+    item.appendChild(thumb);
+
+    const content = document.createElement('div');
+    content.className = 'dlc-content';
+
+    const titleLine = document.createElement('div');
+    titleLine.className = 'dlc-skeleton-line dlc-skeleton-line--title';
+    content.appendChild(titleLine);
+
+    const priceLine = document.createElement('div');
+    priceLine.className = 'dlc-skeleton-line dlc-skeleton-line--price';
+    content.appendChild(priceLine);
+
+    item.appendChild(content);
+    allList.appendChild(item);
+  }
 }
 
 function sendRuntimeMessage(message) {

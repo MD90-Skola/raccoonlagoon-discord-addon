@@ -117,6 +117,57 @@
   color:     var(--text-muted);
 }
 
+/* ─── Skeleton loader ─────────────────────────────────────────────────────── */
+@keyframes lidl-shimmer {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.lidl-skeleton {
+  pointer-events: none;
+}
+
+.lidl-skeleton-thumb,
+.lidl-skeleton-line,
+.lidl-skeleton-badge {
+  background: linear-gradient(
+    90deg,
+    var(--bg-card) 25%,
+    var(--bg-hover) 50%,
+    var(--bg-card) 75%
+  );
+  background-size: 200% 100%;
+  animation: lidl-shimmer 1.4s infinite linear;
+}
+
+.lidl-skeleton-thumb {
+  width:         44px;
+  height:        44px;
+  border-radius: var(--radius-xs);
+  flex-shrink:   0;
+}
+
+.lidl-skeleton-line {
+  height:        11px;
+  border-radius: 4px;
+}
+
+.lidl-skeleton-line--title {
+  width:  65%;
+  height: 13px;
+}
+
+.lidl-skeleton-line--dates {
+  width: 40%;
+}
+
+.lidl-skeleton-badge {
+  width:         72px;
+  height:        24px;
+  border-radius: 99px;
+  flex-shrink:   0;
+}
+
 /* ─── Countdown badge ─────────────────────────────────────────────────────── */
 .lidl-badge {
   font-size:      10.5px;

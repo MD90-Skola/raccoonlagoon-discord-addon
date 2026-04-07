@@ -66,18 +66,22 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 
 // ─── SCAN ─────────────────────────────────────────────────────────────────────
 async function runAllScanners() {
-  const allGames = [];
+  const allGames     = [];
+  const sourceResults = [];
 
   for (const scanner of SCANNERS) {
     try {
       const games = await runScanner(scanner);
       allGames.push(...games);
+      sourceResults.push({ label: scanner.label, url: scanner.url, count: games.length });
     } catch (err) {
       console.error(`[FreeGames] Scanner "${scanner.id}" failed:`, err);
+      sourceResults.push({ label: scanner.label, url: scanner.url, count: null });
     }
   }
 
-  return await saveGames(allGames);
+  const saved = await saveGames(allGames);
+  return { ...saved, sourceResults };
 }
 
 async function runScanner(scanner) {
@@ -85,6 +89,12 @@ async function runScanner(scanner) {
 
   try {
     await waitForTab(tab.id);
+
+    const tabInfo = await chrome.tabs.get(tab.id);
+    if (tabInfo.url?.startsWith('chrome-error://')) {
+      throw new Error(`Page failed to load: ${scanner.url}`);
+    }
+
     await sleep(scanner.delay);
 
     const results = await chrome.scripting.executeScript({
@@ -124,13 +134,19 @@ async function setAutoScan(enabled) {
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 function waitForTab(tabId) {
-  return new Promise(resolve => {
-    chrome.tabs.onUpdated.addListener(function listener(id, info) {
-      if (id === tabId && info.status === 'complete') {
+  return new Promise((resolve, reject) => {
+    const listener = (id, info) => {
+      if (id !== tabId) return;
+      if (info.status === 'complete') {
         chrome.tabs.onUpdated.removeListener(listener);
         resolve();
       }
-    });
+    };
+    chrome.tabs.onUpdated.addListener(listener);
+    setTimeout(() => {
+      chrome.tabs.onUpdated.removeListener(listener);
+      reject(new Error('Tab load timeout'));
+    }, 30000);
   });
 }
 

@@ -14,7 +14,7 @@ export function initSteamGames() {
   btn.addEventListener('click', async () => {
     btn.disabled = true;
     status.textContent = 'Status: Scanning...';
-    list.innerHTML = '';
+    renderSkeletons();
 
     try {
       const res = await chrome.runtime.sendMessage({ type: 'STEAM_SCAN' });
@@ -87,6 +87,35 @@ export function initSteamGames() {
       console.error('[SteamGames] Failed to load initial state:', error);
       status.textContent = 'Status: Error loading saved games';
     }
+  }
+}
+
+// ─── Skeleton loader ───────────────────────────────────────────────────────────
+function renderSkeletons(count = 3) {
+  const list = document.getElementById('steamGamesList');
+  if (!list) return;
+  list.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const item = document.createElement('div');
+    item.className = 'steam-game steam-skeleton';
+
+    const thumb = document.createElement('div');
+    thumb.className = 'steam-skeleton-thumb';
+    item.appendChild(thumb);
+
+    const content = document.createElement('div');
+    content.className = 'steam-game-content';
+
+    const titleLine = document.createElement('div');
+    titleLine.className = 'steam-skeleton-line steam-skeleton-line--title';
+    content.appendChild(titleLine);
+
+    const metaLine = document.createElement('div');
+    metaLine.className = 'steam-skeleton-line steam-skeleton-line--meta';
+    content.appendChild(metaLine);
+
+    item.appendChild(content);
+    list.appendChild(item);
   }
 }
 
