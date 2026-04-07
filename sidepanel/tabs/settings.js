@@ -188,12 +188,30 @@ function initSettingsSearch() {
   });
 }
 
+// ─── Card visibility ──────────────────────────────────────────────────────────
+function applyCardVisibility(cardId, visible) {
+  const card = document.getElementById(cardId);
+  if (card) card.hidden = !visible;
+}
+
+// ─── Tab visibility ───────────────────────────────────────────────────────────
+function applyTabVisibility(btnId, tabName, visible) {
+  const btn  = document.getElementById(btnId);
+  if (!btn) return;
+  btn.hidden = !visible;
+  const pane = document.getElementById('tab-' + tabName);
+  if (!visible && pane && !pane.hidden) {
+    document.querySelector('.tab-btn:not([hidden])')?.click();
+  }
+}
+
 export function initSettings() {
   const imgToggle         = document.getElementById('imagesEnabled');
   const ytToggle          = document.getElementById('youtubeEnabled');
   const ytShortsToggle    = document.getElementById('youtubeShortsEnabled');
   const ytStreamToggle    = document.getElementById('youtubeStreamEnabled');
-  const ytZoomToggle      = document.getElementById('youtubeZoomEnabled');
+  const ytZoomToggle           = document.getElementById('youtubeZoomEnabled');
+  const ytRightClickToggle     = document.getElementById('youtubeRightClickEnabled');
   const igToggle          = document.getElementById('instagramEnabled');
   const igReelsToggle     = document.getElementById('instagramReelsEnabled');
   const fbReelsToggle     = document.getElementById('facebookReelsEnabled');
@@ -203,10 +221,13 @@ export function initSettings() {
   const smartBoxToggle          = document.getElementById('smartBoxEnabled');
   const ytShortAutoscrollToggle = document.getElementById('youtubeShortAutoscrollEnabled');
   const igAutoscrollToggle      = document.getElementById('instagramAutoscrollEnabled');
-  const globalToggle    = document.getElementById('globalEnabled');
-  const recorderToggle  = document.getElementById('recorderEnabled');
-  const rustReaToggle   = document.getElementById('rustReaEnabled');
-  const checkUpdateBtn  = document.getElementById('checkUpdateBtn');
+  const globalToggle      = document.getElementById('globalEnabled');
+  const recorderToggle    = document.getElementById('recorderEnabled');
+  const rustReaToggle     = document.getElementById('rustReaEnabled');
+  const rustFinderToggle  = document.getElementById('rustFinderEnabled');
+  const freeGamesToggle   = document.getElementById('freeGamesEnabled');
+  const lidlToggle        = document.getElementById('lidlEnabled');
+  const checkUpdateBtn    = document.getElementById('checkUpdateBtn');
   const updateStatus    = document.getElementById('updateStatus');
   const currentVersionEl = document.getElementById('currentVersion');
 
@@ -244,7 +265,8 @@ export function initSettings() {
   ytToggle.addEventListener('change',         () => Storage.set({ youtubeEnabled:       ytToggle.checked         }));
   ytShortsToggle.addEventListener('change',   () => Storage.set({ youtubeShortsEnabled: ytShortsToggle.checked   }));
   ytStreamToggle.addEventListener('change',   () => Storage.set({ youtubeStreamEnabled: ytStreamToggle.checked   }));
-  ytZoomToggle.addEventListener('change',      () => Storage.set({ youtubeZoomEnabled:    ytZoomToggle.checked      }));
+  ytZoomToggle.addEventListener('change',       () => Storage.set({ youtubeZoomEnabled:         ytZoomToggle.checked       }));
+  ytRightClickToggle.addEventListener('change', () => Storage.set({ youtubeRightClickEnabled: ytRightClickToggle.checked }));
   igToggle.addEventListener('change',         () => Storage.set({ instagramEnabled:      igToggle.checked      }));
   igReelsToggle.addEventListener('change',    () => Storage.set({ instagramReelsEnabled: igReelsToggle.checked }));
   fbReelsToggle.addEventListener('change',    () => Storage.set({ facebookReelsEnabled:  fbReelsToggle.checked }));
@@ -254,7 +276,47 @@ export function initSettings() {
   smartBoxToggle.addEventListener('change',          () => Storage.set({ smartBoxEnabled:               smartBoxToggle.checked          }));
   ytShortAutoscrollToggle.addEventListener('change', () => Storage.set({ youtubeShortAutoscrollEnabled: ytShortAutoscrollToggle.checked }));
   igAutoscrollToggle.addEventListener('change',      () => Storage.set({ instagramAutoscrollEnabled:    igAutoscrollToggle.checked      }));
-  rustReaToggle.addEventListener('change',           () => Storage.set({ rustReaEnabled:                rustReaToggle.checked           }));
+  rustReaToggle.addEventListener('change',     () => Storage.set({ rustReaEnabled: rustReaToggle.checked }));
+  rustFinderToggle.addEventListener('change', () => {
+    Storage.set({ rustFinderEnabled: rustFinderToggle.checked });
+    applyCardVisibility('rustFinderCard', rustFinderToggle.checked);
+  });
+  freeGamesToggle.addEventListener('change', () => {
+    Storage.set({ freeGamesEnabled: freeGamesToggle.checked });
+    applyCardVisibility('freeGamesCard', freeGamesToggle.checked);
+  });
+  lidlToggle.addEventListener('change', () => {
+    Storage.set({ lidlEnabled: lidlToggle.checked });
+    applyCardVisibility('lidlCard', lidlToggle.checked);
+  });
+
+  // ─── Tab visibility toggles ───────────────────────────────────────────────
+  const tabHomeToggle       = document.getElementById('tabHomeVisible');
+  const tabNotesToggle      = document.getElementById('tabNotesVisible');
+  const tabScannerToggle    = document.getElementById('tabScannerVisible');
+  const tabOptimizeToggle   = document.getElementById('tabOptimizeVisible');
+  const tabMonkeyPatchToggle = document.getElementById('tabMonkeyPatchVisible');
+
+  tabHomeToggle.addEventListener('change', () => {
+    Storage.set({ tabHomeVisible: tabHomeToggle.checked });
+    applyTabVisibility('homeTabBtn', 'home', tabHomeToggle.checked);
+  });
+  tabNotesToggle.addEventListener('change', () => {
+    Storage.set({ tabNotesVisible: tabNotesToggle.checked });
+    applyTabVisibility('notesTabBtn', 'notes', tabNotesToggle.checked);
+  });
+  tabScannerToggle.addEventListener('change', () => {
+    Storage.set({ rustReaEnabled: tabScannerToggle.checked });
+    applyTabVisibility('scannerTabBtn', 'scanner', tabScannerToggle.checked);
+  });
+  tabOptimizeToggle.addEventListener('change', () => {
+    Storage.set({ tabOptimizeVisible: tabOptimizeToggle.checked });
+    applyTabVisibility('optimizeTabBtn', 'optimize', tabOptimizeToggle.checked);
+  });
+  tabMonkeyPatchToggle.addEventListener('change', () => {
+    Storage.set({ monkeyPatchTabVisible: tabMonkeyPatchToggle.checked });
+    applyTabVisibility('monkeyPatchTabBtn', 'monkey-patch', tabMonkeyPatchToggle.checked);
+  });
 
   // ─── Update check ─────────────────────────────────────────────────────────
   const currentVersion = chrome.runtime.getManifest().version;
@@ -345,6 +407,7 @@ export async function loadSettings() {
   document.getElementById('youtubeShortsEnabled').checked = s.youtubeShortsEnabled === true;
   document.getElementById('youtubeStreamEnabled').checked = s.youtubeStreamEnabled === true;
   document.getElementById('youtubeZoomEnabled').checked        = s.youtubeZoomEnabled        === true;
+  document.getElementById('youtubeRightClickEnabled').checked  = s.youtubeRightClickEnabled  === true;
   document.getElementById('instagramEnabled').checked      = s.instagramEnabled      === true;
   document.getElementById('instagramReelsEnabled').checked = s.instagramReelsEnabled === true;
   document.getElementById('facebookReelsEnabled').checked  = s.facebookReelsEnabled  === true;
@@ -354,5 +417,37 @@ export async function loadSettings() {
   document.getElementById('smartBoxEnabled').checked                  = s.smartBoxEnabled                  !== false;
   document.getElementById('youtubeShortAutoscrollEnabled').checked   = s.youtubeShortAutoscrollEnabled   === true;
   document.getElementById('instagramAutoscrollEnabled').checked      = s.instagramAutoscrollEnabled      === true;
-  document.getElementById('rustReaEnabled').checked                  = s.rustReaEnabled                  === true;
+  document.getElementById('rustReaEnabled').checked = s.rustReaEnabled === true;
+
+  // ─── Scanner card visibility ──────────────────────────────────────────────
+  const rustFinderV = s.rustFinderEnabled !== false;
+  const freeGamesV  = s.freeGamesEnabled  !== false;
+  const lidlV       = s.lidlEnabled       !== false;
+
+  document.getElementById('rustFinderEnabled').checked = rustFinderV;
+  document.getElementById('freeGamesEnabled').checked  = freeGamesV;
+  document.getElementById('lidlEnabled').checked       = lidlV;
+
+  applyCardVisibility('rustFinderCard', rustFinderV);
+  applyCardVisibility('freeGamesCard',  freeGamesV);
+  applyCardVisibility('lidlCard',       lidlV);
+
+  // ─── Tab visibility ───────────────────────────────────────────────────────
+  const tabHomeV       = s.tabHomeVisible       !== false;
+  const tabNotesV      = s.tabNotesVisible      !== false;
+  const tabScannerV    = s.rustReaEnabled        === true;
+  const tabOptimizeV   = s.tabOptimizeVisible   !== false;
+  const tabMonkeyV     = s.monkeyPatchTabVisible !== false;
+
+  document.getElementById('tabHomeVisible').checked       = tabHomeV;
+  document.getElementById('tabNotesVisible').checked      = tabNotesV;
+  document.getElementById('tabScannerVisible').checked    = tabScannerV;
+  document.getElementById('tabOptimizeVisible').checked   = tabOptimizeV;
+  document.getElementById('tabMonkeyPatchVisible').checked = tabMonkeyV;
+
+  applyTabVisibility('homeTabBtn',       'home',         tabHomeV);
+  applyTabVisibility('notesTabBtn',      'notes',        tabNotesV);
+  applyTabVisibility('scannerTabBtn',    'scanner',      tabScannerV);
+  applyTabVisibility('optimizeTabBtn',   'optimize',     tabOptimizeV);
+  applyTabVisibility('monkeyPatchTabBtn', 'monkey-patch', tabMonkeyV);
 }

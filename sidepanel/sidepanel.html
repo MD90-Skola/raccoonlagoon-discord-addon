@@ -13,7 +13,8 @@
   <link rel="stylesheet" href="../components/fasturl/fasturl.css" />
   <link rel="stylesheet" href="css/scanner.css" />
   <link rel="stylesheet" href="../components/freegames/freegames.css" />
-    <link rel="stylesheet" href="../components/optimize/commandbox.css">
+  <link rel="stylesheet" href="../components/lidl/lidl.css" />
+  <link rel="stylesheet" href="../components/optimize/commandbox.css">
 </head>
 <body>
 
@@ -136,6 +137,31 @@
         <span class="scan-status" id="freeGamesStatus">Status: Idle</span>
       </div>
 
+      <!-- ------- TODO: COMPONENT - LIDL ------- -->
+      <div class="card" id="lidlCard">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Lidl Reklamblad
+        </label>
+
+        <div class="lidl-controls">
+          <div class="lidl-autoscan-row">
+            <span class="lidl-label">Auto-scan (daglig)</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="lidlAutoScanToggle" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <span class="lidl-last-scan" id="lidlLastScan">Aldrig hämtat</span>
+        </div>
+
+        <button class="btn-primary" id="lidlFetchBtn">Hämta reklamblad</button>
+
+        <div id="lidlList" class="lidl-list"></div>
+
+        <span class="scan-status" id="lidlStatus">Status: Idle</span>
+      </div>
+
     </section>
 
           <!-- ===================================================== -->
@@ -196,6 +222,58 @@
             <span class="slider"></span>
           </label>
         </div>
+
+        <span class="tab-vis-label">Flikar</span>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Visa Home</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="tabHomeVisible" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Visa Notes</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="tabNotesVisible" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Visa Scanner</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="tabScannerVisible" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Visa Optimize</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="tabOptimizeVisible" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row" style="border-bottom:none; padding-bottom:0;">
+          <div class="toggle-info">
+            <span class="toggle-label">Visa Monkey Patch</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="tabMonkeyPatchVisible" />
+            <span class="slider"></span>
+          </label>
+        </div>
       </div>
 
       <!-- ------- TODO: COMPONENT - YOUTUBE ------- -->
@@ -214,6 +292,17 @@
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="youtubeEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Högerklick to send</span>
+            <span class="toggle-desc">Skicka till Discord via högerklick på sidan</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="youtubeRightClickEnabled" />
             <span class="slider"></span>
           </label>
         </div>
@@ -328,6 +417,47 @@
           </label>
         </div>
 
+      </div>
+
+      <!-- ------- TODO: COMPONENT - SCANNERS ------- -->
+      <div class="card">
+        <label class="section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Scanners
+        </label>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Rust Finder</span>
+            <span class="toggle-desc">DLC-priser och reor för Rust</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="rustFinderEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <span class="toggle-label">Free Games</span>
+            <span class="toggle-desc">Epic &amp; Steam gratisspel</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="freeGamesEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row" style="border-bottom:none; padding-bottom:0;">
+          <div class="toggle-info">
+            <span class="toggle-label">Lidl Scanner</span>
+            <span class="toggle-desc">Lidl reklamblad med countdown</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="lidlEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
       </div>
 
       <!-- ------- TODO: COMPONENT - FEATURES ------- -->
@@ -502,6 +632,11 @@
 
     </section>
       <section id="tab-optimize" class="tab-pane" hidden></section>
+
+    <!-- ===================================================== -->
+    <!-- TODO: TAB - MONKEY PATCH                              -->
+    <!-- ===================================================== -->
+    <section id="tab-monkey-patch" class="tab-pane" hidden></section>
 
 
 

@@ -14,7 +14,8 @@
     "offscreen",
     "alarms",
     "notifications",
-    "scripting"
+    "scripting",
+    "declarativeNetRequest"
   ],
 
   "host_permissions": [
@@ -66,6 +67,12 @@
         "components/facebook/facebook-content.js"
       ],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "js": ["components/megacloudfix/megacloudfix-content.js"],
+      "run_at": "document_start",
+      "all_frames": true
     }
   ],
 
@@ -88,6 +95,16 @@
       "48":  "icon.png",
       "128": "icon.png"
     }
+  },
+
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_megacloud",
+        "enabled": false,
+        "path": "rules-megacloud.json"
+      }
+    ]
   },
 
   "commands": {
