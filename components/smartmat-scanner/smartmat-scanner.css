@@ -1,0 +1,654 @@
+/* ═══════════════════════════════════════════════════════════════════
+   smartmat-scanner.css — Dark-mode redesign
+═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Store accent colors ─────────────────────────────────────────────────── */
+:root {
+  --smat-ica:    #f05272;
+  --smat-coop:   #22c55e;
+  --smat-willys: #ef4444;
+  --smat-lidl:   #f0b429;
+}
+
+/* ─── Root container ──────────────────────────────────────────────────────── */
+#smartmatCard {
+  padding: 10px 0 6px;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+.smat-header {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  margin-bottom:   12px;
+}
+
+.smat-header-right {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+}
+
+/* ─── Gear button ─────────────────────────────────────────────────────────── */
+.smat-opts-btn {
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  width:            28px;
+  height:           28px;
+  padding:          0;
+  background:       transparent;
+  border:           1px solid var(--border);
+  border-radius:    var(--radius-sm);
+  color:            var(--text-muted);
+  cursor:           pointer;
+  transition:       border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+}
+
+.smat-opts-btn svg { width: 14px; height: 14px; }
+
+.smat-opts-btn:hover {
+  color:        var(--text-secondary);
+  background:   var(--bg-hover);
+  border-color: var(--border);
+}
+
+.smat-opts-btn.active {
+  border-color: var(--purple-border);
+  color:        var(--purple-light);
+  background:   color-mix(in srgb, var(--purple) 12%, transparent);
+}
+
+/* ─── Scan all button ─────────────────────────────────────────────────────── */
+.smat-scan-all-btn {
+  padding:       5px 14px;
+  font-size:     11px;
+  font-weight:   600;
+  letter-spacing: 0.03em;
+  border-radius: var(--radius-sm);
+  background:    var(--purple);
+  color:         #fff;
+  border:        none;
+  cursor:        pointer;
+  transition:    opacity var(--t-fast);
+}
+
+.smat-scan-all-btn:hover    { opacity: 0.82; }
+.smat-scan-all-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ─── Options panel ───────────────────────────────────────────────────────── */
+.smat-opts-panel {
+  display:        flex;
+  flex-direction: column;
+  gap:            6px;
+  padding:        10px;
+  margin-bottom:  10px;
+  background:     var(--bg-raised);
+  border:         1px solid var(--border);
+  border-radius:  var(--radius-md);
+}
+
+.smat-opts-row {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+}
+
+.smat-opts-label {
+  font-size:      11px;
+  font-weight:    700;
+  color:          var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  width:          48px;
+  flex-shrink:    0;
+  transition:     color var(--t-fast);
+}
+
+/* Label glows in store color when enabled */
+.smat-opts-row[data-store="ica"]:has(input:checked)    .smat-opts-label { color: var(--smat-ica);    }
+.smat-opts-row[data-store="coop"]:has(input:checked)   .smat-opts-label { color: var(--smat-coop);   }
+.smat-opts-row[data-store="willys"]:has(input:checked) .smat-opts-label { color: var(--smat-willys); }
+.smat-opts-row[data-store="lidl"]:has(input:checked)   .smat-opts-label { color: var(--smat-lidl);   }
+
+.smat-opts-toggle { flex-shrink: 0; }
+
+.smat-opts-subrow { margin-top: -4px; padding-left: 8px; }
+
+.smat-opts-label--indent {
+  font-size:   10px;
+  font-weight: 400;
+  opacity:     0.65;
+}
+
+.smat-opts-input {
+  flex:          1;
+  padding:       5px 8px;
+  font-size:     11px;
+  background:    var(--bg-card);
+  border:        1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color:         var(--text-primary);
+  outline:       none;
+  transition:    border-color var(--t-fast);
+}
+
+.smat-opts-input:focus { border-color: var(--purple-border); }
+
+.smat-opts-divider {
+  height:     1px;
+  background: var(--border);
+  margin:     2px 0;
+}
+
+.smat-opts-row--daily { gap: 6px; }
+
+.smat-opts-daily-label {
+  font-size:   11px;
+  font-weight: 600;
+  color:       var(--text-secondary);
+  flex:        1;
+}
+
+.smat-opts-daily-next {
+  font-size:   10px;
+  color:       var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Clear button */
+.smat-opts-clear {
+  flex-shrink:   0;
+  width:         20px;
+  height:        20px;
+  padding:       0;
+  font-size:     14px;
+  line-height:   1;
+  background:    transparent;
+  border:        1px solid transparent;
+  border-radius: var(--radius-xs);
+  color:         var(--text-muted);
+  cursor:        pointer;
+  transition:    color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+
+.smat-opts-clear:hover {
+  color:        var(--smat-willys);
+  border-color: color-mix(in srgb, var(--smat-willys) 30%, transparent);
+  background:   color-mix(in srgb, var(--smat-willys) 10%, transparent);
+}
+
+/* ─── Store tabs ──────────────────────────────────────────────────────────── */
+.smat-store-pills {
+  display:       flex;
+  gap:           0;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.smat-pill {
+  flex:           1;
+  padding:        6px 4px 9px;
+  font-size:      11px;
+  font-weight:    600;
+  text-align:     center;
+  background:     transparent;
+  border:         none;
+  border-bottom:  2px solid transparent;
+  color:          var(--text-muted);
+  cursor:         pointer;
+  margin-bottom:  -1px;
+  letter-spacing: 0.03em;
+  transition:     color var(--t-fast), border-color var(--t-fast);
+}
+
+.smat-pill:hover { color: var(--text-secondary); }
+
+.smat-pill[data-store="ica"].active    { color: var(--smat-ica);    border-bottom-color: var(--smat-ica);    }
+.smat-pill[data-store="coop"].active   { color: var(--smat-coop);   border-bottom-color: var(--smat-coop);   }
+.smat-pill[data-store="willys"].active { color: var(--smat-willys); border-bottom-color: var(--smat-willys); }
+.smat-pill[data-store="lidl"].active   { color: var(--smat-lidl);   border-bottom-color: var(--smat-lidl);   }
+
+/* ─── Progress bar ────────────────────────────────────────────────────────── */
+.smat-progress {
+  height:        2px;
+  background:    var(--border);
+  border-radius: 2px;
+  margin-bottom: 10px;
+  overflow:      hidden;
+}
+
+.smat-progress-bar {
+  height:        100%;
+  width:         0%;
+  border-radius: 2px;
+  transition:    width 0.45s ease, background-color 0.4s ease;
+}
+
+/* ─── Search with icon ────────────────────────────────────────────────────── */
+.smat-search-row {
+  position:      relative;
+  margin-bottom: 8px;
+}
+
+.smat-search-icon {
+  position:       absolute;
+  left:           9px;
+  top:            50%;
+  transform:      translateY(-50%);
+  width:          13px;
+  height:         13px;
+  color:          var(--text-muted);
+  pointer-events: none;
+  flex-shrink:    0;
+}
+
+.smat-search-input {
+  width:         100%;
+  box-sizing:    border-box;
+  padding:       7px 8px 7px 30px;
+  font-size:     12px;
+  background:    var(--bg-raised);
+  border:        1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color:         var(--text-primary);
+  outline:       none;
+  transition:    border-color var(--t-fast);
+}
+
+.smat-search-input::placeholder { color: var(--text-muted); }
+.smat-search-input:focus { border-color: var(--purple-border); }
+
+/* ─── Sort bar ────────────────────────────────────────────────────────────── */
+.smat-sort-bar {
+  display:       flex;
+  gap:           4px;
+  margin-bottom: 8px;
+}
+
+.smat-sort-btn {
+  flex:          1;
+  padding:       4px 0;
+  font-size:     10.5px;
+  font-weight:   500;
+  background:    transparent;
+  border:        1px solid var(--border);
+  border-radius: var(--radius-xs);
+  color:         var(--text-muted);
+  cursor:        pointer;
+  transition:    border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+}
+
+.smat-sort-btn:hover {
+  color:        var(--text-secondary);
+  background:   var(--bg-hover);
+}
+
+.smat-sort-btn.active {
+  border-color: var(--purple-border);
+  color:        var(--purple-light);
+  background:   color-mix(in srgb, var(--purple) 10%, transparent);
+}
+
+/* ─── Product list ────────────────────────────────────────────────────────── */
+.smat-list {
+  display:        flex;
+  flex-direction: column;
+  gap:            3px;
+  max-height:     340px;
+  overflow-y:     auto;
+  overflow-x:     hidden;
+  margin-bottom:  8px;
+}
+
+.smat-list::-webkit-scrollbar       { width: 3px; }
+.smat-list::-webkit-scrollbar-track { background: transparent; }
+.smat-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.smat-list:empty::before {
+  content:    'Klicka Scan alla för att hämta erbjudanden';
+  display:    block;
+  text-align: center;
+  padding:    32px 0;
+  color:      var(--text-muted);
+  font-size:  12px;
+  font-style: italic;
+}
+
+/* ─── Product row ─────────────────────────────────────────────────────────── */
+.smat-item {
+  display:       flex;
+  align-items:   center;
+  gap:           10px;
+  padding:       8px 10px;
+  background:    var(--bg-raised);
+  border:        1px solid transparent;
+  border-left:   3px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor:        pointer;
+  transition:    background var(--t-fast), border-color var(--t-fast);
+  position:      relative;
+}
+
+.smat-item:hover { background: var(--bg-hover); border-color: var(--border); }
+
+/* Left accent per store */
+.smat-item[data-store="ica"]    { border-left-color: var(--smat-ica);    }
+.smat-item[data-store="coop"]   { border-left-color: var(--smat-coop);   }
+.smat-item[data-store="willys"] { border-left-color: var(--smat-willys); }
+.smat-item[data-store="lidl"]   { border-left-color: var(--smat-lidl);   }
+
+/* In shopping list — green tint */
+.smat-item.in-list {
+  background:   color-mix(in srgb, var(--smat-coop) 9%, var(--bg-raised));
+  border-color: color-mix(in srgb, var(--smat-coop) 35%, transparent);
+}
+
+.smat-item.in-list:hover {
+  background: color-mix(in srgb, var(--smat-coop) 15%, var(--bg-raised));
+}
+
+/* Matches a custom shopping list text */
+.smat-item.list-match {
+  background:   color-mix(in srgb, var(--smat-coop) 6%, var(--bg-raised));
+  border-color: color-mix(in srgb, var(--smat-coop) 25%, transparent);
+  border-style: solid;
+}
+
+/* ─── Product thumbnail ───────────────────────────────────────────────────── */
+.smat-item-thumb {
+  width:          44px;
+  height:         44px;
+  object-fit:     contain;
+  border-radius:  var(--radius-xs);
+  flex-shrink:    0;
+  background:     var(--bg-card);
+  pointer-events: none;
+}
+
+/* ─── Product content ─────────────────────────────────────────────────────── */
+.smat-item-content {
+  flex:           1;
+  min-width:      0;
+  display:        flex;
+  flex-direction: column;
+  gap:            3px;
+  pointer-events: none;
+}
+
+.smat-item-name {
+  font-size:     12px;
+  font-weight:   600;
+  color:         var(--text-primary);
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+
+.smat-item-meta {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+}
+
+.smat-item-price {
+  font-size:   12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Price in store accent */
+.smat-item[data-store="ica"]    .smat-item-price { color: var(--smat-ica);    }
+.smat-item[data-store="coop"]   .smat-item-price { color: var(--smat-coop);   }
+.smat-item[data-store="willys"] .smat-item-price { color: var(--smat-willys); }
+.smat-item[data-store="lidl"]   .smat-item-price { color: var(--smat-lidl);   }
+
+.smat-item-date {
+  font-size: 10px;
+  color:     var(--text-muted);
+}
+
+/* ─── Store badge (pill top-right) ────────────────────────────────────────── */
+.smat-item-store-badge {
+  font-size:      9px;
+  font-weight:    700;
+  padding:        2px 6px;
+  border-radius:  99px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  flex-shrink:    0;
+  pointer-events: none;
+}
+
+.smat-item[data-store="ica"]    .smat-item-store-badge { background: color-mix(in srgb, var(--smat-ica)    18%, transparent); color: var(--smat-ica);    }
+.smat-item[data-store="coop"]   .smat-item-store-badge { background: color-mix(in srgb, var(--smat-coop)   18%, transparent); color: var(--smat-coop);   }
+.smat-item[data-store="willys"] .smat-item-store-badge { background: color-mix(in srgb, var(--smat-willys) 18%, transparent); color: var(--smat-willys); }
+.smat-item[data-store="lidl"]   .smat-item-store-badge { background: color-mix(in srgb, var(--smat-lidl)   18%, transparent); color: var(--smat-lidl);   }
+
+/* ─── Checkmark (visible when in-list) ───────────────────────────────────── */
+.smat-item-check {
+  width:          18px;
+  height:         18px;
+  flex-shrink:    0;
+  color:          var(--smat-coop);
+  opacity:        0;
+  transition:     opacity var(--t-fast);
+  pointer-events: none;
+}
+
+.smat-item-check svg { width: 18px; height: 18px; }
+
+.smat-item.in-list .smat-item-check { opacity: 1; }
+
+/* ─── Shopping list section ───────────────────────────────────────────────── */
+.smat-shopping-wrap {
+  border:        1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow:      hidden;
+  margin-top:    4px;
+}
+
+.smat-shopping-header {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  cursor:          pointer;
+  padding:         9px 12px;
+  background:      var(--bg-raised);
+  font-size:       11px;
+  font-weight:     700;
+  color:           var(--text-secondary);
+  text-transform:  uppercase;
+  letter-spacing:  0.05em;
+  user-select:     none;
+  transition:      background var(--t-fast), color var(--t-fast);
+}
+
+.smat-shopping-header:hover {
+  background: var(--bg-hover);
+  color:      var(--text-primary);
+}
+
+.smat-shopping-toggle-icon {
+  font-size:   11px;
+  transition:  transform var(--t-fast);
+  color:       var(--text-muted);
+  line-height: 1;
+}
+
+.smat-shopping-wrap.open .smat-shopping-toggle-icon { transform: rotate(180deg); }
+
+.smat-shopping-body { display: none; padding: 10px; background: var(--bg-card); }
+.smat-shopping-wrap.open .smat-shopping-body { display: block; }
+
+.smat-shopping-add-row {
+  display:       flex;
+  gap:           6px;
+  margin-bottom: 8px;
+}
+
+.smat-shopping-input {
+  flex:          1;
+  padding:       6px 9px;
+  font-size:     12px;
+  background:    var(--bg-raised);
+  border:        1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color:         var(--text-primary);
+  outline:       none;
+  transition:    border-color var(--t-fast);
+}
+
+.smat-shopping-input::placeholder { color: var(--text-muted); }
+.smat-shopping-input:focus { border-color: var(--purple-border); }
+
+.smat-shopping-add-btn {
+  padding:       6px 12px;
+  font-size:     14px;
+  font-weight:   500;
+  background:    var(--purple);
+  color:         #fff;
+  border:        none;
+  border-radius: var(--radius-sm);
+  cursor:        pointer;
+  transition:    opacity var(--t-fast);
+}
+
+.smat-shopping-add-btn:hover { opacity: 0.82; }
+
+.smat-shopping-list {
+  display:        flex;
+  flex-direction: column;
+  gap:            4px;
+  max-height:     180px;
+  overflow-y:     auto;
+}
+
+.smat-shopping-list:empty::before {
+  content:    'Tom — klicka produkter eller skriv fritext ovan';
+  display:    block;
+  text-align: center;
+  padding:    14px 0;
+  color:      var(--text-muted);
+  font-size:  11px;
+  font-style: italic;
+}
+
+.smat-list-item {
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  padding:       6px 10px;
+  background:    var(--bg-raised);
+  border:        1px solid var(--border);
+  border-left:   3px solid var(--smat-coop);
+  border-radius: var(--radius-sm);
+  font-size:     12px;
+  color:         var(--text-primary);
+}
+
+.smat-list-item-text {
+  flex:          1;
+  min-width:     0;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
+}
+
+.smat-list-item-remove {
+  flex-shrink:   0;
+  width:         20px;
+  height:        20px;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  background:    transparent;
+  border:        none;
+  color:         var(--text-muted);
+  cursor:        pointer;
+  font-size:     16px;
+  line-height:   1;
+  border-radius: var(--radius-xs);
+  transition:    color var(--t-fast), background var(--t-fast);
+}
+
+.smat-list-item-remove:hover {
+  color:      var(--smat-willys);
+  background: color-mix(in srgb, var(--smat-willys) 12%, transparent);
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────────────── */
+.smat-footer {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  margin-top:      8px;
+  font-size:       11px;
+  color:           var(--text-muted);
+}
+
+.smat-last-scan { text-align: right; }
+
+/* ─── Skeleton ────────────────────────────────────────────────────────────── */
+@keyframes smat-shimmer {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.smat-skeleton { pointer-events: none; }
+
+.smat-skeleton-thumb,
+.smat-skeleton-line {
+  background: linear-gradient(
+    90deg,
+    var(--bg-raised) 25%,
+    var(--bg-hover)  50%,
+    var(--bg-raised) 75%
+  );
+  background-size: 200% 100%;
+  animation: smat-shimmer 1.5s infinite linear;
+  border-radius: var(--radius-xs);
+}
+
+.smat-skeleton-thumb {
+  width:      44px;
+  height:     44px;
+  flex-shrink: 0;
+}
+
+.smat-skeleton-line         { height: 11px; }
+.smat-skeleton-line--title  { width: 55%; height: 13px; }
+.smat-skeleton-line--meta   { width: 30%; }
+
+/* ─── Inner tabs (Object / Mat) ───────────────────────────────────────────── */
+.scanner-inner-tabs {
+  display:       flex;
+  gap:           4px;
+  margin-bottom: 12px;
+}
+
+.scanner-inner-tab {
+  flex:           1;
+  padding:        6px 0;
+  font-size:      11px;
+  font-weight:    600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background:     transparent;
+  border:         1px solid var(--border);
+  border-radius:  var(--radius-sm);
+  color:          var(--text-muted);
+  cursor:         pointer;
+  transition:     border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+}
+
+.scanner-inner-tab:hover {
+  color:      var(--text-secondary);
+  background: var(--bg-hover);
+}
+
+.scanner-inner-tab.active {
+  border-color: var(--purple-border);
+  color:        var(--purple-light);
+  background:   color-mix(in srgb, var(--purple) 10%, transparent);
+}
