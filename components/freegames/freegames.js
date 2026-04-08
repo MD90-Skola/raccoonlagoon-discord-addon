@@ -1,6 +1,29 @@
 import { getGames } from './freegames-storage.js';
 
-export function initFreeGames() {
+export const template = `
+<div class="card" id="freeGamesCard">
+  <div class="fg-header">
+    <label class="section-label">Free Games</label>
+    <div class="fg-row-right">
+      <button class="fg-view-btn" id="freeGamesAllToggle">Visa</button>
+      <button class="fg-scan-btn" id="freeGamesScanBtn">Scan</button>
+      <label class="toggle-switch">
+        <input type="checkbox" id="freeGamesAutoScanToggle" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+  <div class="fg-all-wrap">
+    <div id="freeGamesList" class="fg-list" hidden></div>
+  </div>
+  <div class="fg-footer">
+    <span class="scan-status" id="freeGamesStatus">Status: Idle</span>
+    <span class="fg-last-scan" id="freeGamesLastScan"></span>
+  </div>
+</div>
+`;
+
+export function init() {
   const btn          = document.getElementById('freeGamesScanBtn');
   const list         = document.getElementById('freeGamesList');
   const status       = document.getElementById('freeGamesStatus');
@@ -17,7 +40,7 @@ export function initFreeGames() {
     status.textContent = 'Status: Scanning...';
     renderSkeletons('freeGamesList', 'fg');
     list.hidden = false;
-    if (allToggleBtn) allToggleBtn.textContent = 'Dölj spel';
+    if (allToggleBtn) allToggleBtn.classList.add('active');
 
     try {
       const res = await chrome.runtime.sendMessage({ type: 'FREE_GAMES_SCAN' });
@@ -43,7 +66,7 @@ export function initFreeGames() {
   allToggleBtn?.addEventListener('click', async () => {
     if (!list.hidden) {
       list.hidden = true;
-      allToggleBtn.textContent = 'Visa spel';
+      allToggleBtn.classList.remove('active');
       return;
     }
 
@@ -52,13 +75,14 @@ export function initFreeGames() {
 
     if (games.length === 0) {
       list.hidden = true;
-      allToggleBtn.textContent = 'Visa spel';
+      allToggleBtn.classList.remove('active');
       status.textContent = 'Status: Inga spel i storage — kör Scan först';
       return;
     }
 
     renderGames(games, allToggleBtn);
     list.hidden = false;
+    allToggleBtn.classList.add('active');
   });
 
   autoToggle?.addEventListener('change', async () => {
@@ -99,7 +123,6 @@ export function initFreeGames() {
       const games = Array.isArray(data.freeGames) ? data.freeGames : [];
 
       if (games.length > 0) {
-        if (allToggleBtn) allToggleBtn.textContent = `Visa spel (${games.length})`;
         const sources = deriveSourcesFromGames(games);
         renderFooterStatus(status, games.length, sources);
       } else {
@@ -194,12 +217,6 @@ function renderGames(games, allToggleBtn) {
   if (!list) return;
 
   list.innerHTML = '';
-
-  if (allToggleBtn) {
-    allToggleBtn.textContent = games.length > 0
-      ? `Dölj spel (${games.length})`
-      : 'Visa spel';
-  }
 
   if (!Array.isArray(games) || games.length === 0) return;
 

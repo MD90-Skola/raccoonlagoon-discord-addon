@@ -227,6 +227,7 @@ export function initSettings() {
   const rustFinderToggle  = document.getElementById('rustFinderEnabled');
   const freeGamesToggle   = document.getElementById('freeGamesEnabled');
   const lidlToggle        = document.getElementById('lidlEnabled');
+  const smartmatToggle    = document.getElementById('smartmatEnabled');
   const checkUpdateBtn    = document.getElementById('checkUpdateBtn');
   const updateStatus    = document.getElementById('updateStatus');
   const currentVersionEl = document.getElementById('currentVersion');
@@ -288,6 +289,10 @@ export function initSettings() {
   lidlToggle.addEventListener('change', () => {
     Storage.set({ lidlEnabled: lidlToggle.checked });
     applyCardVisibility('lidlCard', lidlToggle.checked);
+  });
+  smartmatToggle.addEventListener('change', () => {
+    Storage.set({ smartmatEnabled: smartmatToggle.checked });
+    applyCardVisibility('smartmatCard', smartmatToggle.checked);
   });
 
   // ─── Tab visibility toggles ───────────────────────────────────────────────
@@ -423,14 +428,17 @@ export async function loadSettings() {
   const rustFinderV = s.rustFinderEnabled !== false;
   const freeGamesV  = s.freeGamesEnabled  !== false;
   const lidlV       = s.lidlEnabled       !== false;
+  const smartmatV   = s.smartmatEnabled   !== false;
 
   document.getElementById('rustFinderEnabled').checked = rustFinderV;
   document.getElementById('freeGamesEnabled').checked  = freeGamesV;
   document.getElementById('lidlEnabled').checked       = lidlV;
+  document.getElementById('smartmatEnabled').checked   = smartmatV;
 
-  applyCardVisibility('rustFinderCard', rustFinderV);
-  applyCardVisibility('freeGamesCard',  freeGamesV);
-  applyCardVisibility('lidlCard',       lidlV);
+  applyCardVisibility('rustFinderCard',  rustFinderV);
+  applyCardVisibility('freeGamesCard',   freeGamesV);
+  applyCardVisibility('lidlCard',        lidlV);
+  applyCardVisibility('smartmatCard',    smartmatV);
 
   // ─── Tab visibility ───────────────────────────────────────────────────────
   const tabHomeV       = s.tabHomeVisible       !== false;

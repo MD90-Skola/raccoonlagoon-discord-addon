@@ -2,27 +2,52 @@
    lidl.css — Styles för Lidl reklamblad-komponenten
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ─── Controls row ────────────────────────────────────────────────────────── */
-.lidl-controls {
-  display:        flex;
-  flex-direction: column;
-  gap:            6px;
-}
-
-.lidl-autoscan-row {
+/* ─── Header ──────────────────────────────────────────────────────────────── */
+.lidl-header {
   display:         flex;
   justify-content: space-between;
   align-items:     center;
+  margin-bottom:   6px;
 }
 
-.lidl-label {
-  font-size: 13px;
-  color:     var(--text-primary);
+.lidl-row-right {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
 }
 
-.lidl-last-scan {
-  font-size: 11px;
-  color:     var(--text-muted);
+/* ─── Knappar ─────────────────────────────────────────────────────────────── */
+.lidl-scan-btn,
+.lidl-view-btn {
+  padding:       3px 10px;
+  font-size:     11px;
+  font-weight:   600;
+  border-radius: var(--radius-xs);
+  cursor:        pointer;
+  transition:    opacity var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+}
+
+.lidl-scan-btn {
+  background: var(--purple);
+  color:      #fff;
+  border:     none;
+}
+
+.lidl-view-btn {
+  background: transparent;
+  color:      var(--text-muted);
+  border:     1px solid var(--border);
+}
+
+.lidl-view-btn:hover  { color: var(--text-secondary); border-color: var(--border); }
+.lidl-view-btn.active { border-color: var(--purple-border); color: var(--purple-light); background: color-mix(in srgb, var(--purple) 10%, transparent); }
+.lidl-scan-btn:hover  { opacity: 0.85; }
+.lidl-scan-btn:disabled,
+.lidl-view-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ─── Accordion ───────────────────────────────────────────────────────────── */
+.lidl-all-wrap {
+  margin-top: 0;
 }
 
 /* ─── Leaflet list ────────────────────────────────────────────────────────── */
@@ -30,17 +55,38 @@
   display:        flex;
   flex-direction: column;
   gap:            6px;
+  margin-top:     4px;
   max-height:     300px;
   overflow-y:     auto;
+  padding:        4px;
+  background:     var(--bg-raised);
+  border:         1px dashed var(--border);
+  border-radius:  var(--radius-md);
 }
 
-.lidl-list:empty::before {
-  content:    'Tryck "Hämta reklamblad" för att ladda';
-  display:    block;
-  text-align: center;
-  padding:    20px 0;
-  color:      var(--text-muted);
-  font-size:  12px;
+/* ─── Footer ──────────────────────────────────────────────────────────────── */
+.lidl-footer {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  margin-top:      4px;
+  font-size:       11px;
+  color:           var(--text-muted);
+}
+
+.lidl-last-scan {
+  text-align: right;
+}
+
+.lidl-status-link {
+  color:           var(--text-secondary);
+  text-decoration: none;
+  font-weight:     600;
+}
+
+.lidl-status-link:hover {
+  text-decoration: underline;
+  color:           var(--text-primary);
 }
 
 /* ─── Leaflet item (always <a>) ───────────────────────────────────────────── */

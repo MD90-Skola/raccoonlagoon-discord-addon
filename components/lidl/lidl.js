@@ -1,11 +1,38 @@
 // components/lidl/lidl.js — Lidl reklamblad UI
 
-export function initLidl() {
+export const template = `
+<div class="card" id="lidlCard">
+  <div class="lidl-header">
+    <label class="section-label">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Lidl Reklamblad
+    </label>
+    <div class="lidl-row-right">
+      <button class="lidl-view-btn" id="lidlAllToggle">Visa</button>
+      <button class="lidl-scan-btn" id="lidlFetchBtn">Scan</button>
+      <label class="toggle-switch">
+        <input type="checkbox" id="lidlAutoScanToggle" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+  <div class="lidl-all-wrap">
+    <div id="lidlList" class="lidl-list" hidden></div>
+  </div>
+  <div class="lidl-footer">
+    <span class="scan-status" id="lidlStatus">Idle</span>
+    <span class="lidl-last-scan" id="lidlLastScan"></span>
+  </div>
+</div>
+`;
+
+export function init() {
   const btn        = document.getElementById('lidlFetchBtn');
   const list       = document.getElementById('lidlList');
   const status     = document.getElementById('lidlStatus');
   const autoToggle = document.getElementById('lidlAutoScanToggle');
   const lastScanEl = document.getElementById('lidlLastScan');
+  const viewBtn    = document.getElementById('lidlAllToggle');
 
   if (!btn || !list || !status) return;
 
@@ -13,8 +40,9 @@ export function initLidl() {
 
   btn.addEventListener('click', async () => {
     btn.disabled = true;
-    status.textContent = 'Status: Hämtar...';
     renderSkeletons();
+    list.hidden = false;
+    viewBtn?.classList.add('active');
 
     try {
       const res = await chrome.runtime.sendMessage({ type: 'LIDL_FETCH' });
@@ -24,15 +52,35 @@ export function initLidl() {
       await chrome.storage.local.set({ lidlLeaflets: leaflets, lidlLastFetch: Date.now() });
       renderLeaflets(leaflets);
       updateLastScan(lastScanEl, Date.now());
-      status.textContent = leaflets.length > 0
-        ? `Status: ${leaflets.length} reklamblad hittade`
-        : 'Status: Inga reklamblad hittade';
+      renderFooterStatus(status, leaflets.length);
     } catch (err) {
       console.error('[Lidl] Fetch failed:', err);
-      status.textContent = 'Status: Fel — ' + (err?.message || 'Okänt fel');
+      status.textContent = 'Fel — ' + (err?.message || 'Okänt fel');
     } finally {
       btn.disabled = false;
     }
+  });
+
+  viewBtn?.addEventListener('click', async () => {
+    if (!list.hidden) {
+      list.hidden = true;
+      viewBtn.classList.remove('active');
+      return;
+    }
+
+    const data = await Storage.get(['lidlLeaflets']);
+    const leaflets = Array.isArray(data.lidlLeaflets) ? data.lidlLeaflets : [];
+
+    if (leaflets.length === 0) {
+      list.hidden = true;
+      viewBtn.classList.remove('active');
+      status.textContent = 'Inga reklamblad — kör Scan först';
+      return;
+    }
+
+    renderLeaflets(leaflets);
+    list.hidden = false;
+    viewBtn.classList.add('active');
   });
 
   autoToggle?.addEventListener('change', async () => {
@@ -46,7 +94,8 @@ export function initLidl() {
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'local') return;
     if ('lidlLeaflets' in changes) {
-      renderLeaflets(Array.isArray(changes.lidlLeaflets.newValue) ? changes.lidlLeaflets.newValue : []);
+      const leaflets = Array.isArray(changes.lidlLeaflets.newValue) ? changes.lidlLeaflets.newValue : [];
+      if (!list.hidden) renderLeaflets(leaflets);
     }
     if ('lidlLastFetch' in changes) {
       updateLastScan(lastScanEl, changes.lidlLastFetch.newValue);
@@ -61,11 +110,21 @@ export function initLidl() {
     if (autoToggle) autoToggle.checked = data.lidlAutoScan === true;
     updateLastScan(lastScanEl, data.lidlLastFetch);
     const leaflets = Array.isArray(data.lidlLeaflets) ? data.lidlLeaflets : [];
-    renderLeaflets(leaflets);
-    status.textContent = leaflets.length > 0
-      ? `Status: ${leaflets.length} reklamblad`
-      : 'Status: Idle';
+    if (leaflets.length > 0) renderFooterStatus(status, leaflets.length);
   }
+}
+
+// ─── Footer status ─────────────────────────────────────────────────────────────
+function renderFooterStatus(el, count) {
+  el.textContent = '';
+  el.appendChild(document.createTextNode(count + 'st '));
+  const a = document.createElement('a');
+  a.href        = 'https://www.lidl.se/c/reklamblad/s10018018';
+  a.target      = '_blank';
+  a.rel         = 'noopener';
+  a.className   = 'lidl-status-link';
+  a.textContent = 'Lidl';
+  el.appendChild(a);
 }
 
 // ─── Skeleton loader ───────────────────────────────────────────────────────────
@@ -83,21 +142,11 @@ function renderSkeletons(count = 3) {
 
     const body = document.createElement('div');
     body.className = 'lidl-item-body';
-
-    const titleLine = document.createElement('div');
-    titleLine.className = 'lidl-skeleton-line lidl-skeleton-line--title';
-    body.appendChild(titleLine);
-
-    const datesLine = document.createElement('div');
-    datesLine.className = 'lidl-skeleton-line lidl-skeleton-line--dates';
-    body.appendChild(datesLine);
-
+    body.appendChild(Object.assign(document.createElement('div'), { className: 'lidl-skeleton-line lidl-skeleton-line--title' }));
+    body.appendChild(Object.assign(document.createElement('div'), { className: 'lidl-skeleton-line lidl-skeleton-line--dates' }));
     item.appendChild(body);
 
-    const badge = document.createElement('div');
-    badge.className = 'lidl-skeleton-badge';
-    item.appendChild(badge);
-
+    item.appendChild(Object.assign(document.createElement('div'), { className: 'lidl-skeleton-badge' }));
     list.appendChild(item);
   }
 }
@@ -105,9 +154,13 @@ function renderSkeletons(count = 3) {
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 function updateLastScan(el, timestamp) {
   if (!el) return;
-  el.textContent = timestamp
-    ? 'Senaste hämtning: ' + new Date(timestamp).toLocaleString('sv-SE')
-    : 'Aldrig hämtat';
+  if (!timestamp) { el.textContent = ''; return; }
+  const d   = new Date(timestamp);
+  const mm  = String(d.getMonth() + 1).padStart(2, '0');
+  const dd  = String(d.getDate()).padStart(2, '0');
+  const hh  = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  el.textContent = `${mm}-${dd} | ${hh}:${min}`;
 }
 
 function renderLeaflets(leaflets) {
@@ -116,101 +169,65 @@ function renderLeaflets(leaflets) {
   list.innerHTML = '';
   if (!Array.isArray(leaflets) || leaflets.length === 0) return;
 
-  // Midnight today as reference for all calculations
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayMs = today.getTime();
 
-  // Sort: active (soonest expiry first) → upcoming (soonest start first) → expired
   const sorted = [...leaflets].sort((a, b) => {
     const rank = l => {
       const s = new Date(l.startDate); s.setHours(0, 0, 0, 0);
       const e = new Date(l.endDate);   e.setHours(0, 0, 0, 0);
-      if (todayMs >= s.getTime() && todayMs <= e.getTime()) return 0; // active
-      if (todayMs < s.getTime()) return 1;                            // upcoming
-      return 2;                                                        // expired
+      if (todayMs >= s.getTime() && todayMs <= e.getTime()) return 0;
+      if (todayMs < s.getTime()) return 1;
+      return 2;
     };
     const ra = rank(a), rb = rank(b);
     if (ra !== rb) return ra - rb;
-    if (ra === 0) return a.endDate - b.endDate;   // active: least time left first
-    if (ra === 1) return a.startDate - b.startDate; // upcoming: starting soonest first
-    return b.endDate - a.endDate;                 // expired: most recent first
+    if (ra === 0) return a.endDate - b.endDate;
+    if (ra === 1) return a.startDate - b.startDate;
+    return b.endDate - a.endDate;
   });
 
   for (const leaf of sorted) {
-    // Normalise to midnight for clean day diffs
     const startDay = new Date(leaf.startDate); startDay.setHours(0, 0, 0, 0);
     const endDay   = new Date(leaf.endDate);   endDay.setHours(0, 0, 0, 0);
 
-    // ── State: determine from today ─────────────────────────────────────────
     let state, badgeText, badgeMod;
-
     if (todayMs < startDay.getTime()) {
-      // Not started yet
       const daysUntil = Math.round((startDay - today) / 86400000);
-      state     = 'upcoming';
-      badgeMod  = 'lidl-badge--upcoming';
-      badgeText = daysUntil === 1
-        ? 'Startar imorgon'
-        : `Startar om ${daysUntil} dag${daysUntil === 1 ? '' : 'ar'}`;
-
+      state = 'upcoming'; badgeMod = 'lidl-badge--upcoming';
+      badgeText = daysUntil === 1 ? 'Startar imorgon' : `Startar om ${daysUntil} dagar`;
     } else if (todayMs <= endDay.getTime()) {
-      // Active
       const daysLeft = Math.round((endDay - today) / 86400000);
-      state     = 'active';
-      badgeMod  = 'lidl-badge--active';
-      badgeText = daysLeft === 0
-        ? 'Sista dagen'
-        : `${daysLeft} dag${daysLeft === 1 ? '' : 'ar'} kvar`;
-
+      state = 'active'; badgeMod = 'lidl-badge--active';
+      badgeText = daysLeft === 0 ? 'Sista dagen' : `${daysLeft} dag${daysLeft === 1 ? '' : 'ar'} kvar`;
     } else {
-      // Expired
-      state     = 'expired';
-      badgeMod  = 'lidl-badge--expired';
-      badgeText = 'Utgått';
+      state = 'expired'; badgeMod = 'lidl-badge--expired'; badgeText = 'Utgått';
     }
 
-    // ── Build item — always <a> so every row is clickable ───────────────────
     const item = document.createElement('a');
     item.className = `lidl-item lidl-item--${state}`;
     item.href      = leaf.url || 'https://www.lidl.se/c/reklamblad/s10018018';
     item.target    = '_blank';
     item.rel       = 'noopener';
 
-    // Thumbnail
     if (leaf.image) {
-      const img    = document.createElement('img');
+      const img = document.createElement('img');
       img.className = 'lidl-thumb';
-      img.src      = leaf.image;
-      img.alt      = '';
-      img.loading  = 'lazy';
+      img.src = leaf.image; img.alt = ''; img.loading = 'lazy';
       item.appendChild(img);
     }
 
-    // Body
     const body = document.createElement('div');
     body.className = 'lidl-item-body';
-
-    const titleEl = document.createElement('div');
-    titleEl.className   = 'lidl-title';
-    titleEl.textContent = leaf.title || 'Reklamblad';
-    body.appendChild(titleEl);
+    body.appendChild(Object.assign(document.createElement('div'), { className: 'lidl-title', textContent: leaf.title || 'Reklamblad' }));
 
     const startStr = new Date(leaf.startDate).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
     const endStr   = new Date(leaf.endDate  ).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
-    const datesEl  = document.createElement('div');
-    datesEl.className   = 'lidl-dates';
-    datesEl.textContent = `${startStr} – ${endStr}`;
-    body.appendChild(datesEl);
-
+    body.appendChild(Object.assign(document.createElement('div'), { className: 'lidl-dates', textContent: `${startStr} – ${endStr}` }));
     item.appendChild(body);
 
-    // Badge
-    const badge = document.createElement('span');
-    badge.className   = `lidl-badge ${badgeMod}`;
-    badge.textContent = badgeText;
-    item.appendChild(badge);
-
+    item.appendChild(Object.assign(document.createElement('span'), { className: `lidl-badge ${badgeMod}`, textContent: badgeText }));
     list.appendChild(item);
   }
 }

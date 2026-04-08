@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="css/scanner.css" />
   <link rel="stylesheet" href="../components/freegames/freegames.css" />
   <link rel="stylesheet" href="../components/lidl/lidl.css" />
+  <link rel="stylesheet" href="../components/smartmat-scanner/smartmat-scanner.css" />
   <link rel="stylesheet" href="../components/optimize/commandbox.css">
 </head>
 <body>
@@ -73,106 +74,8 @@
 
     <section id="tab-scanner" class="tab-pane" hidden>
 
-      <!-- ------ TODO: COMPONENT - RUST FINDER ------ -->
-      <div class="card" id="rustFinderCard">
-        <label class="section-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-          Rust Finder
-        </label>
-
-        <div class="rust-controls">
-          <div class="rust-autoscan-row">
-            <span class="rust-label">Auto-scan (daglig)</span>
-            <div class="rust-row-right">
-              <button class="rust-scan-btn" id="startScanBtn">Scan</button>
-              <label class="toggle-switch">
-                <input type="checkbox" id="rustAutoScanToggle" />
-                <span class="slider"></span>
-              </label>
-            </div>
-          </div>
-          <span class="rust-last-scan" id="rustLastScan">Aldrig skannat</span>
-        </div>
-
-        <div id="rustNewSection" hidden>
-          <div class="rust-section-header rust-section-header--new">Nya produkter</div>
-          <div class="dlc-list" id="rustNewList"></div>
-        </div>
-
-        <div id="rustSaleSection" hidden>
-          <div class="rust-section-header rust-section-header--sale">Aktiva reor</div>
-          <div class="dlc-list" id="rustSaleList"></div>
-        </div>
-
-        <div id="rustChangedSection" hidden>
-          <div class="rust-section-header rust-section-header--changed">Prisändringar</div>
-          <div class="dlc-list" id="rustChangedList"></div>
-        </div>
-
-        <div class="rust-all-wrap">
-          <button class="rust-all-toggle" id="rustAllToggle">Visa produkter</button>
-          <div class="rust-sort-bar" id="rustSortBar" hidden>
-            <button class="rust-sort-btn active" data-sort="newest">Nyast</button>
-            <button class="rust-sort-btn" data-sort="cheapest">Billigast</button>
-            <button class="rust-sort-btn" data-sort="discount">Högst rea</button>
-          </div>
-          <div class="dlc-list" id="rustAllList" hidden></div>
-        </div>
-
-        <div class="rust-footer" id="scanStatus">
-          <a href="https://store.steampowered.com/itemstore/252490/browse/?filter=All&cc=us&l=en"
-             target="_blank" rel="noopener" class="rust-footer-link">Rust items</a>
-        </div>
-      </div>
-
-      <!-- ------- TODO: COMPONENT - FREE GAMES ------- -->
-      <div class="card" id="freeGamesCard">
-        <div class="fg-header">
-          <label class="section-label">Free Games</label>
-          <div class="fg-row-right">
-            <button class="fg-scan-btn" id="freeGamesScanBtn">Scan</button>
-            <label class="toggle-switch">
-              <input type="checkbox" id="freeGamesAutoScanToggle" />
-              <span class="slider"></span>
-            </label>
-          </div>
-        </div>
-
-        <div class="fg-all-wrap">
-          <button class="fg-all-toggle" id="freeGamesAllToggle">Visa spel</button>
-          <div id="freeGamesList" class="fg-list" hidden></div>
-        </div>
-
-        <div class="fg-footer">
-          <span class="scan-status" id="freeGamesStatus">Status: Idle</span>
-          <span class="fg-last-scan" id="freeGamesLastScan"></span>
-        </div>
-      </div>
-
-      <!-- ------- TODO: COMPONENT - LIDL ------- -->
-      <div class="card" id="lidlCard">
-        <label class="section-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          Lidl Reklamblad
-        </label>
-
-        <div class="lidl-controls">
-          <div class="lidl-autoscan-row">
-            <span class="lidl-label">Auto-scan (daglig)</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="lidlAutoScanToggle" />
-              <span class="slider"></span>
-            </label>
-          </div>
-          <span class="lidl-last-scan" id="lidlLastScan">Aldrig hämtat</span>
-        </div>
-
-        <button class="btn-primary" id="lidlFetchBtn">Hämta reklamblad</button>
-
-        <div id="lidlList" class="lidl-list"></div>
-
-        <span class="scan-status" id="lidlStatus">Status: Idle</span>
-      </div>
+      <!-- Inner tabs + all scanner cards injected via scanner.js template -->
+      <div id="rustMount"></div>
 
     </section>
 
@@ -460,13 +363,24 @@
           </label>
         </div>
 
-        <div class="toggle-row" style="border-bottom:none; padding-bottom:0;">
+        <div class="toggle-row">
           <div class="toggle-info">
             <span class="toggle-label">Lidl Scanner</span>
             <span class="toggle-desc">Lidl reklamblad med countdown</span>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="lidlEnabled" />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row" style="border-bottom:none; padding-bottom:0;">
+          <div class="toggle-info">
+            <span class="toggle-label">Mat-scanner</span>
+            <span class="toggle-desc">ICA, Coop, Willys — erbjudanden i Mat-fliken</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="smartmatEnabled" />
             <span class="slider"></span>
           </label>
         </div>

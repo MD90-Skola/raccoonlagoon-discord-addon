@@ -6,9 +6,10 @@ import { initNotes, loadNotes }                              from './tabs/notes.
 import { initSettings, loadSettings, initColorPicker }       from './tabs/settings.js';
 import { setBadge }                                          from './tabs/utils.js';
 import { initRecorderTab, loadRecorderSettings }             from '../components/video-recorder/recorder-tab.js';
-import { initScanner }                                       from './tabs/scanner.js';
-import { initFreeGames }                                     from '../components/freegames/freegames.js';
-import { initLidl }                                          from '../components/lidl/lidl.js';
+import { template as rustTpl, init as initScanner }          from './tabs/scanner.js';
+import { template as freeGamesTpl, init as initFreeGames }   from '../components/freegames/freegames.js';
+import { template as lidlTpl, init as initLidl }             from '../components/lidl/lidl.js';
+import { template as smartmatTpl, init as initSmartmat }      from '../components/smartmat-scanner/smartmat-scanner.js';
 import { initOptimize }                                      from './tabs/Optimize.js';
 import { initMonkeyPatch }                                   from './tabs/monkey-patch.js';
 
@@ -20,9 +21,14 @@ initNotes();
 initSettings();
 initColorPicker();
 initRecorderTab();
+document.getElementById('rustMount').outerHTML = rustTpl;
 initScanner();
+document.getElementById('freeGamesMount').outerHTML = freeGamesTpl;
 initFreeGames();
+document.getElementById('lidlMount').outerHTML = lidlTpl;
 initLidl();
+document.getElementById('smartmatMount').outerHTML = smartmatTpl;
+initSmartmat();
 initOptimize();
 initMonkeyPatch();
 

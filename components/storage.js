@@ -57,7 +57,8 @@ var Storage = {
         'lidlAutoScan',
         'rustFinderEnabled',
         'freeGamesEnabled',
-        'lidlEnabled'
+        'lidlEnabled',
+        'icaScannerEnabled'
       ]);
     } catch (_) { return {}; }
   },
