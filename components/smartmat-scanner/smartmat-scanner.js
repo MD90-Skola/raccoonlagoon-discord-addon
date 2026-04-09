@@ -1,4 +1,5 @@
 // smartmat-scanner.js — Mat-scanner UI (ICA, Coop, Willys, Lidl)
+import { CATEGORIES, getCategory } from './product-categories.js';
 
 export const template = `
 <div id="smartmatCard">
@@ -55,7 +56,7 @@ export const template = `
   <div class="smat-store-pills">
     <button class="smat-pill active" data-store="ica">ICA</button>
     <button class="smat-pill active" data-store="coop">Coop</button>
-    <button class="smat-pill active" data-store="willys">Wi<span class="smat-pill-wll">LL</span>Y:S</button>
+    <button class="smat-pill active" data-store="willys">Willys</button>
     <button class="smat-pill active" data-store="lidl">Lidl</button>
   </div>
 
@@ -64,14 +65,21 @@ export const template = `
   </div>
 
   <div class="smat-search-row">
+    <svg class="smat-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <input type="text" class="smat-search-input" id="smatSearch" placeholder="Sök produkt…" autocomplete="off" />
   </div>
 
-  <div class="smat-sort-bar" id="smatSortBar">
-    <button class="smat-sort-btn active" data-sort="newest">Nyast</button>
-    <button class="smat-sort-btn" data-sort="cheapest">Billigast</button>
-    <button class="smat-sort-btn" data-sort="az">A–Ö</button>
+  <div class="smat-toolbar">
+    <div class="smat-sort-bar" id="smatSortBar">
+      <button class="smat-sort-btn active" data-sort="newest">Nyast</button>
+      <button class="smat-sort-btn" data-sort="cheapest">Billigast</button>
+      <button class="smat-sort-btn" data-sort="az">A–Ö</button>
+    </div>
+    <button class="smat-view-toggle" id="smatGridToggle" title="Visa i grid">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+    </button>
   </div>
+  <div class="smat-quick-filters" id="smatQuickFilters"></div>
 
   <div id="smatList" class="smat-list"></div>
 
@@ -81,11 +89,13 @@ export const template = `
       <span class="smat-shopping-toggle-icon">▾</span>
     </div>
     <div class="smat-shopping-body" id="smatShoppingBody">
+      <div class="smat-recommendation" id="smatRecommendation" hidden></div>
       <div class="smat-shopping-add-row">
-        <input type="text" class="smat-shopping-input" id="smatShoppingInput" placeholder="Lägg till fritext…" autocomplete="off" />
+        <input type="text" class="smat-shopping-input" id="smatShoppingInput" placeholder="Lägg till vara…" autocomplete="off" />
         <button class="smat-shopping-add-btn" id="smatShoppingAddBtn">+</button>
       </div>
       <div class="smat-shopping-list" id="smatShoppingList"></div>
+      <div class="smat-shopping-total" id="smatShoppingTotal" hidden></div>
     </div>
   </div>
 
@@ -97,6 +107,58 @@ export const template = `
 `;
 
 const ALL_STORES = ['ica', 'coop', 'willys', 'lidl'];
+
+// Snabb-chips i inköpslistan
+const QUICK_ITEMS = [
+  'Ägg', 'Mjölk', 'Fil', 'Yoghurt', 'Grädde', 'Smör', 'Ost',
+  'Bröd', 'Knäckebröd',
+  'Kyckling', 'Köttfärs', 'Fläsk', 'Bacon',
+  'Fisk', 'Lax', 'Räkor',
+  'Tomat', 'Gurka', 'Lök', 'Potatis', 'Morötter', 'Banan', 'Äpple',
+  'Pasta', 'Ris', 'Havregryn',
+  'Glass', 'Juice', 'Kaffe', 'Te'
+];
+
+// Autocorrect: engelska ord + vanliga stavfel → rätt svensk form
+const SPELL_ALIASES = {
+  // Engelska → Svenska
+  'egg': 'Ägg',   'eggs': 'Ägg',
+  'milk': 'Mjölk',
+  'bread': 'Bröd',
+  'butter': 'Smör',
+  'cheese': 'Ost',
+  'yogurt': 'Yoghurt',
+  'cream': 'Grädde',
+  'chicken': 'Kyckling',
+  'fish': 'Fisk',
+  'salmon': 'Lax',
+  'shrimp': 'Räkor', 'prawns': 'Räkor',
+  'onion': 'Lök',   'onions': 'Lök',
+  'potato': 'Potatis', 'potatoes': 'Potatis',
+  'carrot': 'Morötter', 'carrots': 'Morötter',
+  'banana': 'Banan', 'bananas': 'Banan',
+  'apple': 'Äpple', 'apples': 'Äpple',
+  'rice': 'Ris',
+  'oats': 'Havregryn',
+  'coffee': 'Kaffe',
+  'tea': 'Te',
+  'icecream': 'Glass', 'ice cream': 'Glass',
+  'meat': 'Kött',
+  'pork': 'Fläsk',
+  'bacon': 'Bacon',
+  // Svenska stavfel
+  'kafe': 'Kaffe',   'kafee': 'Kaffe',  'coffe': 'Kaffe',
+  'mjolk': 'Mjölk',  'miolk': 'Mjölk',  'mjölck': 'Mjölk',
+  'agg': 'Ägg',      'äg': 'Ägg',
+  'brod': 'Bröd',    'brord': 'Bröd',   'bröd': 'Bröd',
+  'smar': 'Smör',    'smor': 'Smör',
+  'aplen': 'Äpple',  'äplen': 'Äpple',
+  'morotter': 'Morötter', 'moroter': 'Morötter',
+  'lax': 'Lax',
+  'raka': 'Räkor',   'rakor': 'Räkor',
+  'kottfars': 'Köttfärs', 'kotfars': 'Köttfärs',
+};
+
 
 export function init() {
   const scanAllBtn     = document.getElementById('smatScanAllBtn');
@@ -138,8 +200,38 @@ export function init() {
   let currentSort   = 'newest';
   let searchTerm    = '';
   let scanning      = false;
-  let activeStores  = new Set(ALL_STORES);
-  let scanEnabled   = { ica: true, coop: true, willys: true, lidl: true };
+  let isGridView     = false;
+  let activeCategory = null; // nyckel ur CATEGORIES, t.ex. "kott", eller null = alla
+  let activeStores   = new Set(ALL_STORES);
+  let scanEnabled    = { ica: true, coop: true, willys: true, lidl: true };
+
+  const gridToggle      = document.getElementById('smatGridToggle');
+  const quickFiltersEl  = document.getElementById('smatQuickFilters');
+
+  // ─── Bygg kategori-knappar dynamiskt ───────────────────────────────────────
+  if (quickFiltersEl) {
+    for (const [key, cat] of Object.entries(CATEGORIES)) {
+      const btn = document.createElement('button');
+      btn.className = 'smat-qfilter';
+      btn.dataset.category = key;
+      btn.textContent = cat.label;
+      btn.style.setProperty('--cat-color', cat.color);
+      btn.addEventListener('click', () => {
+        activeCategory = activeCategory === key ? null : key;
+        quickFiltersEl.querySelectorAll('.smat-qfilter').forEach(b => {
+          b.classList.toggle('active', b.dataset.category === activeCategory);
+        });
+        filterAndRender();
+      });
+      quickFiltersEl.appendChild(btn);
+    }
+  }
+
+  // Skapa dropdown som direkt barn till body — undviker stacking context-problem
+  const suggestionsEl = document.createElement('div');
+  suggestionsEl.className = 'smat-suggestions';
+  suggestionsEl.hidden = true;
+  document.body.appendChild(suggestionsEl);
 
   loadInitialState();
 
@@ -282,7 +374,60 @@ export function init() {
   // ─── Lägg till fritext ─────────────────────────────────────────────────────
   shoppingAddBtn?.addEventListener('click', () => addCustomItem());
   shoppingInput?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') addCustomItem();
+    if (e.key === 'Enter') { addCustomItem(); if (suggestionsEl) suggestionsEl.hidden = true; }
+    if (e.key === 'Escape') { if (suggestionsEl) suggestionsEl.hidden = true; }
+  });
+
+  // ─── Autocomplete förslag ──────────────────────────────────────────────────
+  shoppingInput?.addEventListener('input', () => {
+    const q = shoppingInput.value.trim().toLowerCase();
+    if (!q || !suggestionsEl) { if (suggestionsEl) suggestionsEl.hidden = true; return; }
+
+    // Alias-match (egg → Ägg) läggs överst
+    const alias    = SPELL_ALIASES[q];
+    const starts   = QUICK_ITEMS.filter(w => w.toLowerCase().startsWith(q));
+    const contains = QUICK_ITEMS.filter(w => !w.toLowerCase().startsWith(q) && w.toLowerCase().includes(q));
+    const pool     = [...starts, ...contains];
+    if (alias && !pool.some(w => w.toLowerCase() === alias.toLowerCase())) pool.unshift(alias);
+    const matches  = pool.slice(0, 5);
+
+    if (matches.length === 0) { suggestionsEl.hidden = true; return; }
+
+    suggestionsEl.innerHTML = '';
+    for (const word of matches) {
+      const item = document.createElement('div');
+      item.className   = 'smat-suggestion-item';
+      item.textContent = word;
+      item.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // hindra blur-event från att stänga listan först
+        shoppingInput.value = word;
+        suggestionsEl.hidden = true;
+        addCustomItem();
+      });
+      suggestionsEl.appendChild(item);
+    }
+
+    // Positionera fixed dropdown under inputen
+    const rect = shoppingInput.getBoundingClientRect();
+    suggestionsEl.style.left  = rect.left  + 'px';
+    suggestionsEl.style.top   = rect.bottom + 'px';
+    suggestionsEl.style.width = rect.width  + 'px';
+    suggestionsEl.hidden = false;
+  });
+
+  shoppingInput?.addEventListener('blur', () => {
+    setTimeout(() => { if (suggestionsEl) suggestionsEl.hidden = true; }, 150);
+  });
+
+  // ─── Grid toggle ───────────────────────────────────────────────────────────
+  gridToggle?.addEventListener('click', () => {
+    isGridView = !isGridView;
+    list.classList.toggle('grid', isGridView);
+    gridToggle.classList.toggle('active', isGridView);
+    gridToggle.title = isGridView ? 'Visa som lista' : 'Visa i grid';
+    gridToggle.innerHTML = isGridView
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>';
   });
 
   // ─── Storage changes ───────────────────────────────────────────────────────
@@ -302,7 +447,7 @@ export function init() {
 
   // ─── Progress bar ──────────────────────────────────────────────────────────
   // Gradient pinned to the track's pixel width — bar clips it as it grows.
-  const SCAN_GRADIENT = 'linear-gradient(to right, #E8475F 0% 25%, #00943A 25% 50%, #111111 50% 75%, #e6c000 75% 100%)';
+  const SCAN_GRADIENT = 'linear-gradient(to right, #f05272 0% 25%, #22c55e 25% 50%, #ef4444 50% 75%, #f0b429 75% 100%)';
 
   function setProgress(fraction, isDone = false) {
     if (!progressBar) return;
@@ -343,6 +488,10 @@ export function init() {
 
     if (searchTerm) {
       items = items.filter(p => (p.name || '').toLowerCase().includes(searchTerm));
+    }
+
+    if (activeCategory) {
+      items = items.filter(p => getCategory(p.name) === activeCategory);
     }
 
     if (currentSort === 'cheapest') {
@@ -412,6 +561,11 @@ export function init() {
       badge.textContent = p.store || '';
       el.appendChild(badge);
 
+      const check = document.createElement('div');
+      check.className = 'smat-item-check';
+      check.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+      el.appendChild(check);
+
       el.addEventListener('click', () => toggleProductInList(p, el));
       list.appendChild(el);
     }
@@ -460,11 +614,13 @@ export function init() {
   }
 
   function addCustomItem() {
-    const text = shoppingInput?.value.trim();
-    if (!text) return;
-    const id = 'custom-' + Date.now();
+    const raw = shoppingInput?.value.trim();
+    if (!raw) return;
+    const text = SPELL_ALIASES[raw.toLowerCase()] ?? raw;
+    const id   = 'custom-' + Date.now();
     shoppingItems.push({ type: 'custom', id, text });
     shoppingInput.value = '';
+    if (suggestionsEl) suggestionsEl.hidden = true;
     saveShoppingList();
     renderShoppingList();
     filterAndRender();
@@ -478,29 +634,130 @@ export function init() {
   }
 
   function renderShoppingList() {
+    renderRecommendation();
     shoppingList.innerHTML = '';
+
+    let totalPrice = 0;
+    let totalFound = 0;
+
     for (const item of shoppingItems) {
+      const label   = item.type === 'custom' ? item.text : item.name;
+      const term    = label.toLowerCase();
+      const matches = allProducts.filter(p => (p.name || '').toLowerCase().includes(term));
+
       const row = document.createElement('div');
       row.className = 'smat-list-item';
 
-      const text = document.createElement('span');
-      text.className = 'smat-list-item-text';
-      text.textContent = item.type === 'custom' ? item.text : item.name;
-      row.appendChild(text);
+      // × ta bort
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'smat-list-item-remove';
+      removeBtn.textContent = '×';
+      removeBtn.addEventListener('click', (e) => { e.stopPropagation(); removeShoppingItem(item.id); });
+      row.appendChild(removeBtn);
 
-      const btn = document.createElement('button');
-      btn.className = 'smat-list-item-remove';
-      btn.textContent = '×';
-      btn.title = 'Ta bort';
-      btn.addEventListener('click', () => removeShoppingItem(item.id));
-      row.appendChild(btn);
+      // Namn
+      const nameEl = document.createElement('span');
+      nameEl.className = 'smat-list-item-text';
+      nameEl.textContent = label;
+      row.appendChild(nameEl);
+
+      if (matches.length === 1) {
+        // Exakt ett resultat — visa pris direkt
+        const priceEl = document.createElement('span');
+        priceEl.className = 'smat-list-item-price';
+        priceEl.textContent = matches[0].price || '?';
+        row.appendChild(priceEl);
+        const pr = parsePrice(matches[0].price);
+        if (isFinite(pr)) { totalPrice += pr; totalFound++; }
+
+      } else if (matches.length > 1) {
+        // Flera resultat — klickbar badge som filtrerar listan
+        const cheapest = matches.reduce((a, b) => parsePrice(a.price) <= parsePrice(b.price) ? a : b);
+        const badge = document.createElement('button');
+        badge.className = 'smat-list-item-count';
+        badge.textContent = matches.length + 'st';
+        badge.addEventListener('click', () => {
+          if (searchInput) { searchInput.value = label; searchTerm = term; filterAndRender(); }
+        });
+        row.appendChild(badge);
+        const pr = parsePrice(cheapest.price);
+        if (isFinite(pr)) { totalPrice += pr; totalFound++; }
+      }
+      // 0 resultat — ingen badge
 
       shoppingList.appendChild(row);
+    }
+
+    // Total
+    const totalEl = document.getElementById('smatShoppingTotal');
+    if (totalEl) {
+      if (totalFound > 0) {
+        totalEl.hidden = false;
+        totalEl.textContent = `Totalt ~${Math.round(totalPrice)} kr`;
+      } else {
+        totalEl.hidden = true;
+      }
     }
   }
 
   function saveShoppingList() {
     chrome.storage.local.set({ smartmatList: shoppingItems }).catch(() => {});
+  }
+
+  // ─── Butiks-rekommendation ──────────────────────────────────────────────────
+  function getStoreRec() {
+    if (shoppingItems.length === 0 || allProducts.length === 0) return null;
+
+    const scores = {};
+    for (const s of ALL_STORES) scores[s] = { count: 0, price: 0, found: [] };
+
+    for (const item of shoppingItems) {
+      const term = (item.type === 'product' ? item.name : item.text).toLowerCase().trim();
+      if (!term) continue;
+      for (const s of ALL_STORES) {
+        const matches = allProducts.filter(p => p.store === s && (p.name || '').toLowerCase().includes(term));
+        if (matches.length > 0) {
+          scores[s].count++;
+          scores[s].found.push(item.type === 'product' ? item.name : item.text);
+          const cheapest = matches.reduce((a, b) => parsePrice(a.price) <= parsePrice(b.price) ? a : b);
+          const pr = parsePrice(cheapest.price);
+          if (isFinite(pr)) scores[s].price += pr;
+        }
+      }
+    }
+
+    const ranked = ALL_STORES
+      .filter(s => scores[s].count > 0)
+      .sort((a, b) => scores[b].count - scores[a].count || scores[a].price - scores[b].price);
+
+    if (ranked.length === 0) return null;
+    return { best: ranked[0], total: shoppingItems.length, scores, ranked };
+  }
+
+  function renderRecommendation() {
+    const el = document.getElementById('smatRecommendation');
+    if (!el) return;
+    const rec = getStoreRec();
+    if (!rec) { el.hidden = true; el.innerHTML = ''; return; }
+
+    const NAMES = { ica: 'ICA', coop: 'Coop', willys: 'Willys', lidl: 'Lidl' };
+    const { best, total, scores, ranked } = rec;
+    const { count, price } = scores[best];
+    const priceStr = price > 0 ? ` · ~${Math.round(price)} kr` : '';
+    const allCovered = count === total;
+
+    el.hidden = false;
+    el.innerHTML = `
+      <div class="smat-rec-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="smat-rec-icon"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="smat-rec-label">${allCovered ? 'Allt finns hos' : 'Bäst val:'}</span>
+        <span class="smat-rec-store" data-store="${best}">${NAMES[best]}</span>
+        <span class="smat-rec-count">${count}/${total}${priceStr}</span>
+      </div>
+      ${ranked.length > 1 ? `<div class="smat-rec-alts">${ranked.slice(1, 3).map(s =>
+        `<span class="smat-rec-alt" data-store="${s}">${NAMES[s]} ${scores[s].count}/${total}</span>`
+      ).join('')}</div>` : ''}
+    `;
   }
 
   // ─── Initial state ─────────────────────────────────────────────────────────
@@ -537,8 +794,17 @@ export function init() {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function parsePrice(priceStr) {
-  const n = parseFloat(String(priceStr || '').replace(/[^\d.,]/g, '').replace(',', '.'));
-  return isNaN(n) ? Infinity : n;
+  const s = String(priceStr || '');
+  // "2 för 20 kr", "3 FÖR 30:-" → kampanjpris = Y (det du betalar)
+  const forMatch = s.match(/\d+\s+f[öo]r\s+([\d,.]+)/i);
+  if (forMatch) {
+    const n = parseFloat(forMatch[1].replace(',', '.'));
+    return isNaN(n) ? Infinity : n;
+  }
+  // Vanligt pris: plocka första talet ur strängen
+  const numMatch = s.match(/([\d]+[,.][\d]+|[\d]+)/);
+  if (!numMatch) return Infinity;
+  return parseFloat(numMatch[1].replace(',', '.'));
 }
 
 function updateLastScanLabel(el, timestamp) {

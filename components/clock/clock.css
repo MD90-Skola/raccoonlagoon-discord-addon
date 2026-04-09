@@ -220,7 +220,7 @@
 .plan-label {
   font-size: 12px;
   color: var(--text-muted);
-  min-width: 74px;
+  min-width: 92px;
   flex-shrink: 0;
 }
 
@@ -247,6 +247,103 @@
 }
 
 .plan-result svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ─── Saved plans row ────────────────────────────────────────────────────── */
+.plan-saved-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.plan-saved-del {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--t-fast), background var(--t-fast), border-color var(--t-fast);
+}
+
+.plan-saved-del:hover {
+  color: var(--red);
+  background: rgba(239, 68, 68, .12);
+  border-color: var(--red);
+}
+
+.plan-saved-del svg { width: 13px; height: 13px; display: block; }
+
+/* ─── Calc + Save button row ─────────────────────────────────────────────── */
+.plan-btn-row {
+  display: flex;
+  gap: 8px;
+}
+
+.plan-btn-row .btn-primary { flex: 1; margin-top: 0; }
+.plan-btn-row .btn-ghost   { flex-shrink: 0; margin-top: 0; }
+
+/* ─── Timeline ───────────────────────────────────────────────────────────── */
+.plan-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  animation: fadeUp var(--t-normal) var(--ease) both;
+}
+
+.plan-timeline-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.plan-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
+
+.plan-timeline-step.active .plan-step-num {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #ffffff;
+}
+
+.plan-step-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.plan-timeline-step.active .plan-step-label { color: var(--text-secondary); }
+
+.plan-step-time {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.plan-timeline-step.active .plan-step-time { color: var(--purple-light); }
 
 /* ─── Alarm pane ─────────────────────────────────────────────────────────── */
 /* ─── Alarm form ─────────────────────────────────────────────────────────── */
@@ -437,6 +534,29 @@
 
 .alarm-sound-opt.selected .sound-name { color: var(--purple-light); }
 
+/* ─── Open URL on fire row ───────────────────────────────────────────────── */
+.alarm-open-url-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.alarm-open-url-lbl {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+/* ─── Add / cancel row ───────────────────────────────────────────────────── */
+.alarm-add-row {
+  display: flex;
+  gap: 8px;
+}
+
+.alarm-add-row .btn-primary { flex: 1; margin-top: 0; }
+.alarm-add-row .btn-ghost   { flex-shrink: 0; margin-top: 0; }
+
 /* ─── Alarm list ─────────────────────────────────────────────────────────── */
 .alarm-list {
   list-style: none;
@@ -448,8 +568,8 @@
 
 .alarm-item {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 6px;
   padding: 10px 12px;
   background: var(--bg-raised);
   border: 1px solid var(--border-subtle);
@@ -463,29 +583,12 @@
   background: color-mix(in srgb, var(--purple) 8%, transparent);
 }
 
-/* Body: time + tags + note */
-.alarm-item-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.alarm-item-header-row {
+/* Top row: chips left, actions right */
+.alarm-item-top {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  flex-wrap: wrap;
-}
-
-.alarm-item-time {
-  font-size: 16px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
-  letter-spacing: -0.5px;
-  flex-shrink: 0;
 }
 
 .alarm-item-tags {
@@ -493,6 +596,39 @@
   align-items: center;
   gap: 4px;
   flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.alarm-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+/* Big time */
+.alarm-item-time {
+  font-size: 30px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  letter-spacing: -1.5px;
+  line-height: 1;
+}
+
+/* Bottom row: note · link */
+.alarm-item-bottom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.alarm-item-sep {
+  font-size: 11px;
+  color: var(--border);
+  user-select: none;
 }
 
 /* Day tags in list */
@@ -541,7 +677,47 @@
   white-space: nowrap;
 }
 
-.alarm-item-del {
+/* ─── Alarm URL form row ──────────────────────────────────────────────────── */
+.alarm-url-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.alarm-url-row .text-input:first-child {
+  flex: 0 0 36%;
+}
+
+.alarm-url-input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ─── Alarm list link button ─────────────────────────────────────────────── */
+.alarm-item-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 11.5px;
+  font-family: inherit;
+  color: var(--purple-light);
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  transition: color var(--t-fast);
+}
+
+.alarm-item-link:hover { color: #ffffff; }
+.alarm-item-link svg   { width: 11px; height: 11px; flex-shrink: 0; }
+
+/* ─── Alarm edit + del buttons (action area) ─────────────────────────────── */
+.alarm-item-edit {
   background: none;
   border: none;
   color: var(--text-muted);
@@ -553,8 +729,27 @@
   transition: color var(--t-fast), background var(--t-fast);
 }
 
-.alarm-item-del:hover { color: var(--red); background: rgba(239, 68, 68, 0.12); }
-.alarm-item-del svg   { width: 13px; height: 13px; display: block; }
+.alarm-item-edit:hover { color: var(--purple-light); background: var(--purple-glow); }
+.alarm-item-edit svg   { width: 13px; height: 13px; display: block; }
+
+.alarm-item-del {
+  background: none;
+  border: none;
+  color: rgba(239, 68, 68, 0.55);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-xs);
+  line-height: 0;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  transition: color var(--t-fast), background var(--t-fast);
+}
+
+.alarm-item-del:hover          { color: var(--red); background: rgba(239, 68, 68, 0.12); }
+.alarm-item-del svg            { width: 13px; height: 13px; display: block; }
+.alarm-item-del.confirming     { color: var(--red); background: rgba(239, 68, 68, 0.18); padding: 4px 7px; line-height: normal; }
 
 .alarm-empty {
   font-size: 12px;

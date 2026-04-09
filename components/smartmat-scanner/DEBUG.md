@@ -16,7 +16,8 @@
 
 1. Background öppnar en ny tab med butikens URL
 2. Väntar på `tab.status === 'complete'` + 2s extra
-3. Kör `chrome.scripting.executeScript({ func: scrapeXxxDom })`
+3. Kör `chrome
+4. .scripting.executeScript({ func: scrapeXxxDom })`
 4. Scrapern väntar på CDN-bilder (max 15s), sedan klättrar DOM för pris/namn
 5. Returnerar `{ products, debug }`
 

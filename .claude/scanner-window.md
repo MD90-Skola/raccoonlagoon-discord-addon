@@ -12,7 +12,7 @@ Följ detta mönster exakt när du skapar en ny scanner.
 │ Label               [Visa] [Scan] [●]   │  ← Header
 ├─────────────────────────────────────────┤
 │ ┌─────────────────────────────────────┐ │
-│ │ [img] Titel                         │ │
+│ │  [img] Titel                        │ │
 │ │ [img] Titel                         │ │  ← Lista (accordion, hidden default)
 │ │ [img] Titel                         │ │
 │ └─────────────────────────────────────┘ │

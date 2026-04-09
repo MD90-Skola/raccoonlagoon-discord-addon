@@ -108,22 +108,64 @@ export const template = `
 
   <!-- Planning pane -->
   <div class="clock-pane" id="clockPane-planning" hidden>
+
+    <!-- Sparade planer -->
+    <div class="plan-saved-row">
+      <select class="text-input" id="planSavedSelect">
+        <option value="">— Sparade planer —</option>
+      </select>
+      <button class="plan-saved-del" id="planSavedDel" title="Ta bort plan" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Formulär -->
     <div class="plan-form">
       <div class="plan-field">
-        <span class="plan-label">Ankomst</span>
+        <span class="plan-label">Ankomsttid *</span>
         <input type="time" class="text-input" id="planArrival" />
+      </div>
+      <div class="plan-field">
+        <span class="plan-label">Förberedelse</span>
+        <input type="number" class="text-input" id="planPrepMin" placeholder="minuter" min="0" max="999" />
+
       </div>
       <div class="plan-field">
         <span class="plan-label">Restid</span>
         <input type="number" class="text-input" id="planTravelMin" placeholder="minuter" min="0" max="999" />
-        <span class="plan-unit">min</span>
+
+      </div>
+      <div class="alarm-url-row">
+        <input type="text" class="text-input" id="planNote" placeholder="Anteckning" maxlength="80" />
+        <input type="url" class="text-input alarm-url-input" id="planUrl" placeholder="URL" />
       </div>
     </div>
-    <button class="btn-primary" id="planCalcBtn">Räkna ut avgångstid</button>
-    <div class="plan-result" id="planResult" hidden>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <span id="planResultText"></span>
+
+    <!-- Knappar -->
+    <div class="plan-btn-row">
+      <button class="btn-primary" id="planCalcBtn">Räkna ut</button>
+      <button class="btn-ghost" id="planSaveBtn">Spara</button>
     </div>
+
+    <!-- Tidslinje -->
+    <div class="plan-timeline" id="planTimeline" hidden>
+      <div class="plan-timeline-step" id="planStep1" hidden>
+        <span class="plan-step-num">1</span>
+        <span class="plan-step-label">Gå upp</span>
+        <span class="plan-step-time" id="planStepWake"></span>
+      </div>
+      <div class="plan-timeline-step" id="planStep2" hidden>
+        <span class="plan-step-num">2</span>
+        <span class="plan-step-label">Gå hemifrån</span>
+        <span class="plan-step-time" id="planStepDepart"></span>
+      </div>
+      <div class="plan-timeline-step" id="planStep3">
+        <span class="plan-step-num">3</span>
+        <span class="plan-step-label">Vara framme</span>
+        <span class="plan-step-time" id="planStepArrive"></span>
+      </div>
+    </div>
+
     <div class="timer-display" id="planCountdown" hidden></div>
     <button class="btn-ghost" id="planCancelBtn" hidden>Avbryt nedräkning</button>
   </div>
@@ -151,7 +193,21 @@ export const template = `
         </div>
       </div>
       <input type="text" class="text-input" id="alarmNoteInput" placeholder="Anteckning..." maxlength="80" />
-      <button class="btn-primary" id="alarmAddBtn">+ Lägg till larm</button>
+      <div class="alarm-url-row">
+        <input type="text" class="text-input" id="alarmLinkName" placeholder="Namn" maxlength="40" />
+        <input type="url" class="text-input alarm-url-input" id="alarmLinkUrl" placeholder="URL" />
+      </div>
+      <div class="alarm-open-url-row">
+        <span class="alarm-open-url-lbl">Öppna URL vid larm</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="alarmOpenUrl" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="alarm-add-row">
+        <button class="btn-primary" id="alarmAddBtn">+ Lägg till larm</button>
+        <button class="btn-ghost" id="alarmCancelEdit" hidden>Avbryt</button>
+      </div>
     </div>
     <ul class="alarm-list" id="alarmList"></ul>
     <p class="alarm-empty" id="alarmEmpty">Inga larm inställda</p>
@@ -458,17 +514,114 @@ function initCooking() {
 
 // ─── Planning tab ─────────────────────────────────────────────────────────────
 function initPlanning() {
-  const calcBtn     = document.getElementById('planCalcBtn');
-  const resultEl    = document.getElementById('planResult');
-  const resultText  = document.getElementById('planResultText');
-  const countdownEl = document.getElementById('planCountdown');
-  const cancelBtn   = document.getElementById('planCancelBtn');
+  const calcBtn      = document.getElementById('planCalcBtn');
+  const saveBtn      = document.getElementById('planSaveBtn');
+  const savedSelect  = document.getElementById('planSavedSelect');
+  const savedDelBtn  = document.getElementById('planSavedDel');
+  const countdownEl  = document.getElementById('planCountdown');
+  const cancelBtn    = document.getElementById('planCancelBtn');
+  const timelineEl   = document.getElementById('planTimeline');
+  const stepWakeEl   = document.getElementById('planStepWake');
+  const stepDepartEl = document.getElementById('planStepDepart');
+  const stepArriveEl = document.getElementById('planStepArrive');
+  const noteInput    = document.getElementById('planNote');
+  const urlInput     = document.getElementById('planUrl');
+  const step1        = document.getElementById('planStep1');
+  const step2        = document.getElementById('planStep2');
+  const step3        = document.getElementById('planStep3');
 
+  let savedPlans   = [];
+  let wakeH        = 0;
+  let wakeM        = 0;
   let planInterval = null;
-  let departH = 0;
-  let departM = 0;
-  let fired   = false;
+  let fired        = false;
 
+  // ── Sparade planer ──────────────────────────────────────────────────────────
+  async function loadSavedPlans() {
+    const data = await Storage.get('clockSavedPlans');
+    savedPlans = Array.isArray(data.clockSavedPlans) ? data.clockSavedPlans : [];
+    renderSavedSelect();
+  }
+
+  function renderSavedSelect() {
+    const cur = savedSelect.value;
+    savedSelect.innerHTML = '<option value="">— Sparade planer —</option>';
+    for (const p of savedPlans) {
+      const opt       = document.createElement('option');
+      opt.value       = p.id;
+      opt.textContent = p.label;
+      savedSelect.appendChild(opt);
+    }
+    if (cur && savedPlans.some(p => p.id === cur)) {
+      savedSelect.value  = cur;
+      savedDelBtn.hidden = false;
+    } else {
+      savedSelect.value  = '';
+      savedDelBtn.hidden = true;
+    }
+  }
+
+  savedSelect?.addEventListener('change', () => {
+    const id = savedSelect.value;
+    savedDelBtn.hidden = !id;
+    if (!id) return;
+    const plan = savedPlans.find(p => p.id === id);
+    if (!plan) return;
+    document.getElementById('planArrival').value   = plan.arrival   ?? '';
+    document.getElementById('planPrepMin').value    = plan.prepMin   != null ? plan.prepMin   : '';
+    document.getElementById('planTravelMin').value  = plan.travelMin != null ? plan.travelMin : '';
+    noteInput.value = plan.note ?? '';
+    urlInput.value  = plan.url  ?? '';
+  });
+
+  savedDelBtn?.addEventListener('click', async () => {
+    const id = savedSelect.value;
+    if (!id) return;
+    savedPlans = savedPlans.filter(p => p.id !== id);
+    await Storage.set({ clockSavedPlans: savedPlans });
+    renderSavedSelect();
+  });
+
+  saveBtn?.addEventListener('click', async () => {
+    const arrival   = document.getElementById('planArrival').value;
+    const prepMin   = parseInt(document.getElementById('planPrepMin').value,   10);
+    const travelMin = parseInt(document.getElementById('planTravelMin').value, 10);
+    const note      = noteInput?.value.trim() ?? '';
+    const url       = urlInput?.value.trim()  ?? '';
+    const label     = note || (arrival ? `Ankomst ${arrival}` : `Plan ${savedPlans.length + 1}`);
+
+    const existingId = savedSelect.value;
+    if (existingId) {
+      const idx = savedPlans.findIndex(p => p.id === existingId);
+      if (idx >= 0) savedPlans[idx] = {
+        ...savedPlans[idx], label, arrival,
+        prepMin:   isNaN(prepMin)   ? 0 : prepMin,
+        travelMin: isNaN(travelMin) ? 0 : travelMin,
+        note, url
+      };
+    } else {
+      savedPlans.push({
+        id: Date.now().toString(36), label, arrival,
+        prepMin:   isNaN(prepMin)   ? 0 : prepMin,
+        travelMin: isNaN(travelMin) ? 0 : travelMin,
+        note, url
+      });
+    }
+
+    await Storage.set({ clockSavedPlans: savedPlans });
+    renderSavedSelect();
+
+    if (!existingId) {
+      savedSelect.value  = savedPlans[savedPlans.length - 1].id;
+      savedDelBtn.hidden = false;
+    }
+
+    const orig = saveBtn.textContent;
+    saveBtn.textContent = 'Sparad!';
+    setTimeout(() => { saveBtn.textContent = orig; }, 1500);
+  });
+
+  // ── Nedräkning ──────────────────────────────────────────────────────────────
   function stopCountdown() {
     clearInterval(planInterval);
     planInterval = null;
@@ -476,36 +629,41 @@ function initPlanning() {
     cancelBtn.hidden   = true;
     countdownEl.classList.remove('done');
     fired = false;
+    [step1, step2, step3].forEach(s => s?.classList.remove('active'));
   }
 
-  function startPlanCountdown() {
+  function startPlanCountdown(planUrl) {
     stopCountdown();
     cancelBtn.hidden = false;
 
+    // Markera första synliga steget som aktivt (nästa sak att göra)
+    const firstVisible = [step1, step2, step3].find(s => s && !s.hidden);
+    firstVisible?.classList.add('active');
+
     function tick() {
-      const now     = new Date();
-      const nowSecs = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-      const depSecs = departH * 3600 + departM * 60;
-      let diff      = depSecs - nowSecs;
+      const now      = new Date();
+      const nowSecs  = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+      const wakeSecs = wakeH * 3600 + wakeM * 60;
+      let diff       = wakeSecs - nowSecs;
       if (diff < -3600) diff += 86400;
 
       if (diff <= 0 && !fired) {
         fired = true;
         clearInterval(planInterval);
-        countdownEl.textContent = 'Dags att åka!';
+        countdownEl.textContent = 'Dags att stiga upp!';
         countdownEl.classList.add('done');
         countdownEl.hidden = false;
-        cancelBtn.hidden   = false;
         playAlarmAudio();
-        notify('Dags att åka!',
-          `Avgångstid ${String(departH).padStart(2,'0')}:${String(departM).padStart(2,'0')}`,
+        if (planUrl) chrome.tabs.create({ url: planUrl }).catch(() => {});
+        notify('Dags att stiga upp!',
+          `Uppstigningstid ${String(wakeH).padStart(2,'0')}:${String(wakeM).padStart(2,'0')}`,
           'planning');
         return;
       }
 
       if (diff > 0) {
         countdownEl.textContent = fmtTime(diff);
-        countdownEl.hidden = false;
+        countdownEl.hidden      = false;
       }
     }
 
@@ -513,34 +671,55 @@ function initPlanning() {
     planInterval = setInterval(tick, 1000);
   }
 
-  cancelBtn.addEventListener('click', () => {
+  cancelBtn?.addEventListener('click', () => {
     stopCountdown();
-    resultEl.hidden = true;
+    timelineEl.hidden = true;
   });
 
-  calcBtn.addEventListener('click', () => {
+  // ── Räkna ut ────────────────────────────────────────────────────────────────
+  calcBtn?.addEventListener('click', () => {
     const arrivalVal = document.getElementById('planArrival').value;
+    const prepMin    = parseInt(document.getElementById('planPrepMin').value,   10) || 0;
     const travelMin  = parseInt(document.getElementById('planTravelMin').value, 10) || 0;
+    const planUrl    = urlInput?.value.trim() ?? '';
 
-    if (!arrivalVal) { stopCountdown(); resultEl.hidden = true; return; }
+    if (!arrivalVal) { stopCountdown(); timelineEl.hidden = true; return; }
 
-    const [ah, am]    = arrivalVal.split(':').map(Number);
-    const arrivalMins = ah * 60 + am;
-    const departMins  = ((arrivalMins - travelMin) % 1440 + 1440) % 1440;
+    const [ah, am] = arrivalVal.split(':').map(Number);
+    const arrMins  = ah * 60 + am;
+    const depMins  = ((arrMins - travelMin)           % 1440 + 1440) % 1440;
+    const wakeMins = ((arrMins - travelMin - prepMin)  % 1440 + 1440) % 1440;
 
-    departH = Math.floor(departMins / 60);
-    departM = departMins % 60;
+    wakeH = Math.floor(wakeMins / 60);
+    wakeM = wakeMins % 60;
 
-    resultText.textContent = `Avgå ${String(departH).padStart(2,'0')}:${String(departM).padStart(2,'0')}`;
-    resultEl.hidden = false;
+    const fmt = (h, m) => `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
 
-    startPlanCountdown();
+    stepWakeEl.textContent   = fmt(wakeH, wakeM);
+    stepDepartEl.textContent = fmt(Math.floor(depMins / 60), depMins % 60);
+    stepArriveEl.textContent = arrivalVal;
+
+    // Visa/dölj steg + numrera om dynamiskt
+    step1.hidden = prepMin   === 0;
+    step2.hidden = travelMin === 0;
+
+    let num = 1;
+    if (!step1.hidden) step1.querySelector('.plan-step-num').textContent = num++;
+    if (!step2.hidden) step2.querySelector('.plan-step-num').textContent = num++;
+    step3.querySelector('.plan-step-num').textContent = num;
+
+    timelineEl.hidden = false;
+    startPlanCountdown(planUrl);
   });
+
+  loadSavedPlans();
 }
 
 // ─── Alarm audio helpers ───────────────────────────────────────────────────────
 let alarms           = [];
 let currentAlarmSrc  = 'assets/ready-to-roll-out.mp3';
+// Sätts av initAlarms() — används av renderAlarms() för edit-knapp
+let _enterAlarmEdit  = null;
 let alarmVolume      = 0.6;
 
 function fadeInAudio(audio, targetVol, durationMs) {
@@ -604,25 +783,33 @@ function renderAlarms() {
       : '<span class="alarm-badge">En gång</span>';
 
     li.innerHTML = `
-      <label class="toggle-switch">
-        <input type="checkbox" class="alarm-toggle" ${alarm.enabled ? 'checked' : ''} />
-        <span class="slider"></span>
-      </label>
-      <div class="alarm-item-body">
-        <div class="alarm-item-header-row">
-          <span class="alarm-item-time">${alarm.time}</span>
-          <div class="alarm-item-tags">
-            ${daysHtml}
-            ${badgeHtml}
-          </div>
+      <div class="alarm-item-top">
+        <div class="alarm-item-tags">
+          ${daysHtml}
+          ${badgeHtml}
         </div>
-        ${alarm.label ? `<span class="alarm-item-note">${alarm.label}</span>` : ''}
+        <div class="alarm-item-actions">
+          <label class="toggle-switch">
+            <input type="checkbox" class="alarm-toggle" ${alarm.enabled ? 'checked' : ''} />
+            <span class="slider"></span>
+          </label>
+          <button class="alarm-item-edit" title="Redigera">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="alarm-item-del" title="Ta bort">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
       </div>
-      <button class="alarm-item-del" title="Ta bort">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
+      <div class="alarm-item-time">${alarm.time}</div>
+      ${(alarm.label || alarm.linkUrl) ? `<div class="alarm-item-bottom">
+        ${alarm.label ? `<span class="alarm-item-note">${alarm.label}</span>` : ''}
+        ${alarm.label && alarm.linkUrl ? `<span class="alarm-item-sep">·</span>` : ''}
+        ${alarm.linkUrl ? `<button class="alarm-item-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          ${alarm.linkName || 'Öppna länk'}
+        </button>` : ''}
+      </div>` : ''}
     `;
 
     li.querySelector('.alarm-toggle').addEventListener('change', async e => {
@@ -630,11 +817,36 @@ function renderAlarms() {
       await saveAlarms();
     });
 
-    li.querySelector('.alarm-item-del').addEventListener('click', async () => {
-      alarms = alarms.filter(a => a.id !== alarm.id);
-      await saveAlarms();
-      li.remove();
-      emptyEl.hidden = alarms.length > 0;
+    // Ta bort med bekräftelse
+    const delBtn     = li.querySelector('.alarm-item-del');
+    const delOrigHTML = delBtn.innerHTML;
+    let delTimeout   = null;
+
+    delBtn.addEventListener('click', async () => {
+      if (delBtn.dataset.confirming) {
+        clearTimeout(delTimeout);
+        alarms = alarms.filter(a => a.id !== alarm.id);
+        await saveAlarms();
+        li.remove();
+        emptyEl.hidden = alarms.length > 0;
+      } else {
+        delBtn.dataset.confirming = '1';
+        delBtn.classList.add('confirming');
+        delBtn.textContent = 'Säker?';
+        delTimeout = setTimeout(() => {
+          delete delBtn.dataset.confirming;
+          delBtn.classList.remove('confirming');
+          delBtn.innerHTML = delOrigHTML;
+        }, 3000);
+      }
+    });
+
+    li.querySelector('.alarm-item-link')?.addEventListener('click', () => {
+      chrome.tabs.create({ url: alarm.linkUrl }).catch(() => {});
+    });
+
+    li.querySelector('.alarm-item-edit').addEventListener('click', () => {
+      _enterAlarmEdit?.(alarm);
     });
 
     list.appendChild(li);
@@ -651,12 +863,18 @@ function initAlarms() {
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type !== 'RL_ALARM_FIRED') return;
     playAlarmAudio();
+
+    // Öppna URL om inställt
+    const fired = alarms.find(a => a.id === msg.alarmId);
+    if (fired?.openUrlOnFire && fired?.linkUrl) {
+      chrome.tabs.create({ url: fired.linkUrl }).catch(() => {});
+    }
+
     const el = document.querySelector(`.alarm-item[data-id="${msg.alarmId}"]`);
     if (el) {
       el.classList.add('firing');
       setTimeout(() => el.classList.remove('firing'), 60000);
     }
-    // Refresh list (disabled state may have changed for one-time alarms)
     loadAlarms();
   });
 
@@ -771,32 +989,73 @@ function initAlarms() {
     });
   });
 
-  // ── Add alarm ───────────────────────────────────────────────────────────────
-  document.getElementById('alarmAddBtn').addEventListener('click', async () => {
-    const timeInput    = document.getElementById('alarmTimeInput');
-    const noteInput    = document.getElementById('alarmNoteInput');
-    const repeatToggle = document.getElementById('alarmRepeatToggle');
-    const t = timeInput.value;
+  // ── Edit mode ────────────────────────────────────────────────────────────────
+  let editingAlarmId = null;
+
+  const addBtn        = document.getElementById('alarmAddBtn');
+  const cancelEditBtn = document.getElementById('alarmCancelEdit');
+  const openUrlToggle = document.getElementById('alarmOpenUrl');
+
+  function resetAlarmForm() {
+    document.getElementById('alarmTimeInput').value      = '';
+    document.getElementById('alarmNoteInput').value      = '';
+    document.getElementById('alarmRepeatToggle').checked = false;
+    document.getElementById('alarmLinkName').value       = '';
+    document.getElementById('alarmLinkUrl').value        = '';
+    openUrlToggle.checked = false;
+    selectedDays          = [];
+    dayBtns.forEach(b => b.classList.remove('active'));
+    editingAlarmId       = null;
+    addBtn.textContent   = '+ Lägg till larm';
+    cancelEditBtn.hidden = true;
+  }
+
+  function enterEditMode(alarm) {
+    document.getElementById('alarmTimeInput').value      = alarm.time;
+    document.getElementById('alarmNoteInput').value      = alarm.label        || '';
+    document.getElementById('alarmRepeatToggle').checked = alarm.repeat       || false;
+    document.getElementById('alarmLinkName').value       = alarm.linkName     || '';
+    document.getElementById('alarmLinkUrl').value        = alarm.linkUrl      || '';
+    openUrlToggle.checked = alarm.openUrlOnFire || false;
+    selectedDays = [...(alarm.days || [])];
+    dayBtns.forEach(b => b.classList.toggle('active', selectedDays.includes(parseInt(b.dataset.day, 10))));
+    editingAlarmId       = alarm.id;
+    addBtn.textContent   = 'Spara ändringar';
+    cancelEditBtn.hidden = false;
+    addBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // Exponera till renderAlarms()
+  _enterAlarmEdit = enterEditMode;
+
+  cancelEditBtn?.addEventListener('click', resetAlarmForm);
+
+  // ── Add / save alarm ─────────────────────────────────────────────────────────
+  addBtn.addEventListener('click', async () => {
+    const t = document.getElementById('alarmTimeInput').value;
     if (!t) return;
 
-    alarms.push({
-      id:      Date.now().toString(36),
-      time:    t,
-      days:    DAY_DISPLAY_ORDER.filter(d => selectedDays.includes(d)),
-      repeat:  repeatToggle.checked,
-      label:   noteInput.value.trim(),
-      enabled: true
-    });
+    const alarmData = {
+      time:         t,
+      days:         DAY_DISPLAY_ORDER.filter(d => selectedDays.includes(d)),
+      repeat:       document.getElementById('alarmRepeatToggle').checked,
+      label:        document.getElementById('alarmNoteInput').value.trim(),
+      linkName:     document.getElementById('alarmLinkName').value.trim(),
+      linkUrl:      document.getElementById('alarmLinkUrl').value.trim(),
+      openUrlOnFire: openUrlToggle.checked,
+      enabled:      true
+    };
+
+    if (editingAlarmId) {
+      const idx = alarms.findIndex(a => a.id === editingAlarmId);
+      if (idx >= 0) alarms[idx] = { ...alarms[idx], ...alarmData };
+    } else {
+      alarms.push({ id: Date.now().toString(36), ...alarmData });
+    }
 
     await saveAlarms();
     renderAlarms();
-
-    // Reset form
-    timeInput.value      = '';
-    noteInput.value      = '';
-    repeatToggle.checked = false;
-    selectedDays         = [];
-    dayBtns.forEach(b => b.classList.remove('active'));
+    resetAlarmForm();
   });
 }
 

@@ -487,6 +487,37 @@
   margin-bottom: 8px;
 }
 
+.smat-suggestions {
+  position:      fixed;
+  z-index:       9999;
+  background:    var(--bg-card);
+  border:        1px solid var(--purple-border);
+  border-top:    none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  overflow:      hidden;
+  box-shadow:    0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.smat-suggestion-item {
+  padding:    7px 10px;
+  font-size:  12px;
+  color:      var(--text-secondary);
+  cursor:     pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.smat-suggestion-item:hover {
+  background: color-mix(in srgb, var(--purple) 12%, var(--bg-card));
+  color:      var(--purple-light);
+}
+
+/* Input öppen = runda bara toppen */
+.smat-input-wrap:has(~ * .smat-suggestions:not([hidden])) .smat-shopping-input,
+.smat-suggestions:not([hidden]) ~ .smat-shopping-input {
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-bottom-color: var(--purple-border);
+}
+
 .smat-shopping-input {
   flex:          1;
   padding:       6px 9px;
@@ -555,6 +586,32 @@
   white-space:   nowrap;
 }
 
+.smat-list-item-price {
+  font-size:   11px;
+  font-weight: 700;
+  color:       var(--smat-coop);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.smat-list-item-count {
+  font-size:     10px;
+  font-weight:   700;
+  padding:       2px 7px;
+  border-radius: 99px;
+  background:    color-mix(in srgb, var(--purple) 12%, transparent);
+  border:        1px solid var(--purple-border);
+  color:         var(--purple-light);
+  cursor:        pointer;
+  flex-shrink:   0;
+  white-space:   nowrap;
+  transition:    background var(--t-fast);
+}
+
+.smat-list-item-count:hover {
+  background: color-mix(in srgb, var(--purple) 22%, transparent);
+}
+
 .smat-list-item-remove {
   flex-shrink:   0;
   width:         20px;
@@ -575,6 +632,16 @@
 .smat-list-item-remove:hover {
   color:      var(--smat-willys);
   background: color-mix(in srgb, var(--smat-willys) 12%, transparent);
+}
+
+.smat-shopping-total {
+  margin-top:  8px;
+  padding-top: 8px;
+  border-top:  1px solid var(--border);
+  font-size:   12px;
+  font-weight: 700;
+  color:       var(--text-secondary);
+  text-align:  right;
 }
 
 /* ─── Footer ──────────────────────────────────────────────────────────────── */
@@ -619,6 +686,202 @@
 .smat-skeleton-line         { height: 11px; }
 .smat-skeleton-line--title  { width: 55%; height: 13px; }
 .smat-skeleton-line--meta   { width: 30%; }
+
+/* ─── Toolbar (sort + grid toggle) ───────────────────────────────────────── */
+.smat-toolbar {
+  display:       flex;
+  align-items:   center;
+  gap:           6px;
+  margin-bottom: 6px;
+}
+
+.smat-toolbar .smat-sort-bar {
+  flex:          1;
+  margin-bottom: 0;
+}
+
+.smat-view-toggle {
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  flex-shrink:      0;
+  width:            28px;
+  height:           28px;
+  padding:          0;
+  background:       transparent;
+  border:           1px solid var(--border);
+  border-radius:    var(--radius-xs);
+  color:            var(--text-muted);
+  cursor:           pointer;
+  transition:       border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+}
+
+.smat-view-toggle svg { width: 14px; height: 14px; }
+
+.smat-view-toggle:hover {
+  color:      var(--text-secondary);
+  background: var(--bg-hover);
+}
+
+.smat-view-toggle.active {
+  border-color: var(--purple-border);
+  color:        var(--purple-light);
+  background:   color-mix(in srgb, var(--purple) 10%, transparent);
+}
+
+/* ─── Quick filters (Kött etc) ────────────────────────────────────────────── */
+.smat-quick-filters {
+  display:       flex;
+  gap:           4px;
+  margin-bottom: 8px;
+}
+
+.smat-qfilter {
+  padding:        3px 10px;
+  font-size:      10.5px;
+  font-weight:    600;
+  border-radius:  99px;
+  background:     transparent;
+  border:         1px solid var(--border);
+  color:          var(--text-muted);
+  cursor:         pointer;
+  letter-spacing: 0.03em;
+  transition:     border-color var(--t-fast), color var(--t-fast), background var(--t-fast);
+}
+
+.smat-qfilter:hover {
+  color:      var(--text-secondary);
+  background: var(--bg-hover);
+}
+
+.smat-qfilter.active {
+  background:   color-mix(in srgb, var(--cat-color) 15%, transparent);
+  border-color: var(--cat-color);
+  color:        var(--cat-color);
+}
+
+/* ─── Grid view ───────────────────────────────────────────────────────────── */
+.smat-list.grid {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   4px;
+}
+
+.smat-list.grid .smat-item {
+  flex-direction: column;
+  align-items:    flex-start;
+  padding:        0 0 8px;
+  gap:            0;
+  overflow:       hidden;
+}
+
+.smat-list.grid .smat-item-thumb {
+  width:         100%;
+  height:        80px;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  object-fit:    contain;
+  background:    var(--bg-card);
+  margin-bottom: 6px;
+}
+
+.smat-list.grid .smat-item-content {
+  padding:   0 8px;
+  width:     100%;
+  box-sizing: border-box;
+}
+
+.smat-list.grid .smat-item-name {
+  font-size:         11px;
+  white-space:       normal;
+  display:           -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow:          hidden;
+  margin-bottom:     2px;
+}
+
+.smat-list.grid .smat-item-store-badge {
+  margin-top: 4px;
+}
+
+.smat-list.grid .smat-item-check {
+  position: absolute;
+  top:      6px;
+  right:    6px;
+}
+
+/* Placeholder för grid-items utan bild */
+.smat-list.grid .smat-item:not(:has(.smat-item-thumb)) .smat-item-content {
+  padding-top: 10px;
+}
+
+/* ─── Butiks-rekommendation ───────────────────────────────────────────────── */
+.smat-recommendation {
+  margin-bottom: 10px;
+  padding:       10px 12px;
+  background:    color-mix(in srgb, var(--purple) 8%, var(--bg-raised));
+  border:        1px solid var(--purple-border);
+  border-radius: var(--radius-md);
+}
+
+.smat-rec-row {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+  flex-wrap:   wrap;
+}
+
+.smat-rec-icon {
+  width:       14px;
+  height:      14px;
+  flex-shrink: 0;
+  color:       var(--text-muted);
+}
+
+.smat-rec-label {
+  font-size:  11px;
+  color:      var(--text-muted);
+  flex-shrink: 0;
+}
+
+.smat-rec-store {
+  font-size:   13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.smat-rec-store[data-store="ica"]    { color: var(--smat-ica);    }
+.smat-rec-store[data-store="coop"]   { color: var(--smat-coop);   }
+.smat-rec-store[data-store="willys"] { color: var(--smat-willys); }
+.smat-rec-store[data-store="lidl"]   { color: var(--smat-lidl);   }
+
+.smat-rec-count {
+  font-size:  10.5px;
+  color:      var(--text-muted);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.smat-rec-alts {
+  display:    flex;
+  gap:        6px;
+  margin-top: 6px;
+  flex-wrap:  wrap;
+}
+
+.smat-rec-alt {
+  font-size:     10px;
+  font-weight:   600;
+  padding:       2px 8px;
+  border-radius: 99px;
+  border:        1px solid var(--border);
+  color:         var(--text-muted);
+}
+
+.smat-rec-alt[data-store="ica"]    { border-color: color-mix(in srgb, var(--smat-ica)    40%, transparent); color: var(--smat-ica);    }
+.smat-rec-alt[data-store="coop"]   { border-color: color-mix(in srgb, var(--smat-coop)   40%, transparent); color: var(--smat-coop);   }
+.smat-rec-alt[data-store="willys"] { border-color: color-mix(in srgb, var(--smat-willys) 40%, transparent); color: var(--smat-willys); }
+.smat-rec-alt[data-store="lidl"]   { border-color: color-mix(in srgb, var(--smat-lidl)   40%, transparent); color: var(--smat-lidl);   }
 
 /* ─── Inner tabs (Object / Mat) ───────────────────────────────────────────── */
 .scanner-inner-tabs {
