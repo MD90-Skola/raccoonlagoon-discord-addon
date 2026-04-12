@@ -473,9 +473,16 @@ export function init() {
     renderSkeletons();
 
     try {
+      const prev = await chrome.storage.local.get('smartmatProducts');
+      const hadStoreData = (prev.smartmatProducts ?? []).some(p => p.store === store);
+
       const res = await sendMsg({ type: 'SMARTMAT_SCAN', store });
       if (!res || res.success !== true) throw new Error(res?.error || 'Okänt fel');
       status.textContent = (res.count ?? 0) + 'st från ' + store.toUpperCase();
+
+      if (!hadStoreData && (res.count ?? 0) > 0) {
+        chrome.storage.local.set({ smartmatHasNew: true });
+      }
     } catch (err) {
       console.error('[Smartmat] Scan failed:', store, err);
       status.textContent = 'Fel ' + store + ' — ' + (err?.message || 'okänt');

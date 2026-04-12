@@ -40,12 +40,18 @@ chrome.runtime.onStartup.addListener(async () => {
 
 chrome.alarms.onAlarm.addListener(async alarm => {
   if (alarm.name !== ALARM_NAME) return;
-  const { lidlEnabled } = await chrome.storage.local.get('lidlEnabled');
-  if (lidlEnabled === false) return;
+  const data = await chrome.storage.local.get(['lidlEnabled', 'lidlAlertEnabled', 'lidlLeaflets']);
+  if (data.lidlEnabled === false) return;
 
   try {
-    const leaflets = await fetchLidlLeaflets();
+    const leaflets    = await fetchLidlLeaflets();
+    const oldLeaflets = Array.isArray(data.lidlLeaflets) ? data.lidlLeaflets : [];
+    const oldUrls     = new Set(oldLeaflets.map(l => l.url || l.id));
+    const hasNewLeaflets = leaflets.some(l => !oldUrls.has(l.url || l.id));
     await chrome.storage.local.set({ lidlLeaflets: leaflets, lidlLastFetch: Date.now() });
+    if (data.lidlAlertEnabled === true && hasNewLeaflets) {
+      await chrome.storage.local.set({ lidlHasNew: true });
+    }
   } catch (err) {
     console.error('[Lidl] Auto-fetch failed:', err);
   }

@@ -205,6 +205,10 @@ html, body {
 .tab-bar.icon-only .tab-btn:hover svg  { opacity: 0.7; }
 .tab-bar.icon-only .tab-btn.active svg { opacity: 1; }
 
+/* ─── Scanner tab alert indicator ───────────────────────────────────────── */
+.tab-btn.has-scanner-alert       { color: var(--red); }
+.tab-btn.has-scanner-alert svg   { opacity: 0.85; color: var(--red); }
+
 /* ─── Content & Tab Pane ─────────────────────────────────────────────────── */
 .content {
   position: relative;

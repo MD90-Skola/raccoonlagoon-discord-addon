@@ -35,13 +35,21 @@ async function updateDailyAlarm() {
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== DAILY_ALARM) return;
-  const { smartmatScanEnabled } = await chrome.storage.local.get('smartmatScanEnabled');
-  const enabled = smartmatScanEnabled ?? {};
+  const data = await chrome.storage.local.get(['smartmatScanEnabled', 'smartmatAlertEnabled']);
+  const enabled = data.smartmatScanEnabled ?? {};
+  let anySucceeded = false;
   for (const store of ALL_STORES) {
     if (enabled[store] !== false) {
-      try { await runStoreScan(store); }
-      catch (e) { console.error('[Smartmat] Daglig scan fel:', store, e.message); }
+      try {
+        await runStoreScan(store);
+        anySucceeded = true;
+      } catch (e) {
+        console.error('[Smartmat] Daglig scan fel:', store, e.message);
+      }
     }
+  }
+  if (data.smartmatAlertEnabled === true && anySucceeded) {
+    await chrome.storage.local.set({ smartmatHasNew: true });
   }
 });
 

@@ -58,7 +58,16 @@ var Storage = {
         'rustFinderEnabled',
         'freeGamesEnabled',
         'lidlEnabled',
-        'icaScannerEnabled'
+        'smartmatEnabled',
+        'icaScannerEnabled',
+        'rustFinderAlertEnabled',
+        'freeGamesAlertEnabled',
+        'lidlAlertEnabled',
+        'smartmatAlertEnabled',
+        'rustFinderHasNew',
+        'freeGamesHasNew',
+        'lidlHasNew',
+        'smartmatHasNew'
       ]);
     } catch (_) { return {}; }
   },

@@ -223,11 +223,16 @@ export function initSettings() {
   const igAutoscrollToggle      = document.getElementById('instagramAutoscrollEnabled');
   const globalToggle      = document.getElementById('globalEnabled');
   const recorderToggle    = document.getElementById('recorderEnabled');
+  const ekEnabledToggle   = document.getElementById('ekEnabled');
   const rustReaToggle     = document.getElementById('rustReaEnabled');
   const rustFinderToggle  = document.getElementById('rustFinderEnabled');
   const freeGamesToggle   = document.getElementById('freeGamesEnabled');
   const lidlToggle        = document.getElementById('lidlEnabled');
   const smartmatToggle    = document.getElementById('smartmatEnabled');
+  const rustFinderAlertToggle  = document.getElementById('rustFinderAlertEnabled');
+  const freeGamesAlertToggle   = document.getElementById('freeGamesAlertEnabled');
+  const lidlAlertToggle        = document.getElementById('lidlAlertEnabled');
+  const smartmatAlertToggle    = document.getElementById('smartmatAlertEnabled');
   const checkUpdateBtn    = document.getElementById('checkUpdateBtn');
   const updateStatus    = document.getElementById('updateStatus');
   const currentVersionEl = document.getElementById('currentVersion');
@@ -244,7 +249,7 @@ export function initSettings() {
 
   // ─── Kill switch helpers ──────────────────────────────────────────────────
   function featureCheckboxes() {
-    return document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle):not(.fu-toggle)');
+    return document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle):not(.fu-toggle):not(.at-toggle)');
   }
 
   function applyKillSwitch(globalOn) {
@@ -262,6 +267,7 @@ export function initSettings() {
     applyKillSwitch(globalToggle.checked);
   });
   recorderToggle.addEventListener('change', () => Storage.set({ recorderEnabled: recorderToggle.checked }));
+  ekEnabledToggle?.addEventListener('change', () => Storage.set({ ekEnabled: ekEnabledToggle.checked }));
   imgToggle.addEventListener('change',        () => Storage.set({ imagesEnabled:        imgToggle.checked        }));
   ytToggle.addEventListener('change',         () => Storage.set({ youtubeEnabled:       ytToggle.checked         }));
   ytShortsToggle.addEventListener('change',   () => Storage.set({ youtubeShortsEnabled: ytShortsToggle.checked   }));
@@ -293,6 +299,62 @@ export function initSettings() {
   smartmatToggle.addEventListener('change', () => {
     Storage.set({ smartmatEnabled: smartmatToggle.checked });
     applyCardVisibility('smartmatCard', smartmatToggle.checked);
+  });
+
+  // ─── Alert-me toggles for scanners ───────────────────────────────────────
+  rustFinderAlertToggle?.addEventListener('change',  () => Storage.set({ rustFinderAlertEnabled:  rustFinderAlertToggle.checked  }));
+  freeGamesAlertToggle?.addEventListener('change',   () => Storage.set({ freeGamesAlertEnabled:   freeGamesAlertToggle.checked   }));
+  lidlAlertToggle?.addEventListener('change',        () => Storage.set({ lidlAlertEnabled:         lidlAlertToggle.checked        }));
+  smartmatAlertToggle?.addEventListener('change',    () => Storage.set({ smartmatAlertEnabled:     smartmatAlertToggle.checked    }));
+
+  // ─── Rensa data — per-scanner clear + rescan ──────────────────────────────
+  async function cleanScannerData(btn, removeKeys) {
+    btn.disabled = true;
+    try {
+      await chrome.storage.local.remove(removeKeys);
+      btn.textContent = 'Rensat';
+      btn.classList.add('scanner-rensa-btn--done');
+      setTimeout(() => {
+        btn.textContent = 'Rensa data';
+        btn.classList.remove('scanner-rensa-btn--done');
+        btn.disabled = false;
+      }, 1500);
+    } catch (_) {
+      btn.disabled = false;
+    }
+  }
+
+  document.getElementById('rustFinderCleanBtn')?.addEventListener('click', function () {
+    cleanScannerData(this, ['rustProducts', 'rustAlerts', 'rustLastScanAt', 'rustFinderHasNew']);
+  });
+
+  document.getElementById('freeGamesCleanBtn')?.addEventListener('click', function () {
+    cleanScannerData(this, ['freeGames', 'freeGamesLastScan', 'freeGamesNewGames', 'freeGamesHasNew']);
+  });
+
+  document.getElementById('lidlCleanBtn')?.addEventListener('click', function () {
+    cleanScannerData(this, ['lidlLeaflets', 'lidlLastFetch', 'lidlHasNew']);
+  });
+
+  document.getElementById('smartmatCleanBtn')?.addEventListener('click', function () {
+    cleanScannerData(this, ['smartmatProducts', 'smartmatLastScanAt', 'smartmatHasNew']);
+  });
+
+  // ─── Row highlight when background scanner finds new items ───────────────
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local') return;
+    const MAP = {
+      rustFinderHasNew: 'rustFinderRow',
+      freeGamesHasNew:  'freeGamesRow',
+      lidlHasNew:       'lidlRow',
+      smartmatHasNew:   'smartmatRow',
+    };
+    for (const [key, rowId] of Object.entries(MAP)) {
+      if (key in changes) {
+        const row = document.getElementById(rowId);
+        if (row) row.classList.toggle('has-new-alert', changes[key].newValue === true);
+      }
+    }
   });
 
   // ─── Tab visibility toggles ───────────────────────────────────────────────
@@ -397,16 +459,18 @@ export async function loadSettings() {
 
   // Om kill switch är AV: visa alla feature-toggles som disabled+unchecked
   if (!globalOn) {
-    document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle):not(.fu-toggle)')
+    document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle):not(.fu-toggle):not(.at-toggle)')
       .forEach(t => { t.checked = false; t.disabled = true; });
     return;
   }
 
   // Kill switch är PÅ — återställ faktiska värden
-  document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle):not(.fu-toggle)')
+  document.querySelectorAll('#tab-settings input[type="checkbox"]:not(#globalEnabled):not(.wh-toggle):not(.fu-toggle):not(.at-toggle)')
     .forEach(t => { t.disabled = false; });
 
   document.getElementById('recorderEnabled').checked = s.recorderEnabled !== false; // default ON
+  const ekEl = document.getElementById('ekEnabled');
+  if (ekEl) ekEl.checked = s.ekEnabled !== false; // default ON
   document.getElementById('imagesEnabled').checked        = s.imagesEnabled        === true;
   document.getElementById('youtubeEnabled').checked       = s.youtubeEnabled       === true;
   document.getElementById('youtubeShortsEnabled').checked = s.youtubeShortsEnabled === true;
@@ -439,6 +503,24 @@ export async function loadSettings() {
   applyCardVisibility('freeGamesCard',   freeGamesV);
   applyCardVisibility('lidlCard',        lidlV);
   applyCardVisibility('smartmatCard',    smartmatV);
+
+  // ─── Alert-me toggle states ───────────────────────────────────────────────
+  document.getElementById('rustFinderAlertEnabled').checked = s.rustFinderAlertEnabled === true;
+  document.getElementById('freeGamesAlertEnabled').checked  = s.freeGamesAlertEnabled  === true;
+  document.getElementById('lidlAlertEnabled').checked       = s.lidlAlertEnabled        === true;
+  document.getElementById('smartmatAlertEnabled').checked   = s.smartmatAlertEnabled    === true;
+
+  // ─── HasNew row highlights ────────────────────────────────────────────────
+  const HAS_NEW_MAP = {
+    rustFinderHasNew: 'rustFinderRow',
+    freeGamesHasNew:  'freeGamesRow',
+    lidlHasNew:       'lidlRow',
+    smartmatHasNew:   'smartmatRow',
+  };
+  for (const [key, rowId] of Object.entries(HAS_NEW_MAP)) {
+    const row = document.getElementById(rowId);
+    if (row) row.classList.toggle('has-new-alert', s[key] === true);
+  }
 
   // ─── Tab visibility ───────────────────────────────────────────────────────
   const tabHomeV       = s.tabHomeVisible       !== false;

@@ -45,6 +45,9 @@ export function init() {
     viewBtn?.classList.add('active');
 
     try {
+      const prev = await chrome.storage.local.get('lidlLeaflets');
+      const hadLeaflets = (prev.lidlLeaflets ?? []).length > 0;
+
       const res = await chrome.runtime.sendMessage({ type: 'LIDL_FETCH' });
       if (!res || res.success !== true) throw new Error(res?.error || 'Okänt fel');
 
@@ -53,6 +56,10 @@ export function init() {
       renderLeaflets(leaflets);
       updateLastScan(lastScanEl, Date.now());
       renderFooterStatus(status, leaflets.length);
+
+      if (!hadLeaflets && leaflets.length > 0) {
+        chrome.storage.local.set({ lidlHasNew: true });
+      }
     } catch (err) {
       console.error('[Lidl] Fetch failed:', err);
       status.textContent = 'Fel — ' + (err?.message || 'Okänt fel');

@@ -29,10 +29,17 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== ALARM_RUST) return;
-  const data = await chrome.storage.local.get(['rustAutoScanEnabled', 'rustFinderEnabled']);
+  const data = await chrome.storage.local.get(['rustAutoScanEnabled', 'rustFinderEnabled', 'rustFinderAlertEnabled']);
   if (data.rustFinderEnabled === false) return;
   if (data.rustAutoScanEnabled === true) {
-    await runRustFullScan().catch(console.error);
+    try {
+      const result = await runRustFullScan();
+      if (data.rustFinderAlertEnabled === true && result.alerts > 0) {
+        await chrome.storage.local.set({ rustFinderHasNew: true });
+      }
+    } catch (e) {
+      console.error('[RaccoonLagoon] Rust autoscan failed:', e);
+    }
   }
 });
 

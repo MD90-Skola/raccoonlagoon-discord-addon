@@ -15,7 +15,8 @@
     "alarms",
     "notifications",
     "scripting",
-    "declarativeNetRequest"
+    "declarativeNetRequest",
+    "clipboardWrite"
   ],
 
   "host_permissions": [
@@ -70,6 +71,11 @@
     },
     {
       "matches": ["https://*/*", "http://*/*"],
+      "js": ["content/elementkiller-content.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://*/*", "http://*/*"],
       "js": ["components/megacloudfix/megacloudfix-content.js"],
       "run_at": "document_start",
       "all_frames": true
@@ -113,6 +119,27 @@
         "default": "Ctrl+Shift+Y"
       },
       "description": "Öppna RaccoonLagoon side panel"
+    },
+    "toggle-element-killer": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+K",
+        "mac": "Command+Shift+K"
+      },
+      "description": "Toggle Element Killer (delete) on current page"
+    },
+    "toggle-element-paint": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+B",
+        "mac": "Command+Shift+B"
+      },
+      "description": "Toggle Element Killer paint (blackout) on current page"
+    },
+    "toggle-element-thief": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+H",
+        "mac": "Command+Shift+H"
+      },
+      "description": "Toggle Element Killer thief (color picker) on current page"
     }
   }
 }

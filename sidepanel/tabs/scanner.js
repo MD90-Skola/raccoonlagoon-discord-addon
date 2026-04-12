@@ -75,6 +75,70 @@ export function init() {
 
   if (!tabBtn || !tabPane) return;
 
+  // ─── Alert state helpers ───────────────────────────────────────────────────
+  let clearAlertTimer = null;
+
+  const HAS_NEW_KEYS = ['rustFinderHasNew', 'freeGamesHasNew', 'lidlHasNew', 'smartmatHasNew'];
+
+  function applyCardAlert(cardId, hasNew) {
+    const card = document.getElementById(cardId);
+    if (card) card.classList.toggle('scanner-card-alert', hasNew === true);
+  }
+
+  function updateViewBtnLabels(state) {
+    const BTNS = [
+      ['rustAllToggle',      state.rustFinderHasNew],
+      ['freeGamesAllToggle', state.freeGamesHasNew],
+      ['lidlAllToggle',      state.lidlHasNew],
+    ];
+    for (const [btnId, hasNew] of BTNS) {
+      const btn = document.getElementById(btnId);
+      if (btn) btn.textContent = hasNew ? 'Visa nyast' : 'Visa';
+    }
+  }
+
+  function applyHasNew(state) {
+    const hasAny = HAS_NEW_KEYS.some(k => state[k] === true);
+    tabBtn.classList.toggle('has-scanner-alert', hasAny);
+    applyCardAlert('rustFinderCard', state.rustFinderHasNew);
+    applyCardAlert('freeGamesCard',  state.freeGamesHasNew);
+    applyCardAlert('lidlCard',       state.lidlHasNew);
+    applyCardAlert('smartmatCard',   state.smartmatHasNew);
+    updateViewBtnLabels(state);
+  }
+
+  // Clear only the cards belonging to the given inner tab, after a short delay.
+  // Object = rustFinder + freeGames; Mat = lidl + smartmat.
+  function scheduleInnerTabClear(innerTab) {
+    if (clearAlertTimer) return;
+    clearAlertTimer = setTimeout(async () => {
+      clearAlertTimer = null;
+      let clearKeys = {};
+      if (innerTab === 'object') {
+        applyCardAlert('rustFinderCard', false);
+        applyCardAlert('freeGamesCard',  false);
+        clearKeys = { rustFinderHasNew: false, freeGamesHasNew: false };
+      } else if (innerTab === 'mat') {
+        applyCardAlert('lidlCard',       false);
+        applyCardAlert('smartmatCard',   false);
+        clearKeys = { lidlHasNew: false, smartmatHasNew: false };
+      }
+      await Storage.set(clearKeys);
+      // Update view button labels and tab button based on remaining flags
+      const remaining = await Storage.get(HAS_NEW_KEYS);
+      updateViewBtnLabels(remaining);
+      if (!HAS_NEW_KEYS.some(k => remaining[k] === true)) {
+        tabBtn.classList.remove('has-scanner-alert');
+      }
+    }, 3000);
+  }
+
+  // Navigating to scanner tab clears the currently active inner tab after 3s
+  tabBtn.addEventListener('click', () => {
+    const active = document.querySelector('.scanner-inner-tab.active')?.dataset.innerTab ?? 'object';
+    scheduleInnerTabClear(active);
+  });
+
   // ─── Inner tabs (Object / Mat) ──────────────────────────────────────────
   const innerObject = document.getElementById('scannerInnerObject');
   const innerMat    = document.getElementById('scannerInnerMat');
@@ -86,6 +150,7 @@ export function init() {
       const target = btn.dataset.innerTab;
       if (innerObject) innerObject.hidden = target !== 'object';
       if (innerMat)    innerMat.hidden    = target !== 'mat';
+      scheduleInnerTabClear(target);
     });
   });
 
@@ -104,6 +169,10 @@ export function init() {
       }
 
       setRustCount(scanStatus, response.count ?? 0);
+
+      if ((response.alerts ?? 0) > 0) {
+        await Storage.set({ rustFinderHasNew: true });
+      }
 
       const data = await Storage.get(['rustLastScanAt', 'rustAlerts', 'rustProducts']);
       updateLastScanLabel(lastScanEl, data.rustLastScanAt);
@@ -186,6 +255,11 @@ export function init() {
         }
       });
     }
+
+    // HasNew flags set by background autoscans or manual scans
+    if (HAS_NEW_KEYS.some(k => k in changes)) {
+      Storage.get(HAS_NEW_KEYS).then(state => applyHasNew(state));
+    }
   });
 
   async function loadInitialState() {
@@ -194,7 +268,11 @@ export function init() {
       'rustAutoScanEnabled',
       'rustLastScanAt',
       'rustAlerts',
-      'rustProducts'
+      'rustProducts',
+      'rustFinderHasNew',
+      'freeGamesHasNew',
+      'lidlHasNew',
+      'smartmatHasNew'
     ]);
 
     setTabVisible(tabBtn, tabPane, data.rustReaEnabled === true);
@@ -207,6 +285,9 @@ export function init() {
     renderRustResults(data);
     const count = Object.keys(data.rustProducts ?? {}).length;
     if (count > 0) setRustCount(scanStatus, count);
+
+    // Apply alert state
+    applyHasNew(data);
   }
 }
 

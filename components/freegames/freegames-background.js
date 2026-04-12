@@ -51,13 +51,16 @@ chrome.runtime.onStartup.addListener(async () => {
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== ALARM) return;
-  const { freeGamesEnabled } = await chrome.storage.local.get('freeGamesEnabled');
-  if (freeGamesEnabled === false) return;
+  const data = await chrome.storage.local.get(['freeGamesEnabled', 'freeGamesAlertEnabled']);
+  if (data.freeGamesEnabled === false) return;
 
   try {
     const result = await runAllScanners();
     if (result.newGames.length > 0) {
       notifyNewGames(result.newGames);
+      if (data.freeGamesAlertEnabled === true) {
+        await chrome.storage.local.set({ freeGamesHasNew: true });
+      }
     }
   } catch (err) {
     console.error('[FreeGames] Daily scan failed:', err);

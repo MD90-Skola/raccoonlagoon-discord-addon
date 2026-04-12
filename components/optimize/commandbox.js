@@ -381,51 +381,46 @@ let currentPreset = null;
 // ======================================================
 export const template = `
   <div class="card">
-    <label class="section-label">Optimize Command Box</label>
+    <label class="section-label">Optimize</label>
 
-    <p class="opt-intro">
-      Build command combos, use presets, and inspect each tweak before running it.
-    </p>
+    <p class="opt-intro">Build command combos, use presets, and inspect each tweak before running it.</p>
 
-    <div class="opt-preset-row" style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
-      <button class="btn-primary opt-preset-btn" id="presetNewPcBtn" data-preset="newpc">New PC</button>
-      <button class="btn-primary opt-preset-btn" id="presetCleanBtn" data-preset="clean">Clean</button>
-      <button class="btn-primary opt-preset-btn" id="presetTweakBtn" data-preset="tweak">Tweak</button>
+    <div class="opt-preset-row">
+      <button class="opt-preset-btn" id="presetNewPcBtn" data-preset="newpc">New PC</button>
+      <button class="opt-preset-btn" id="presetCleanBtn" data-preset="clean">Clean</button>
+      <button class="opt-preset-btn" id="presetTweakBtn" data-preset="tweak">Tweak</button>
     </div>
 
     <div class="opt-toolbar">
       <div class="opt-mode-row">
-        <button class="btn-primary opt-mode-btn active" id="modeCmdBtn" data-mode="cmd">CMD</button>
-        <button class="btn-primary opt-mode-btn" id="modePsBtn" data-mode="powershell">PowerShell</button>
+        <button class="opt-mode-btn active" id="modeCmdBtn" data-mode="cmd">CMD</button>
+        <button class="opt-mode-btn" id="modePsBtn" data-mode="powershell">PowerShell</button>
       </div>
-
       <input
         id="optSearchInput"
-        class="notes-textarea"
+        class="opt-search-input"
         type="text"
         placeholder="Search commands..."
-        style="min-height: 44px;"
       />
     </div>
 
-    <div id="optPresetInfo" class="status-bar" style="margin-top:10px;">No preset selected.</div>
+    <div id="optPresetInfo" class="opt-preset-info">No preset selected.</div>
 
-    <div id="optCommandList" class="opt-command-list" style="margin-top:14px;"></div>
+    <div id="optCommandList" class="opt-command-list"></div>
 
     <textarea
       id="optCommandBox"
-      class="notes-textarea"
-      placeholder="Safe selected commands will appear here..."
-      style="min-height: 180px; margin-top: 14px;"
+      class="opt-output-box"
+      placeholder="Selected commands will appear here..."
       readonly
     ></textarea>
 
     <div class="opt-actions">
-      <button class="btn-primary" id="optCopyBtn">Copy combo</button>
-      <button class="btn-primary" id="optClearBtn">Clear</button>
+      <button class="opt-copy-btn" id="optCopyBtn">Copy combo</button>
+      <button class="opt-clear-btn" id="optClearBtn">Clear</button>
     </div>
 
-    <div class="status-bar" id="optStatus">No commands selected.</div>
+    <div class="opt-status" id="optStatus">No commands selected.</div>
   </div>
 `;
 
@@ -677,21 +672,27 @@ function renderCard(item, standalone = false) {
           ${
             isInfoOpen
               ? `
-                <div class="opt-inline-command" style="margin-top:10px;">
-                  <div class="opt-inline-command-label"><strong>What it does</strong></div>
-                  <div style="margin-top:4px;">${escapeHtml(item.details || item.description)}</div>
-
-                  <div class="opt-inline-command-label" style="margin-top:10px;"><strong>Group</strong></div>
-                  <div style="margin-top:4px;">${escapeHtml(item.group)}</div>
-
-                  <div class="opt-inline-command-label" style="margin-top:10px;"><strong>Risk</strong></div>
-                  <div style="margin-top:4px;">${escapeHtml(getRiskLabel(item.risk))}</div>
-
-                  <div class="opt-inline-command-label" style="margin-top:10px;"><strong>Requires Admin</strong></div>
-                  <div style="margin-top:4px;">${item.requiresAdmin ? 'Yes' : 'No'}</div>
-
-                  <div class="opt-inline-command-label" style="margin-top:10px;"><strong>Command</strong></div>
-                  <code class="opt-inline-code">${escapeHtml(item.command)}</code>
+                <div class="opt-inline-command">
+                  <div class="opt-inline-row">
+                    <span class="opt-inline-command-label">Details</span>
+                    <span class="opt-inline-value">${escapeHtml(item.details || item.description)}</span>
+                  </div>
+                  <div class="opt-inline-row">
+                    <span class="opt-inline-command-label">Group</span>
+                    <span class="opt-inline-value">${escapeHtml(item.group)}</span>
+                  </div>
+                  <div class="opt-inline-row">
+                    <span class="opt-inline-command-label">Risk</span>
+                    <span class="opt-inline-value">${escapeHtml(getRiskLabel(item.risk))}</span>
+                  </div>
+                  <div class="opt-inline-row">
+                    <span class="opt-inline-command-label">Admin</span>
+                    <span class="opt-inline-value">${item.requiresAdmin ? 'Yes' : 'No'}</span>
+                  </div>
+                  <div class="opt-inline-row opt-inline-row--block">
+                    <span class="opt-inline-command-label">Command</span>
+                    <code class="opt-inline-code">${escapeHtml(item.command)}</code>
+                  </div>
                 </div>
               `
               : ''
@@ -706,7 +707,7 @@ function renderCard(item, standalone = false) {
             aria-expanded="${isInfoOpen ? 'true' : 'false'}"
             title="Show info"
           >
-            !
+            i
           </button>
 
           <label class="toggle-switch">

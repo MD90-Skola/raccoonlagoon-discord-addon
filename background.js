@@ -11,3 +11,4 @@ import './components/ica-scanner/ica-scanner-background.js';
 import './components/smartmat-scanner/smartmat-scanner-background.js';
 import './background/background-megacloudfix.js';
 import './background/background-alarms.js';
+import './background/background-elementkiller.js';

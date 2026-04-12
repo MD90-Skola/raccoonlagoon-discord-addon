@@ -55,6 +55,10 @@ export function init() {
 
       const total = (res.sourceResults || []).reduce((s, r) => s + (r.count ?? 0), 0);
       renderFooterStatus(status, total, res.sourceResults || []);
+
+      if ((res.newGames ?? []).length > 0) {
+        chrome.storage.local.set({ freeGamesHasNew: true });
+      }
     } catch (error) {
       console.error('[FreeGames] Scan failed:', error);
       status.textContent = 'Status: Error — ' + (error?.message || 'Unknown error');

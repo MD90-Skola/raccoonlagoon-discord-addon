@@ -336,3 +336,78 @@
   align-items: center;
   gap: 10px;
 }
+
+/* ─── Scanner row controls ───────────────────────────────────────────────── */
+.scanner-toggles {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ─── Alert toggle (bell icon) ───────────────────────────────────────────── */
+.alert-toggle {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.alert-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+.alert-slider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.alert-slider svg { width: 14px; height: 14px; }
+
+.alert-toggle input:checked + .alert-slider {
+  background: rgba(249, 115, 22, 0.15);
+  border-color: rgba(249, 115, 22, 0.5);
+  color: var(--orange);
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.15);
+}
+
+/* ─── Has-new-alert state for scanner rows in settings ───────────────────── */
+/* ─── Rensa data-knapp (per scanner i settings) ──────────────────────────── */
+.scanner-rensa-btn {
+  padding:       2px 8px;
+  font-size:     10px;
+  font-weight:   600;
+  border-radius: var(--radius-xs);
+  background:    transparent;
+  color:         var(--red);
+  border:        1px solid rgba(239, 68, 68, 0.25);
+  cursor:        pointer;
+  white-space:   nowrap;
+  transition:    background var(--t-fast), border-color var(--t-fast);
+}
+.scanner-rensa-btn:hover {
+  background:   rgba(239, 68, 68, 0.06);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+.scanner-rensa-btn:disabled {
+  opacity: 0.45;
+  cursor:  not-allowed;
+}
+.scanner-rensa-btn--done {
+  color:        var(--green);
+  border-color: rgba(34, 197, 94, 0.4);
+  background:   rgba(34, 197, 94, 0.06);
+}
+
+.toggle-row.has-new-alert {
+  background: rgba(239, 68, 68, 0.06);
+  border-radius: var(--radius-sm);
+  outline: 1px solid rgba(239, 68, 68, 0.2);
+  transition: background var(--t-normal), outline-color var(--t-normal);
+}
