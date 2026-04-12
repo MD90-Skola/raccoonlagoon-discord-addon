@@ -1,0 +1,312 @@
+/* components/elementkiller/elementkiller.css */
+
+/* ─── Header ───────────────────────────────────────────────────────────────── */
+.ek-header {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  margin-bottom:   10px;
+}
+
+/* ─── Status pill ──────────────────────────────────────────────────────────── */
+.ek-status-pill {
+  font-size:     10px;
+  font-weight:   700;
+  padding:       2px 8px;
+  border-radius: var(--radius-xs);
+  background:    var(--bg-raised);
+  color:         var(--text-muted);
+  border:        1px solid var(--border-subtle);
+}
+
+.ek-status-pill--active {
+  background:   color-mix(in srgb, #f97316 12%, transparent);
+  color:        #fb923c;
+  border-color: rgba(249, 115, 22, 0.35);
+}
+
+.ek-status-pill--thief {
+  background:   color-mix(in srgb, #eab308 12%, transparent);
+  color:        #eab308;
+  border-color: rgba(234, 179, 8, 0.35);
+}
+
+/* ─── Button row ───────────────────────────────────────────────────────────── */
+.ek-btn-row {
+  display: flex;
+  gap:     6px;
+  margin-bottom: 10px;
+}
+
+/* Nuke */
+.ek-nuke-btn {
+  flex:          1;
+  padding:       5px 0;
+  font-size:     12px;
+  font-weight:   700;
+  background:    var(--purple);
+  color:         #fff;
+  border:        none;
+  border-radius: var(--radius-sm);
+  cursor:        pointer;
+  transition:    opacity var(--t-fast), background var(--t-fast);
+}
+
+.ek-nuke-btn:hover         { opacity: 0.85; }
+.ek-nuke-btn--active       { background: rgba(249, 115, 22, 0.9); }
+.ek-nuke-btn--active:hover { opacity: 1; background: #f97316; }
+
+/* Paint */
+.ek-paint-btn {
+  flex:          1;
+  padding:       5px 0;
+  font-size:     12px;
+  font-weight:   700;
+  background:    transparent;
+  color:         var(--text-muted);
+  border:        1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor:        pointer;
+  transition:    opacity var(--t-fast), background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
+
+.ek-paint-btn:hover:not(.ek-paint-btn--active) {
+  color:         var(--text-secondary);
+  border-color:  var(--border);
+}
+
+.ek-paint-btn--active {
+  background:   rgba(0, 0, 0, 0.85);
+  color:        #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.ek-paint-btn--active:hover { opacity: 0.85; }
+
+/* Thief */
+.ek-thief-btn {
+  flex:          1;
+  padding:       5px 0;
+  font-size:     12px;
+  font-weight:   700;
+  background:    transparent;
+  color:         var(--text-muted);
+  border:        1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor:        pointer;
+  transition:    opacity var(--t-fast), background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
+
+.ek-thief-btn:hover:not(.ek-thief-btn--active) {
+  color:         var(--text-secondary);
+  border-color:  var(--border);
+}
+
+.ek-thief-btn--active {
+  background:   rgba(234, 179, 8, 0.12);
+  color:        #eab308;
+  border-color: rgba(234, 179, 8, 0.4);
+}
+
+.ek-thief-btn--active:hover { opacity: 0.85; }
+
+/* Undo */
+.ek-undo-btn {
+  padding:       5px 12px;
+  font-size:     12px;
+  font-weight:   600;
+  background:    transparent;
+  color:         var(--text-muted);
+  border:        1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor:        pointer;
+  white-space:   nowrap;
+  transition:    color var(--t-fast), border-color var(--t-fast);
+}
+
+.ek-undo-btn:hover:not(:disabled) {
+  color:        var(--text-secondary);
+  border-color: var(--border);
+}
+
+.ek-undo-btn:disabled {
+  opacity: 0.4;
+  cursor:  not-allowed;
+}
+
+/* ─── Save toggle row ──────────────────────────────────────────────────────── */
+.ek-save-row {
+  border-top:    1px solid var(--border-subtle);
+  padding-top:   8px;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* ─── Accordion ────────────────────────────────────────────────────────────── */
+.ek-accordion {
+  margin-top:  8px;
+  border-top:  1px solid var(--border-subtle);
+  padding-top: 4px;
+}
+
+.ek-accordion-toggle {
+  width:           100%;
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  padding:         5px 2px;
+  background:      transparent;
+  border:          none;
+  color:           var(--text-muted);
+  font-size:       11px;
+  font-weight:     600;
+  text-transform:  uppercase;
+  letter-spacing:  0.04em;
+  cursor:          pointer;
+  transition:      color var(--t-fast);
+}
+
+.ek-accordion-toggle:hover { color: var(--text-secondary); }
+
+.ek-accordion-icon {
+  width:      14px;
+  height:     14px;
+  flex-shrink: 0;
+  transition: transform var(--t-fast);
+}
+
+.ek-accordion-toggle--open .ek-accordion-icon {
+  transform: rotate(180deg);
+}
+
+/* ─── Accordion body ───────────────────────────────────────────────────────── */
+.ek-accordion-body {
+  padding-top: 6px;
+}
+
+.ek-accordion-actions {
+  display:         flex;
+  justify-content: flex-end;
+  margin-bottom:   6px;
+}
+
+.ek-clear-all-btn {
+  padding:       2px 8px;
+  font-size:     10.5px;
+  font-weight:   600;
+  background:    transparent;
+  color:         var(--text-muted);
+  border:        1px solid var(--border);
+  border-radius: var(--radius-xs);
+  cursor:        pointer;
+  transition:    color var(--t-fast), border-color var(--t-fast);
+}
+
+.ek-clear-all-btn:hover {
+  color:        #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* ─── The Vault — color list ───────────────────────────────────────────────── */
+.ek-color-list {
+  display:        flex;
+  flex-direction: column;
+  gap:            3px;
+}
+
+.ek-color-chip {
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  padding:       4px 8px;
+  background:    var(--bg-raised);
+  border:        1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  cursor:        pointer;
+  width:         100%;
+  text-align:    left;
+  transition:    border-color var(--t-fast), background var(--t-fast);
+}
+
+.ek-color-chip:hover {
+  border-color: var(--border);
+}
+
+.ek-color-swatch {
+  width:         14px;
+  height:        14px;
+  border-radius: 3px;
+  border:        1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink:   0;
+}
+
+.ek-color-hex {
+  font-size:   11px;
+  font-weight: 600;
+  color:       var(--text-primary);
+  font-family: monospace;
+}
+
+/* ─── Profile list ─────────────────────────────────────────────────────────── */
+.ek-profile-list {
+  display:        flex;
+  flex-direction: column;
+  gap:            4px;
+}
+
+.ek-no-profiles {
+  font-size:  11px;
+  color:      var(--text-muted);
+  text-align: center;
+  padding:    8px 0;
+}
+
+.ek-profile-row {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     center;
+  padding:         5px 8px;
+  background:      var(--bg-raised);
+  border:          1px solid var(--border-subtle);
+  border-radius:   var(--radius-sm);
+  gap:             8px;
+}
+
+.ek-profile-info {
+  display:   flex;
+  flex-direction: column;
+  gap:       1px;
+  min-width: 0;
+}
+
+.ek-profile-host {
+  font-size:     11.5px;
+  font-weight:   600;
+  color:         var(--text-primary);
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+}
+
+.ek-profile-count {
+  font-size: 10px;
+  color:     var(--text-muted);
+}
+
+.ek-profile-clear-btn {
+  padding:       2px 8px;
+  font-size:     10.5px;
+  font-weight:   600;
+  background:    transparent;
+  color:         var(--text-muted);
+  border:        1px solid var(--border);
+  border-radius: var(--radius-xs);
+  cursor:        pointer;
+  flex-shrink:   0;
+  transition:    color var(--t-fast), border-color var(--t-fast);
+}
+
+.ek-profile-clear-btn:hover {
+  color:        #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+}
